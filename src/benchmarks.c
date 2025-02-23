@@ -50,9 +50,9 @@ void fprint_head_evolution(FILE *file){
 	fprintf(file, "select_type,select_args,found,initial_pop,in_min_len,in_max_len,ev_cycles,cross_prob,mut_prob,max_mut_len,tests,mse,evaluations,exec_time,gen\n");
 }
 
-void test_selections(FILE *file, struct genetic_input *in, struct genetic_options *params, length_t selectsize, double selectval, length_t test4selections){
+void test_selections(FILE *file, struct genetic_input *in, struct genetic_options *params, length_t selectsize, double selectval, size_t test4selections){
 	length_t tournsize = (length_t) (1.0 / selectval);
-	for(length_t i = 1; i <= test4selections; i++){
+	for(size_t i = 1; i <= test4selections; i++){
 		params->select_param.size = selectsize;
 		params->select_type = elitism;
 		fprint_evolution(file, in, params);
@@ -79,7 +79,7 @@ void test_selections(FILE *file, struct genetic_input *in, struct genetic_option
 		params->select_type = fitness_sharing_tournament;
 		fprint_evolution(file, in, params);
 		*/
-		printf("\ndone %d of %d", i, test4selections);
+		printf("\ndone %ld of %ld", i, test4selections);
 	}
 }
 

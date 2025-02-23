@@ -1,5 +1,37 @@
 #include "float_psb2.h"
 
+void save_problem_data(char*filename, struct genetic_input problem){
+	FILE* fp = fopen(filename, "wb");
+    if (!fp) {
+        printf("Failed to open file %s\n", filename);
+        exit(-1);
+    }
+	for (size_t i = 0; i < problem.input_size; i++) {
+        fwrite(problem.data[i].x, sizeof(double), problem.x_len, fp);
+        fwrite(&(problem.data[i].y), sizeof(double), 1, fp);
+    }
+    fclose(fp);
+}
+
+struct single_input* load_data(const char* filename, size_t x_len, size_t in_size) {
+    FILE* fp = fopen(filename, "rb");
+    if (!fp) {
+        printf("Failed to open file %s\n", filename);
+        exit(-1);
+    }
+    
+    struct single_input* data = malloc(in_size * sizeof(struct single_input));
+    
+    for (size_t i = 0; i < in_size; i++) {
+        data[i].x = malloc(x_len * sizeof(double));
+        fread(data[i].x, sizeof(double), x_len, fp);
+        fread(&data[i].y, sizeof(double), 1, fp);
+    }
+    
+    fclose(fp);
+    return data;
+}
+
 struct genetic_input vector_distance(const struct genetic_env *genv, const length_t vector_len, const length_t instances) {
 
 	struct genetic_input in;
