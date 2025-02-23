@@ -4,6 +4,10 @@
 #include "genetics.h"
 #include <stdio.h>
 
+
+struct single_input* load_data(const char* filename, size_t x_len, size_t in_size);
+void save_problem_data(char*filename, struct genetic_input problem);
+
 // FUNCTIONS FOR GENERATE A genetic_input FOR A PSB2 PROBLEM ON FLOATS
 
 struct genetic_input vector_distance(const struct genetic_env *genv, const length_t vector_len, const length_t instances);

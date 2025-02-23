@@ -10,7 +10,7 @@ void fprint_head_evolution(FILE *file);
 
 void fprint_evolution(FILE *file, struct genetic_input *in, struct genetic_options *params);
 
-void test_selections(FILE *file, struct genetic_input *in, struct genetic_options *params, length_t selectsize, double selectval, length_t test4selections);
+void test_selections(FILE *file, struct genetic_input *in, struct genetic_options *params, length_t selectsize, double selectval, size_t test4selections);
 
 void dice_game_with_minmax();
 
