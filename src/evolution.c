@@ -92,7 +92,7 @@ struct genetic_result evolve(const struct genetic_input* in, const struct geneti
 		return res;
 	}
     // GENERATIONS LOOP
-    for (res.generations = 1; res.generations < args->generations; res.generations++) {
+    for (res.generations = 1; res.generations <= args->generations; res.generations++) {
         // EVOLUTION
         res.pop.individuals = (struct individual*) realloc(res.pop.individuals, sizeof(struct individual) * res.pop.size * 4 *  args->evolution_cycles);
         if (res.pop.individuals == NULL){
@@ -171,5 +171,12 @@ struct genetic_result evolve(const struct genetic_input* in, const struct geneti
         res.pop = args->select_type(&in->genv, &res.pop, &res.mse, &args->select_param);
 		mse_calculated = res.pop.size; // mse already calculated
     }
+	double best_mse = DBL_MAX;
+	for (length_t i = 0; i < res.pop.size; i++) {
+		if (res.mse[i] < best_mse){
+			res.best_individ = i;
+			best_mse = res.mse[i];
+		}
+	}
     return res;
 }
