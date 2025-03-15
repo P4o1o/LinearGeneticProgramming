@@ -171,6 +171,7 @@ struct genetic_result evolve(const struct genetic_input* in, const struct geneti
         res.pop = args->select_type(&in->genv, &res.pop, &res.mse, &args->select_param);
 		mse_calculated = res.pop.size; // mse already calculated
     }
+	res.generations -= 1; // the loop will stop at when res.generations = args->generations + 1; but only args->generations generations were applied
 	double best_mse = DBL_MAX;
 	for (length_t i = 0; i < res.pop.size; i++) {
 		if (res.mse[i] < best_mse){
