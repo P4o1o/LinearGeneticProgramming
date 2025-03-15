@@ -41,7 +41,12 @@ void fprint_evolution(FILE *file, struct genetic_input *in, struct genetic_optio
 		snprintf(select_pars, 10, "%d", params->select_param.fs_params.size);
 	}else UNREACHABLE;
 	double exectime = ((double) (end - start)) / ((double) CLOCKS_PER_SEC);
-	fprintf(file, "%s, %s, %d, %d, %d, %d, %d, %lf, %lf, %d, %d, %e, %ld, %lf, %d\n", select, select_pars, (params->tollerance > res.mse[res.best_individ]), params->initial_pop_size, params->dna_minsize, params->dna_maxsize, params->evolution_cycles, params->crossover_prob, params->mutation_prob, params->mut_max_len, in->input_size, res.mse[res.best_individ], res.evaluations, exectime, res.generations);
+	fprintf(file,
+		"%s, %s, %d, %d, %d, %d, %d, %lf, %lf, %d, %d, %e, %ld, %lf, %d\n",
+		select, select_pars, (params->tollerance > res.mse[res.best_individ]), params->initial_pop_size,
+		params->dna_minsize, params->dna_maxsize, params->evolution_cycles, params->crossover_prob,
+		params->mutation_prob, params->mut_max_len, in->input_size, res.mse[res.best_individ],
+		res.evaluations, exectime, res.generations);
 	free_genetic_result(&res);
 
 }

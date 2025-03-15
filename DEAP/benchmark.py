@@ -6,19 +6,20 @@ import math
 from deap import algorithms, base, creator, tools, gp
 from multiprocessing import Pool
 
-TEST_NUMS = 40
-datafile = "/home/p4o1o/Documenti/LinearGeneticProgramming/shopping-4x100.bin"
+TEST_NUMS = 10
+datafile = "/home/p4o1o/Documenti/LinearGeneticProgramming/psb2-bin/shopping-4x100.bin"
 x_lenght = 4
 input_size = 100
 params = {
     "tollerance": 1e-10,
-    "max_generations": 230,
+    "max_generations": 150,
     "pop_size": 4000,
     "min_depth": 2,
     "max_depth": 5,
     "max_mut_len": 5,
     "elite_size": 4000,
-    "lambda": 14000
+    "lambda": 10000,
+    "limit": 10
 }
 
 def load_c_data(filename, x_len, in_size):
@@ -47,7 +48,8 @@ pset.addPrimitive(np.add, 2)
 pset.addPrimitive(np.subtract, 2)
 pset.addPrimitive(np.multiply, 2)
 pset.addPrimitive(np.divide, 2)
-pset.addPrimitive(lambda a, b: a * b / 100, 2, name="perc")
+#pset.addPrimitive(np.sqrt, 1)
+#pset.addPrimitive(lambda a, b: a * b / 100, 2, name="perc")
 for i in range(x_lenght):
     pset.renameArguments(**{f'ARG{i}': f'x{i}'})
 
@@ -69,6 +71,8 @@ def eval_func(individual):
     # Decomprime i 4 valori di ogni input usando *x
     squarederr = ((func(*x) - trueval)**2 for x, trueval in zip(X, y))
     mse = math.fsum(squarederr) / len(y)
+    if(math.isnan(mse)):
+        return (float("inf"), )
     return (mse,) 
 
 toolbox.register("evaluate", eval_func)
@@ -78,8 +82,8 @@ toolbox.register("expr_mut", gp.genGrow, min_=0, max_=params["max_mut_len"])
 toolbox.register("mutate", gp.mutUniform, expr=toolbox.expr_mut, pset=pset)
 
 # Limiti dinamici per la profondità degli alberi
-toolbox.decorate("mate", gp.staticLimit(key=operator.attrgetter("height"), max_value=params["max_depth"]))
-toolbox.decorate("mutate", gp.staticLimit(key=operator.attrgetter("height"), max_value=params["max_depth"]))
+toolbox.decorate("mate", gp.staticLimit(key=operator.attrgetter("height"), max_value=params["limit"]))
+toolbox.decorate("mutate", gp.staticLimit(key=operator.attrgetter("height"), max_value=params["limit"]))
 
 # 5. Setup del pool di multiprocessing e registrazione della mappa
 pool = Pool()
@@ -107,12 +111,12 @@ def run_single_test(test_num):
     }
 
 # Esecuzione dei test e salvataggio dei risultati in CSV
-with open("deap_shopping-4x100.csv", "w", newline='') as f:
+with open("deap_shopping-4x100.csv", "a", newline='') as f:
     writer = csv.writer(f)
-    header = ["test_num", "select_type", "select_args", "found", "initial_pop", 
-              "in_min_len", "in_max_len", "lambda", "max_mut_len", "tests", 
-              "mse", "exec_time", "gen"]
-    writer.writerow(header)
+    #header = ["test_num", "select_type", "select_args", "found", "initial_pop", 
+    #          "in_min_len", "in_max_len", "lambda", "max_mut_len", "tests", 
+    #          "mse", "exec_time", "gen", "limit"]
+    #writer.writerow(header)
     
     for test_idx in range(TEST_NUMS):
         result = run_single_test(test_idx)
@@ -129,7 +133,10 @@ with open("deap_shopping-4x100.csv", "w", newline='') as f:
             input_size,
             result["mse"],
             result["exec_time"],
-            result["generations"]
+            result["generations"],
+            params["limit"]
         ]
         writer.writerow(row)
+        f.flush()
         print(f"Completed test {result['test_num']}/{TEST_NUMS}", end='\r')
+        params['limit'] += 10
