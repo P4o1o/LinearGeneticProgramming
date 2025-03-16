@@ -21,11 +21,23 @@ void op_movl(struct virtual_env* env, const env_index res, const union argtype *
 }
 const struct operation MoveL = {op_movl, "MOV-L", 1, 0};
 
+void op_movle(struct virtual_env* env, const env_index res, const union argtype *args){
+	if((env->flag & 10) == 0)
+		env->freg[res] = env->freg[args->reg[0]];;
+}
+const struct operation MoveLE = {op_movle, "MOV-LE", 1, 0};
+
 void op_movg(struct virtual_env* env, const env_index res, const union argtype *args){
 	if(env->flag & 10)
 		env->freg[res] = env->freg[args->reg[0]];
 }
 const struct operation MoveG = {op_movg, "MOV-G", 1, 0};
+
+void op_movge(struct virtual_env* env, const env_index res, const union argtype *args){
+	if(env->flag & 11)
+		env->freg[res] = env->freg[args->reg[0]];
+}
+const struct operation MoveGE = {op_movge, "MOV-GE", 1, 0};
 
 void op_movone(struct virtual_env* env, const env_index res, const union argtype *args){
 	env->freg[res] = 1.0;
