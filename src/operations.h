@@ -64,6 +64,7 @@ extern const struct operation ArcSineH;
 extern const struct operation ArcCosineH;
 
 extern const struct operation Compare;
+extern const struct operation Test;
 
 
 #endif
