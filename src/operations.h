@@ -34,6 +34,8 @@ extern const struct operation MoveOne;
 extern const struct operation MoveZ;
 extern const struct operation MoveL;
 extern const struct operation MoveG;
+extern const struct operation MoveLE;
+extern const struct operation MoveGE;
 
 extern const struct operation Minimum;
 extern const struct operation Maximum;
