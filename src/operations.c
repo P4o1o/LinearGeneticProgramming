@@ -171,3 +171,11 @@ void op_cmp(struct virtual_env* env, const env_index res, const union argtype* a
 	env->flag |= ((cmp > 0) << 1);
 }
 const struct operation Compare = {op_cmp, "CMP", 2, 1};
+
+
+void op_test(struct virtual_env* env, const env_index res, const union argtype* args){
+	double tst = env->freg[args->reg[0]];
+	env->flag |= (tst == 0);  // 01 => 0; 10 => +; 00 => -
+	env->flag |= ((tst > 0) << 1);
+}
+const struct operation Test = {op_test, "TEST", 1, 1};
