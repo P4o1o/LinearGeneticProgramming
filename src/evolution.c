@@ -20,12 +20,12 @@ inline struct individual mutation(const struct genetic_env *genv, struct individ
 		memcpy(mutated.dna, individ->dna, sizeof(struct cromosome) * start);
 	length_t end_mutation = start + mutation_len;
 	for (length_t j = start; j < end_mutation; j++) {
-		mutated.dna[j].res = RAND_UPTO(genv->env_size - 1);
+		mutated.dna[j].res = RAND_UPTO(genv->float_reg - 1);
 		mutated.dna[j].op = RAND_UPTO(genv->ops_size - 1);
         if(genv->ops[mutated.dna[j].op].arity == -1)
             mutated.dna[j].args.imm = RAND_DOUBLE;
 		for (int32_t k = 0; k < genv->ops[mutated.dna[j].op].arity; k++)
-			mutated.dna[j].args.reg[k] = RAND_UPTO(genv->env_size - 1);
+			mutated.dna[j].args.reg[k] = RAND_UPTO(genv->float_reg - 1);
 	}
 	length_t restart = start + substitution;
 	last_piece -= substitution;

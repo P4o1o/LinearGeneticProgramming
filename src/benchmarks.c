@@ -91,7 +91,7 @@ void test_selections(FILE *file, struct genetic_input *in, struct genetic_option
 void dice_game_with_minmax(){
     // DICE GAME
 	struct genetic_env dice_genv;
-	dice_genv.env_size = 4;
+	dice_genv.float_reg = 4;
 	dice_genv.ops_size = 6;
 	dice_genv.ops = malloc(sizeof(struct operation) * dice_genv.ops_size);
 	dice_genv.ops[0] = Addition;
@@ -152,7 +152,7 @@ void shopping_with_percent(env_index bag_size){
     // SHOPPING LIST
 	printf("Creating Environment\n");
 	struct genetic_env shop_genv;
-	shop_genv.env_size = bag_size * 2;
+	shop_genv.float_reg = bag_size * 2;
 	shop_genv.ops_size = 5;
 	shop_genv.ops = malloc(sizeof(struct operation) * shop_genv.ops_size);
 	shop_genv.ops[0] = Addition;
@@ -170,7 +170,7 @@ void shopping_with_percent(env_index bag_size){
 	shop_params.select_type = tournament;
 	shop_params.select_param.size = 5;
 	shop_params.dna_minsize = 1;
-	shop_params.dna_maxsize = (shop_genv.env_size > 4) ? (length_t) shop_genv.env_size : 5;
+	shop_params.dna_maxsize = (shop_genv.float_reg > 4) ? (length_t) shop_genv.float_reg : 5;
 	shop_params.evolution_cycles = 3;
 	shop_params.crossover_prob = 0.4;
 	shop_params.mutation_prob = 0.7;
@@ -186,7 +186,7 @@ void shopping_with_percent(env_index bag_size){
 void bounching_balls_with_power(){
 	// BOUNCING BALLS
 	struct genetic_env balls_genv;
-	balls_genv.env_size = 12;
+	balls_genv.float_reg = 12;
 	balls_genv.ops_size = 5;
 	balls_genv.ops = malloc(sizeof(struct operation) * balls_genv.ops_size);
 	balls_genv.ops[0] = Addition;
@@ -244,7 +244,7 @@ void snow_day_simple_genv(){
 
 void solve_vector_distance(length_t dimensions){
 	struct genetic_env vgenv;
-	vgenv.env_size = dimensions * 2;
+	vgenv.float_reg = dimensions * 2;
 	vgenv.ops_size = 5;
 	vgenv.ops = malloc(sizeof(struct operation) * vgenv.ops_size);
 	vgenv.ops[0] = Addition;

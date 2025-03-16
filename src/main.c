@@ -20,7 +20,7 @@ int main(int argc, char* argv[]) {
 /*
 	// Shopping List (5 items) save stat on file
 	struct genetic_env shop_genv;
-	shop_genv.env_size = 10;
+	shop_genv.float_reg = 10;
 	shop_genv.ops_size = 5;
 	shop_genv.ops = malloc(sizeof(struct operation) * shop_genv.ops_size);
 	shop_genv.ops[0] = Addition;
@@ -53,7 +53,7 @@ int main(int argc, char* argv[]) {
 	// Shopping List (2 items) show evolution
 	env_index items = 2;
 	struct genetic_env shop_genv;
-	shop_genv.env_size = items * 2;
+	shop_genv.float_reg = items * 2;
 	shop_genv.ops_size = 5;
 	shop_genv.ops = malloc(sizeof(struct operation) * shop_genv.ops_size);
 	shop_genv.ops[0] = Addition;
@@ -97,7 +97,7 @@ int main(int argc, char* argv[]) {
 	size_t test_num = 40;
 
 	struct genetic_env genv;
-	genv.env_size = 5;
+	genv.float_reg = 5;
 	genv.ops_size = 5;
 	genv.ops = malloc(sizeof(struct operation) * genv.ops_size);
 	genv.ops[0] = Addition;

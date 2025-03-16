@@ -28,7 +28,8 @@ struct individual {
 struct genetic_env{
 	struct operation *ops; // list of operations
     op_type ops_size; // size of the list of operations
-	env_index env_size; // size of the virtual enviroment in witch the results will be stored
+	env_index float_reg; // size of the virtual enviroment in witch the results will be stored
+	env_index int_reg;
 };
 
 struct genetic_env simple_genv(const env_index size); // with +, -, *, safe_div

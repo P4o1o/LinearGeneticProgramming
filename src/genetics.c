@@ -2,7 +2,7 @@
 
 struct genetic_env simple_genv(const env_index size){
 	struct genetic_env genv;
-	genv.env_size = size;
+	genv.float_reg = size;
 	genv.ops_size = 4;
 	genv.ops = malloc(sizeof(struct operation) * genv.ops_size);
 	if(genv.ops == NULL)
@@ -27,10 +27,10 @@ void print_individual(const struct genetic_env* genv, const struct individual* i
 }
 
 struct individual remove_trash(const struct genetic_env *genv, const struct individual* ind){
-	env_index *used = malloc(sizeof(env_index) * genv->env_size);
+	env_index *used = malloc(sizeof(env_index) * genv->float_reg);
 	if(used == NULL)
 		MALLOC_FAIL_THREADSAFE;
-	memset(used, 0, sizeof(env_index) * genv->env_size);
+	memset(used, 0, sizeof(env_index) * genv->float_reg);
 	used[0] = 1;
 	struct individual res;
 	res.dna = malloc(sizeof(struct cromosome) * ind->dna_len);
@@ -38,7 +38,7 @@ struct individual remove_trash(const struct genetic_env *genv, const struct indi
 		MALLOC_FAIL_THREADSAFE;
 	res.dna_len = 0;
 	for(length_t i = ind->dna_len; i > 0; i--){
-		if(used[ind->dna[i - 1].res]){
+		if(genv->ops[ind->dna[i - 1].op].state_changer || used[ind->dna[i - 1].res]){
 			res.dna[res.dna_len] = ind->dna[i - 1];
 			res.dna_len += 1;
 			used[ind->dna[i - 1].res] = 0;
@@ -64,21 +64,39 @@ struct individual remove_trash(const struct genetic_env *genv, const struct indi
 	return res;
 }
 
-double predict(const struct genetic_env *genv, const struct individual *individ, const double *X, const env_index x_len){
-    double *actual_env = (double*) malloc(genv->env_size * sizeof(double));
-	if(actual_env == NULL)
+inline struct virtual_env create_env(const struct genetic_env* genv){
+	struct virtual_env env;
+	env.freg = (double*) malloc(((size_t)genv->float_reg) * sizeof(double));
+	env.ireg = (int64_t*) malloc(((size_t)genv->int_reg) * sizeof(int64_t));
+    if(env.freg == NULL || env.ireg == NULL){
 		MALLOC_FAIL_THREADSAFE;
-    if(actual_env == NULL){
-
-        exit(-1);
-    } 
-    memset(actual_env, 0, genv->env_size * sizeof(double));
-    memcpy(actual_env, X, x_len * sizeof(double));
-    for (length_t j = 0; j < individ->dna_len; j++) {
-        genv->ops[individ->dna[j].op].function(actual_env, individ->dna[j].res, &individ->dna[j].args);
     }
-	double result = actual_env[0];
-	free(actual_env);
+	return env;
+}
+
+inline void setup_env(const struct genetic_input* in, struct virtual_env env, length_t index){
+	memset(env.freg, 0, in->genv.float_reg * sizeof(double));
+	memcpy(env.freg, in->data[index].x, in->x_len * sizeof(double));
+	memset(env.ireg, 0, in->genv.int_reg * sizeof(int64_t));
+	env.flag = 0;
+}
+
+inline void free_env(struct virtual_env env){
+	free(env.freg);
+	free(env.ireg);
+}
+
+double predict(const struct genetic_env *genv, const struct individual *individ, const double *X, const env_index x_len){
+    struct virtual_env actual_env = create_env(genv);
+	memset(actual_env.freg, 0, genv->float_reg * sizeof(double));
+	memcpy(actual_env.freg, X, x_len * sizeof(double));
+	memset(actual_env.ireg, 0, genv->int_reg * sizeof(int64_t));
+	actual_env.flag = 0;
+    for (length_t j = 0; j < individ->dna_len; j++) {
+        genv->ops[individ->dna[j].op].function(&actual_env, individ->dna[j].res, &individ->dna[j].args);
+    }
+	double result = actual_env.freg[0];
+	free_env(actual_env);
     return result;
 }
 
@@ -97,29 +115,24 @@ void free_genetic_input(struct genetic_input* in){
 	free(in->genv.ops);
 }
 
-
 inline double get_mse(const struct genetic_input* in, const struct individual *individ) {
 	if (individ->dna_len == 0)
 		return DBL_MAX;
 	double mse = 0;
-	double *actual_env = (double*) malloc(((size_t)in->genv.env_size) * sizeof(double));
-    if(actual_env == NULL){
-		MALLOC_FAIL_THREADSAFE;
-    }
+	struct virtual_env actual_env = create_env(&(in->genv));
 	for (length_t k = 0; k < in->input_size; k++) {
-		memset(actual_env, 0, in->genv.env_size * sizeof(double));
-		memcpy(actual_env, in->data[k].x, in->x_len * sizeof(double));
+		setup_env(in, actual_env, k);
 		for (length_t j = 0; j < individ->dna_len; j++) {
-			in->genv.ops[individ->dna[j].op].function(actual_env, individ->dna[j].res, &individ->dna[j].args);
+			in->genv.ops[individ->dna[j].op].function(&actual_env, individ->dna[j].res, &individ->dna[j].args);
 		}
-		if (!(isfinite(actual_env[0]))){
-            free(actual_env);
+		if (!(isfinite(actual_env.freg[0]))){
+            free_env(actual_env);
 			return DBL_MAX;
         }
-		double actual_mse = in->data[k].y - actual_env[0];
+		double actual_mse = in->data[k].y - actual_env.freg[0];
 		mse += actual_mse * actual_mse;
 	}
-    free(actual_env);
+    free_env(actual_env);
 	if(isfinite(mse))
 		return mse / (double)in->input_size;
 	else
