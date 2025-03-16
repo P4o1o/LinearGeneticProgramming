@@ -94,12 +94,12 @@ inline struct individual rand_individual(const struct genetic_env* genv, const l
 		MALLOC_FAIL_THREADSAFE;
 	}
 	for (length_t i = 0; i < res.dna_len; i++) {
-		res.dna[i].res = RAND_UPTO(genv->env_size - 1);
+		res.dna[i].res = RAND_UPTO(genv->float_reg - 1);
 		res.dna[i].op = RAND_UPTO(genv->ops_size - 1);
         if(genv->ops[res.dna[i].op].arity == -1)
             res.dna[i].args.imm = RAND_DOUBLE;
 		for (int32_t k = 0; k < genv->ops[res.dna[i].op].arity; k++)
-			res.dna[i].args.reg[k] = RAND_UPTO(genv->env_size - 1);
+			res.dna[i].args.reg[k] = RAND_UPTO(genv->float_reg - 1);
 	}
 	return res;
 }
