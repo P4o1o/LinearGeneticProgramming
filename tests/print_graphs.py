@@ -3,11 +3,10 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 
-# Impostazioni ottimizzate per grafici in formato a due colonne
 plt.style.use('seaborn-v0_8-whitegrid')
 sns.set_palette("Set2")
 plt.rcParams['font.family'] = 'serif'
-plt.rcParams['font.size'] = 8  # Ridotto da 12 a 8
+plt.rcParams['font.size'] = 8
 plt.rcParams['axes.labelsize'] = 8
 plt.rcParams['axes.titlesize'] = 9
 plt.rcParams['xtick.labelsize'] = 7
@@ -60,4 +59,61 @@ plt.title('Confronto prestazioni', fontsize=9)
 plt.legend(fontsize=7)
 plt.tight_layout()
 plt.savefig(target + "_performance_comparison.png", dpi=300, bbox_inches='tight')
+plt.close()
+
+shopping = pd.read_csv("shopping-4x100.csv")
+vector = pd.read_csv("vector-6x100.csv")
+balls = pd.read_csv("balls-3x100.csv")
+snow = pd.read_csv("snow-4x100.csv")
+dice = pd.read_csv("dice-2x100.csv")
+
+def add_label(df, label):
+    df["label"] = label
+    return df
+
+data = pd.concat([
+    add_label(shopping, "Shopping List"),
+    add_label(vector, "Vector Distance"),
+    add_label(dice, "Dice Game"),
+    add_label(snow, "Snow Day"),
+    add_label(balls, "Bounching Balls"),
+])
+
+data["mse_ratio"] = (data["evaluations"] / data["exec_time"])
+
+# Creazione dello scatter plot
+plt.figure(figsize=(8, 6))
+sns.scatterplot(data=data, x="mse_ratio", y="mse", hue="label", palette="Set1")
+plt.yscale('log')
+plt.xscale('log')
+plt.title("Prestazioni su PSB2")
+plt.xlabel("Valutazioni al secondo")
+plt.ylabel("MSE")
+plt.legend(title="Problema")
+plt.tight_layout()
+plt.savefig("ProblemsMSExEvauationssec.png", dpi=300, bbox_inches='tight')
+plt.close()
+
+# Scatter plot MSE vs Evaluations
+plt.figure(figsize=(6, 5))
+sns.scatterplot(data=data, x="evaluations", y="mse", hue="label", palette="Set1", s=60)
+plt.yscale('log')
+plt.title("Prestazioni su PSB2")
+plt.xlabel("Valutazioni")
+plt.ylabel("MSE")
+plt.legend(title="Problema", title_fontsize=14, fontsize=12)
+plt.tight_layout()
+plt.savefig("ProblemsMSExEvauations.png", dpi=300)
+plt.close()
+
+# Scatter plot MSE vs Execution Time
+plt.figure(figsize=(6, 5))
+sns.scatterplot(data=data, x="exec_time", y="mse", hue="label", palette="Set1")
+plt.yscale('log')
+plt.title("Prestazioni su PSB2")
+plt.xlabel("Tempo di esecuzione")
+plt.ylabel("MSE")
+plt.legend(title="Problema")
+plt.tight_layout()
+plt.savefig("ProblemsMSExTime.png", dpi=300, bbox_inches='tight')
 plt.close()
