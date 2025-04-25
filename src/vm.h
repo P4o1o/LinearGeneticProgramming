@@ -7,6 +7,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 
+#define INSTR_NUM 80
+
 #define INSTR_MACRO \
 	X(EXIT,   0,	0,	1) \
 	X(LOAD_RAM,   1,	2,	0) \
@@ -104,7 +106,7 @@ struct Operation {
 	const enum InstrCode code;
 };
 
-extern const struct Operation INSTRSET[];
+extern const struct Operation INSTRSET[INSTR_NUM];
 
 #define REG_NUM 4
 #define FREG_NUM 4
