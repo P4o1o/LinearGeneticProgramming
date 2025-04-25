@@ -2,7 +2,7 @@
 #define GENETICS_H_INCLUDED
 
 #include "prob.h"
-#include "operations.h"
+#include "vm.h"
 #include "logger.h"
 #include <stdint.h>
 #include <stdlib.h>
@@ -10,72 +10,71 @@
 #include <string.h>
 #include <omp.h>
 
-typedef uint32_t length_t;
+#define MAX_PROGRAM_SIZE 255
 
-typedef uint16_t op_type;
-
-struct cromosome {
-	union argtype args; // arguments, see operations.h
-	env_index res; // index on witch the result will be stored
-	op_type op; // index of the operation in the genetic_env 
+struct Program{
+    struct Instruction *content[MAX_PROGRAM_SIZE];
+    uint64_t size;
+    double fitness;
 };
 
-struct individual {
-	struct cromosome* dna; // list of instructions
-	length_t dna_len; // list length
+void print_program(const struct Program* prog);
+
+struct Population{
+    struct Program individ;
+    uint64_t size;
 };
 
-struct genetic_env{
-	struct operation *ops; // list of operations
-    op_type ops_size; // size of the list of operations
-	env_index float_reg; // size of the virtual enviroment in witch the results will be stored
-	env_index int_reg;
+struct LGPInput{
+	uint64_t input_num;
+	uint64_t mem_size;
+	uint64_t res_size;
+	union memblock *memories;
 };
 
-struct genetic_env simple_genv(const env_index size); // with +, -, *, safe_div
+typedef double (*fitness_fn)(const struct LGPInput in, const struct Program* prog);
 
-void print_individual(const struct genetic_env* genv, const struct individual* individ);
-
-struct individual remove_trash(const struct genetic_env *genv, const struct individual* ind); // Function that eliminate instructions that uneffects the output
-
-double predict(const struct genetic_env *genv, const struct individual *individ, const double *X, const env_index x_len);
-
-struct population{
-	struct individual *individuals;
-	length_t size;
-};
-
-void free_population(struct population* pop);
-
-struct single_input {
-	double* x; // input vector for an individual evaluation
-	double y; // correct output that should be generated
-};
-
-struct genetic_input {
-	struct genetic_env genv;
-	struct single_input *data;
-	length_t input_size; // how many single_input to use
-	env_index x_len; // lenght of every x in single_input
-};
-
-void free_genetic_input(struct genetic_input* in);
-
-double get_mse(const struct genetic_input* in, const struct individual *individ);
-
-void mse_population(const struct genetic_input* in, const struct population *pop, double **mse, const length_t already_calc);
-
-struct individual extract_best(const struct genetic_input* in, const struct population* pop);
-
-
-struct genetic_result{
-	struct population pop; // resulting pupulation
-	double *mse; // list of mse, pop[i] has mse[i] mse
+struct LGPResult{
+	struct Population pop; // resulting pupulation
 	uint64_t evaluations; // number of the total evaluations done in this evolution
-	length_t generations; // number of generations the evolution has done
-	length_t best_individ; // index of the best individual in the population
+	uint64_t generations; // number of generations the evolution has done
+	uint64_t best_individ; // index of the best individual in the population
 };
 
-void free_genetic_result(struct genetic_result *res);
+typedef struct genetic_result (*initialization)(const struct LGPInput* in, const length_t pop_size, const length_t dna_minsize, const length_t dna_maxsize);
+
+struct FitnessSharingParams{ // parameters for selections based on fitness sharing
+    double alpha;
+    double beta;
+    double sigma;
+    length_t size;
+};
+
+union SelectionParams{
+    length_t size; // size of the tournament, size of the elite for elitism, size of sampling in roulette_selection
+    double val; // percentual_elitism
+    struct FitnessSharingParams fs_params; // fitness_sharing_tournament, fitness_sharing_roulette
+};
+
+typedef struct population(*selection)(struct Population*, const union SelectionParams*);
+
+struct LGPOptions {
+	fitness_fn fitness_func	// fitness function for program evaluation
+	selection select_type; // selection function to be used
+	initialization init_type; // function for create an initial population
+	double tollerance; // the evolution stops if tollerance > mse of the best individual
+	double mutation_prob; // mutation propability
+	double crossover_prob; // crossover propability
+	union SelectionParams select_param; // parameters for the selection function
+    uint64_t max_clock;
+	uint64_t max_mutation_len; // maximum lenght of the new cromosomes added by the mutation
+	uint64_t initial_pop_size; // size of the initial population
+	uint64_t min_init_size; // minimum size of an individual generated in the initial population
+	uint64_t max_init_size; // maximum size of an individual generated in the initial population
+	uint64_t generations; // maximum generation of execution
+	unsigned verbose; // if 0 doesn't print anything else for every generations print "number of generation, best individual's mse, population size and number of evaluations"
+};
+
+struct LGPResult evolve(const struct LGPInput* in, const struct LGPOptions* args);
 
 #endif
