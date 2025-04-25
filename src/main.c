@@ -1,5 +1,6 @@
 #include <stdio.h>
-#include "genetics.h" 
+#include "genetics.h"
+#include "psb2.h"
 
 int main(int argc, char *argv[]){
 
@@ -22,15 +23,10 @@ int main(int argc, char *argv[]){
 		.generations = 300,
 		.verbose = 1
 	};
-	const struct LGPInput in = {
-		.rom_size = 40,
-		.res_size = 1,
-		.input_num = 100,
-		.op_size = INSTR_NUM,
-		.memory = NULL, //TODO
-		.op = INSTRSET,
-	};
+	struct LGPInput in = vector_distance(2, 100);
+	in.instr_set = (struct InstructionSet) {.size = INSTR_NUM, .op = INSTRSET,};
 	const struct LGPResult res = evolve(&in, &par);
+	free(in.memory);
 	free(res.pop.individual);
 	return 0;
 }
