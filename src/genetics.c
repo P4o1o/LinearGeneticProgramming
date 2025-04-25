@@ -40,7 +40,7 @@ static inline uint64_t hash_program(const struct Program *const prog){
 }
 
 static inline struct Instruction rand_instruction(const struct LGPInput *const in, const uint64_t prog_size){
-    struct Operation op = in->op[RAND_UPTO(in->op_size - 1)];
+    struct Operation op = in->instr_set.op[RAND_UPTO(in->instr_set.size - 1)];
     enum InstrCode opcode = op.code;
     uint32_t addr;
     switch(op.addr){

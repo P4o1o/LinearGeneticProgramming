@@ -38,12 +38,16 @@ struct Population{
     uint64_t size;
 };
 
+struct InstructionSet{
+	const uint64_t size;
+	const struct Operation *op;
+};
+
 struct LGPInput{
 	const uint64_t input_num;
 	const uint64_t rom_size;
 	const uint64_t res_size;
-	const uint64_t op_size;
-	const struct Operation *op;
+	struct InstructionSet instr_set;
 	union Memblock *memory; //problem1, solution1, problem2, solution2, problem3, ...
 };
 
