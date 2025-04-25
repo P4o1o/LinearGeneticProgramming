@@ -1,21 +1,25 @@
-#include "logger.h"
+#ifndef LOGGER_H_INCLUDED
+#define LOGGER_H_INCLUDED
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <omp.h>
 
-inline void log_error_exit(const char* error_message, const char* file, const size_t line){
-    time_t now;
-    time(&now);
-    struct tm* timeinfo;
-    char actualtime[20];
-    timeinfo = localtime(&now);
-    strftime(actualtime, 20, "%Y-%m-%d %H:%M:%S", timeinfo);
-    FILE *logfile = fopen(LOG_FILE, "a");
-    fprintf(logfile, "[%s] ERROR: %s in file: %s, at line %ld\n", actualtime, error_message, file, line);
-    fclose(logfile);
-    exit(-1);
-}
+#define LOG_FILE "genetic.log"
 
-void log_error_exit_ts(const char* error_message, const char* file, const size_t line){
-#pragma omp critical
-        {
-            log_error_exit((error_message), __FILE__, __LINE__);
-        }
-}
+// FUNCTIONS FOR LOG AN ERROR AND EXIT THE EXECUTION
+
+// DON'T USE THIS
+
+void log_error_exit(const char* error_message, const char* file, const size_t line);
+void log_error_exit_ts(const char* error_message, const char* file, const size_t line);
+
+// USE THIS INSTEAD
+
+#define LOG_EXIT(message) log_error_exit(message, __FILE__, __LINE__)
+#define LOG_EXIT_THREADSAFE(message) log_error_exit_ts(message, __FILE__, __LINE__)
+
+#define MALLOC_FAIL LOG_EXIT("malloc failed")
+#define MALLOC_FAIL_THREADSAFE LOG_EXIT_THREADSAFE("malloc failed")
+
+#endif

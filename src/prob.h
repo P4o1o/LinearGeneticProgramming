@@ -21,7 +21,7 @@ typedef uint64_t prob;
 #define RAND_UPTO(max) (rand() % ((max) + 1))
 
 // RANDOM DOUBLE
-#define RAND_DOUBLE (DBL_MIN + ((double)rand() / RAND_MAX) * (DBL_MAX - DBL_MIN))
+#define RAND_DOUBLE() (DBL_MIN + ((double)rand() / RAND_MAX) * (DBL_MAX - DBL_MIN))
 #define RAND_DBL_BOUNDS(min, max) (min + ((double)rand() / RAND_MAX) * (max - min))
 
 #endif
