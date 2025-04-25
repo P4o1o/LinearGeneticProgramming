@@ -9,27 +9,28 @@
 
 #define INSTR_MACRO \
 	X(EXIT,   0,	0,	1) \
-	X(LOAD,   1,	2,	0) \
-	X(STORE,  1,	2,	2) \
+	X(LOAD_RAM,   1,	2,	0) \
+	X(STORE_RAM,  1,	2,	2) \
+	X(LOAD_ROM,   1,	4,	0) \
 	X(MOV,    2,	0,	0) \
-	X(MOVZ,   2,	0,	0) \
-	X(MOVNZ,  2,	0,	0) \
-	X(MOVL,   2,	0,	0) \
-	X(MOVG,   2,	0,	0) \
-	X(MOVLE,  2,	0,	0) \
-	X(MOVGE,  2,	0,	0) \
-	X(MOVODD, 2,	0,	0) \
-	X(MOVEVEN, 2,	0,	0) \
-	X(MOVI,   1,	1,	0) \
+	X(CMOV_Z,   2,	0,	0) \
+	X(CMOV_NZ,  2,	0,	0) \
+	X(CMOV_L,   2,	0,	0) \
+	X(CMOV_G,   2,	0,	0) \
+	X(CMOV_LE,  2,	0,	0) \
+	X(CMOV_GE,  2,	0,	0) \
+	X(CMOV_ODD, 2,	0,	0) \
+	X(CMOV_EVEN, 2,	0,	0) \
+	X(MOV_I,   1,	1,	0) \
 	X(JMP,    0,	3,	1) \
-	X(JZ,     0,	3,	1) \
-	X(JNZ,    0,	3,	1) \
-	X(JL,     0,	3,	1) \
-	X(JG,     0,	3,	1) \
-	X(JLE,    0,	3,	1) \
-	X(JGE,    0,	3,	1) \
-	X(JEVEN,  0,	3,	1) \
-	X(JODD,   0,	3,	1) \
+	X(JMP_Z,     0,	3,	1) \
+	X(JMP_NZ,    0,	3,	1) \
+	X(JMP_L,     0,	3,	1) \
+	X(JMP_G,     0,	3,	1) \
+	X(JMP_LE,    0,	3,	1) \
+	X(JMP_GE,    0,	3,	1) \
+	X(JMP_EVEN,  0,	3,	1) \
+	X(JMP_ODD,   0,	3,	1) \
 	X(CLC,    0,	0,	1) \
 	X(CMP,    2,	0,	1) \
 	X(TEST,   1,	0,	1) \
@@ -48,24 +49,25 @@
 	X(SHR,    3,	0,	0) \
 	X(CAST,   2,	0,	0) \
 	X(NOP,    0,	0,	0) \
-	X(LOADF,  1,	2,	0) \
-	X(STOREF, 1,	2,	2) \
-	X(MOVF,   2,	0,	0) \
-	X(MOVFZ,  2,	0,	0) \
-	X(MOVFNZ, 2,	0,	0) \
-	X(MOVFL,  2,	0,	0) \
-	X(MOVFG,  2,	0,	0) \
-	X(MOVFLE, 2,	0,	0) \
-	X(MOVFGE, 2,	0,	0) \
-	X(MOVFI,  1,	1,	0) \
-	X(MOVFODD, 2,	0,	0) \
-	X(MOVFEVEN, 2,	0,	0) \
-	X(CMPF,   2,	0,	1) \
-	X(TESTF,  1,	0,	1) \
-	X(ADDF,   3,	0,	0) \
-	X(SUBF,   3,	0,	0) \
-	X(MULF,   3,	0,	0) \
-	X(DIVF,   3,	0,	0) \
+	X(LOAD_RAM_F,  1,	2,	0) \
+	X(LOAD_ROM_F,  1,	4,	0) \
+	X(STORE_RAM_F, 1,	2,	2) \
+	X(MOV_F,   2,	0,	0) \
+	X(CMOV_Z_F,  2,	0,	0) \
+	X(CMOV_NZ_F, 2,	0,	0) \
+	X(CMOV_L_F,  2,	0,	0) \
+	X(CMOV_G_F,  2,	0,	0) \
+	X(CMOV_LE_F, 2,	0,	0) \
+	X(CMOV_GE_F, 2,	0,	0) \
+	X(MOV_I_F,  1,	5,	0) \
+	X(CMOV_ODD_F, 2,	0,	0) \
+	X(CMOV_EVEN_F, 2,	0,	0) \
+	X(CMP_F,   2,	0,	1) \
+	X(TEST_F,  1,	0,	1) \
+	X(ADD_F,   3,	0,	0) \
+	X(SUB_F,   3,	0,	0) \
+	X(MUL_F,   3,	0,	0) \
+	X(DIV_F,   3,	0,	0) \
 	X(SQRT,   2,	0,	0) \
 	X(POW,    3,	0,	0) \
 	X(EXP,    2,	0,	0) \
@@ -84,7 +86,7 @@
 	X(ACOSH,  2,	0,	0) \
 	X(ASINH,  2,	0,	0) \
 	X(ATANH,  2,	0,	0) \
-	X(CASTF,  2,	0,	0) \
+	X(CAST_F,  2,	0,	0) \
 	X(RAND,   1,	0,	0)
 
 
@@ -95,25 +97,31 @@ enum InstrCode : uint8_t {
 #undef X
 
 struct Operation {
-	char *name;
-    uint8_t regs;
-    uint8_t addr; // 1 = immediate, 2 = memory address, 3 = program address
-	uint8_t state_changer; // 0 = no, 1 = yes, 2 = memory change
-	enum InstrCode code;
+	const char *name;
+    const uint8_t regs;
+    const int8_t addr; // 1 = immediate, 2 = ram memory address, 3 = program address, 4 = rom memory address, 5 = float immediate
+	const uint8_t state_changer; // 0 = no, 1 = yes, 2 = memory change
+	const enum InstrCode code;
 };
 
 extern const struct Operation INSTRSET[];
 
 #define REG_NUM 4
 #define FREG_NUM 4
+#define RAM_SIZE 64
 
 struct Instruction{
     enum InstrCode op;
-    uint8_t reg[3]
+    uint8_t reg[3];
     uint32_t addr;
 };
 
-union memblock{
+union ConstMemblock{
+    const uint64_t i64;
+    const double f64;
+};
+
+union Memblock{
     uint64_t i64;
     double f64;
 };
@@ -133,11 +141,12 @@ struct Core {
 
 struct VirtualMachine{
     struct Core core;
-    union memblock *vmem;
-    struct Instruction *program;
+    union Memblock ram[RAM_SIZE];
+    const union ConstMemblock *rom;
+    const struct Instruction *program;
 };
 
-void setup_vm(struct VirtualMachine *vm, struct Instruction *prog, uint64_t ram_size, uint64_t locked_addr)
+void setup_vm(struct VirtualMachine *vm, struct Instruction *prog, uint64_t ram_size, uint64_t locked_addr);
 uint64_t run_vm(struct VirtualMachine *env, uint64_t clock_limit);
 
 #endif

@@ -6,12 +6,6 @@ const struct Operation INSTRSET[] = {
 };
 #undef X
 
-void setup_vm(struct VirtualMachine *vm, struct Instruction *prog, uint64_t ram_size, uint64_t locked_addr){
-    memset(vm->core, 0, sizeof(struct Core));
-    memset(vm->vmem + locked_addr, 0, (ram_size - locked_addr) * sizeof(union memblock));
-    vm->program = prog;
-}
-
 uint64_t run_vm(struct VirtualMachine *env, const uint64_t clock_limit){
     for(uint64_t i = 0; i < clock_limit; i++){
 
@@ -43,12 +37,12 @@ uint64_t run_vm(struct VirtualMachine *env, const uint64_t clock_limit){
                 env->core.flag.negative = (imm >> ((uint64_t) 63));
                 env->core.flag.odd |= (imm & 1); // 1-- odd, 0-- even
             break;
-            case I_CMPF: // CMPF
+            case I_CMP_F: // CMP_F
                 immf = env->core.freg[reg1] - env->core.freg[reg2];
                 env->core.flag.zero = (immf == 0.0);  // 01 => 0; 10 => -; 00 => +
                 env->core.flag.negative = (immf < 0.0);
             break;
-            case I_TESTF: // TESTF
+            case I_TEST_F: // TEST_F
                 immf = env->core.freg[reg1];
                 env->core.flag.zero = (immf == 0.0);  // 01 => 0; 10 => -; 00 => +
                 env->core.flag.negative = (immf < 0.0);
@@ -56,101 +50,107 @@ uint64_t run_vm(struct VirtualMachine *env, const uint64_t clock_limit){
             case I_JMP: // JUMP
                 env->core.prcount=addr;
             break;
-            case I_JZ: // JZ
+            case I_JMP_Z: // JZ
                 if (env->core.flag.zero) env->core.prcount = addr;
             break;
-            case I_JNZ: // JNZ
+            case I_JMP_NZ: // JNZ
                 if (! env->core.flag.zero) env->core.prcount = addr;
             break;
-            case I_JL: // JL
+            case I_JMP_L: // JL
                 if (env->core.flag.negative) env->core.prcount = addr;
             break;
-            case I_JG: // JG
+            case I_JMP_G: // JG
                 if ((! env->core.flag.zero) && (! env->core.flag.negative)) env->core.prcount = addr;
             break;
-            case I_JLE: // JLE
+            case I_JMP_LE: // JLE
                 if (env->core.flag.zero || env->core.flag.negative) env->core.prcount = addr;
             break;
-            case I_JGE: // JGE
+            case I_JMP_GE: // JGE
                 if (! env->core.flag.negative) env->core.prcount = addr;
             break;
-            case I_JODD:
+            case I_JMP_ODD:
                 if (env->core.flag.odd) env->core.prcount = addr;
             break;
-            case I_JEVEN:
+            case I_JMP_EVEN:
                 if (! env->core.flag.odd) env->core.prcount = addr;
             break;
             case I_MOV: // MOVE
                 env->core.reg[reg1] = env->core.reg[reg2];
             break;
-            case I_MOVI: // MOVI
+            case I_MOV_I: // MOVI
                 env->core.reg[reg1] = ((uint64_t) addr);
             break;
-            case I_MOVZ: // MOVZ
+            case I_CMOV_Z: // MOVZ
                 if (env->core.flag.zero) env->core.reg[reg1] = env->core.reg[reg2];
             break;
-            case I_MOVNZ: // MOVNZ
+            case I_CMOV_NZ: // MOVNZ
                 if (! env->core.flag.zero) env->core.reg[reg1] = env->core.reg[reg2];
             break;
-            case I_MOVL: // MOVL
+            case I_CMOV_L: // MOVL
                 if (env->core.flag.negative) env->core.reg[reg1] = env->core.reg[reg2];
             break;
-            case I_MOVG: // MOVG
+            case I_CMOV_G: // MOVG
                 if ((! env->core.flag.zero) && (! env->core.flag.negative)) env->core.reg[reg1] = env->core.reg[reg2];
             break;
-            case I_MOVLE: // MOVLE
+            case I_CMOV_LE: // MOVLE
                 if (env->core.flag.zero || env->core.flag.negative) env->core.reg[reg1] = env->core.reg[reg2];
             break;
-            case I_MOVGE: // MOVGE
+            case I_CMOV_GE: // MOVGE
                 if (! env->core.flag.negative) env->core.reg[reg1] = env->core.reg[reg2];
             break;
-            case I_MOVODD:
+            case I_CMOV_ODD:
                 if (env->core.flag.odd) env->core.reg[reg1] = env->core.reg[reg2];
             break;
-            case I_MOVEVEN:
+            case I_CMOV_EVEN:
                 if (! env->core.flag.odd) env->core.reg[reg1] = env->core.reg[reg2];
             break;
-            case I_LOAD: // LOAD
-                env->core.reg[reg1] = env->vmem[addr].i64;
+            case I_LOAD_RAM: // LOAD
+                env->core.reg[reg1] = env->ram[addr].i64;
             break;
-            case I_STORE: // STORE
-                env->vmem[addr].i64 = env->core.reg[reg1];                
+            case I_LOAD_ROM: // LOAD
+                env->core.reg[reg1] = env->rom[addr].i64;
             break;
-            case I_MOVF: // MOVF
+            case I_STORE_RAM: // STORE
+                env->ram[addr].i64 = env->core.reg[reg1];                
+            break;
+            case I_MOV_F: // MOVF
                 env->core.freg[reg1] = env->core.freg[reg2];
             break;
-            case I_MOVFI: // MOVFI
+            case I_MOV_I_F: // MOVFI
                 env->core.freg[reg1] = addr;// WEWE
             break;
-            case I_MOVFZ: // MOVFZ
+            case I_CMOV_Z_F: // MOVFZ
                 if (env->core.flag.zero) env->core.freg[reg1] = env->core.freg[reg2];
             break;
-            case I_MOVFNZ: // MOVFNZ
+            case I_CMOV_NZ_F: // MOVFNZ
                 if (! env->core.flag.zero) env->core.freg[reg1] = env->core.freg[reg2];
             break;
-            case I_MOVFL: // MOVFL
+            case I_CMOV_L_F: // MOVFL
                 if ((env->core.flag.negative)) env->core.freg[reg1] = env->core.freg[reg2];
             break;
-            case I_MOVFG: // MOVFG
+            case I_CMOV_G_F: // MOVFG
                 if ((! env->core.flag.zero) && (! env->core.flag.negative)) env->core.freg[reg1] = env->core.freg[reg2];
             break;
-            case I_MOVFLE: // MOVFLE
+            case I_CMOV_LE_F: // MOVFLE
                 if (env->core.flag.zero || env->core.flag.negative) env->core.freg[reg1] = env->core.freg[reg2];
             break;
-            case I_MOVFGE: // MOVFGE
+            case I_CMOV_GE_F: // MOVFGE
                 if (! env->core.flag.negative) env->core.freg[reg1] = env->core.freg[reg2];
             break;
-            case I_MOVFODD:
+            case I_CMOV_ODD_F:
                 if (env->core.flag.odd) env->core.freg[reg1] = env->core.freg[reg2];
             break;
-            case I_MOVFEVEN:
+            case I_CMOV_EVEN_F:
                 if (! env->core.flag.odd) env->core.freg[reg1] = env->core.freg[reg2];
             break;
-            case I_LOADF: // LOAD
-                env->core.freg[reg1] = env->vmem[addr].f64;
+            case I_LOAD_RAM_F: // LOAD
+                env->core.freg[reg1] = env->ram[addr].f64;
             break;
-            case I_STOREF: // STORE
-                env->vmem[addr].f64 = env->core.freg[reg1];                
+            case I_LOAD_ROM_F: // LOAD
+                env->core.freg[reg1] = env->rom[addr].f64;
+            break;
+            case I_STORE_RAM_F: // STORE
+                env->ram[addr].f64 = env->core.freg[reg1];                
             break;
 
             case I_NOP:  // NOP
@@ -168,16 +168,16 @@ uint64_t run_vm(struct VirtualMachine *env, const uint64_t clock_limit){
             case I_DIV: // DIV
                 env->core.reg[reg1] = env->core.reg[reg2] / env->core.reg[reg3];
             break;
-            case I_ADDF:  // ADDF
+            case I_ADD_F:  // ADDF
                 env->core.freg[reg1] = env->core.freg[reg2] + env->core.freg[reg3];
             break;
-            case I_SUBF:  // SUBF
+            case I_SUB_F:  // SUBF
                 env->core.freg[reg1] = env->core.freg[reg2] - env->core.freg[reg3];
             break;
-            case I_MULF:  // MUL
+            case I_MUL_F:  // MUL
                 env->core.freg[reg1] = env->core.freg[reg2] * env->core.freg[reg3];
             break;
-            case I_DIVF: // DIVF
+            case I_DIV_F: // DIVF
                 env->core.freg[reg1] = env->core.freg[reg2] / env->core.freg[reg3];
             break;
             case I_MOD: // MOD
@@ -212,7 +212,7 @@ uint64_t run_vm(struct VirtualMachine *env, const uint64_t clock_limit){
             case I_CAST: // CAST
                 env->core.reg[reg1] = (uint64_t) env->core.freg[reg2];
             break;
-            case I_CASTF: // CASTF
+            case I_CAST_F: // CASTF
                 env->core.freg[reg1] = (double) env->core.reg[reg2];
             break;
 
