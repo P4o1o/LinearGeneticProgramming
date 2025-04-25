@@ -29,11 +29,13 @@ double mse(const struct LGPInput in, const struct Program* prog, uint64_t max_cl
         double result = vm.vmem[in.result_addr];
         if (!(isfinite(result))){
             free_env(actual_env);
+            free(vm.vmem);
 			return DBL_MAX;
         }
 		double actual_mse = in->memories[(in->mem_size + in->res_size)* i + in->mem_size].f64 - result;
 		mse += (actual_mse * actual_mse);
     }
+    free(vm.vmem);
     if(isfinite(mse))
 		return mse / (double)in->input_size;
 	else
