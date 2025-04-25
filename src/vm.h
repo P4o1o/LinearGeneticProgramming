@@ -118,11 +118,6 @@ struct Instruction{
     uint32_t addr;
 };
 
-union ConstMemblock{
-    const uint64_t i64;
-    const double f64;
-};
-
 union Memblock{
     uint64_t i64;
     double f64;
@@ -144,7 +139,7 @@ struct Core {
 struct VirtualMachine{
     struct Core core;
     union Memblock ram[RAM_SIZE];
-    const union ConstMemblock *rom;
+    const union Memblock *rom;
     const struct Instruction *program;
 };
 

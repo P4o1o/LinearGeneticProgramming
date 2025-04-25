@@ -44,7 +44,7 @@ struct LGPInput{
 	const uint64_t res_size;
 	const uint64_t op_size;
 	const struct Operation *op;
-	const union ConstMemblock *memory;
+	union Memblock *memory; //problem1, solution1, problem2, solution2, problem3, ...
 };
 
 typedef double (*fitness_fn)(const struct LGPInput *const, const struct Program *const, const uint64_t);
