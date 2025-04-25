@@ -324,10 +324,17 @@ struct LGPResult evolve(const struct LGPInput *const in, const struct LGPOptions
     uint64_t winner = best_individ(&pop, args->fitness.type);
     if(args->verbose)
 		printf("\nGeneration 0, best_mse %lf, population_size %ld", pop.individual[winner].fitness, pop.size);
-	if (winner <= args->tollerance){
-		struct LGPResult res = {.evaluations = evaluations, .pop = pop, .generations = 0, .best_individ = winner};
-        return res;
-	}
+    if(args->fitness.type == MINIMIZE){
+        if (pop.individual[winner].fitness <= args->target){
+            struct LGPResult res = {.evaluations = evaluations, .pop = pop, .generations = 0, .best_individ = winner};
+            return res;
+        }
+    }else if(args->fitness.type == MAXIMIZE){
+        if(pop.individual[winner].fitness >= args->target){
+            struct LGPResult res = {.evaluations = evaluations, .pop = pop, .generations = 0, .best_individ = winner};
+            return res;
+        }
+    }
     // GENERATIONS LOOP
     uint64_t gen;
     for(gen = 1; gen <= args->generations; gen++){
@@ -372,9 +379,16 @@ struct LGPResult evolve(const struct LGPInput *const in, const struct LGPOptions
         winner = best_individ(&pop, args->fitness.type);
         if(args->verbose)
             printf("\nGeneration %ld, best_mse %lf, population_size %ld, evaluations %ld", gen, pop.individual[winner].fitness, pop.size, evaluations);
-        if(pop.individual[winner].fitness <= args->tollerance){
-            struct LGPResult res = {.evaluations = evaluations, .pop = pop, .generations = gen, .best_individ = winner};
-            return res;
+        if(args->fitness.type == MINIMIZE){
+            if(pop.individual[winner].fitness <= args->target){
+                struct LGPResult res = {.evaluations = evaluations, .pop = pop, .generations = gen, .best_individ = winner};
+                return res;
+            }
+        }else if(args->fitness.type == MAXIMIZE){
+            if(pop.individual[winner].fitness >= args->target){
+                struct LGPResult res = {.evaluations = evaluations, .pop = pop, .generations = gen, .best_individ = winner};
+                return res;
+            }
         }
     }
     gen -= 1; // the loop will stop at when res.generations = args->generations + 1; but only args->generations generations were applied

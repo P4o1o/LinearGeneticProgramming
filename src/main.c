@@ -14,7 +14,7 @@ int main(int argc, char *argv[]){
 			.minsize = 5,
 			.maxsize = 20
 		},
-		.tollerance = 1e-27,
+		.target = 1e-27,
 		.mutation_prob = 0.33,
 		.max_mutation_len = 10,
 		.crossover_prob = 0.69,
@@ -23,8 +23,8 @@ int main(int argc, char *argv[]){
 		.generations = 300,
 		.verbose = 1
 	};
-	struct LGPInput in = vector_distance(2, 100);
-	in.instr_set = (struct InstructionSet) {.size = INSTR_NUM, .op = INSTRSET,};
+	struct InstructionSet instr_set = (struct InstructionSet) {.size = INSTR_NUM, .op = INSTRSET,};
+	struct LGPInput in = vector_distance(&instr_set, 2, 100);
 	const struct LGPResult res = evolve(&in, &par);
 	free(in.memory);
 	free(res.pop.individual);

@@ -127,7 +127,7 @@ struct LGPOptions {
 	const union SelectionParams select_param; // parameters for the selection function
 	const struct InitializationParams init_params; // parameters for the initialization function
 	const struct Population initial_pop; // if initialization_func == NULL then start with initial_pop
-	const double tollerance; // the evolution stops if tollerance > mse of the best individual
+	const double target; // the evolution stops if tollerance > mse of the best individual
 	const double mutation_prob; // mutation propability
 	const double crossover_prob; // crossover propability
     const uint64_t max_clock;
