@@ -43,7 +43,7 @@ struct LGPResult{
 	uint64_t best_individ; // index of the best individual in the Population
 };
 
-typedef struct genetic_result (*initialization)(const struct LGPInput* in, const uint64_t pop_size, const uint64_t dna_minsize, const uint64_t dna_maxsize);
+typedef struct LGPResult (*initialization)(const struct LGPInput* in, const uint64_t pop_size, const uint64_t dna_minsize, const uint64_t dna_maxsize);
 
 // used in unique_population
 
@@ -56,8 +56,8 @@ struct ProgramTable{
 	struct PrgTableNode *table;
 	uint64_t size;
 };
-struct genetic_result unique_population(const struct LGPInput* in, const uint64_t pop_size, const uint64_t dna_minsize, const uint64_t dna_maxsize);
-struct genetic_result rand_population(const struct LGPInput* in, const uint64_t pop_size, const uint64_t dna_minsize, const uint64_t dna_maxsize);
+struct LGPResult unique_population(const struct LGPInput* in, const uint64_t pop_size, const uint64_t dna_minsize, const uint64_t dna_maxsize);
+struct LGPResult rand_population(const struct LGPInput* in, const uint64_t pop_size, const uint64_t dna_minsize, const uint64_t dna_maxsize);
 
 struct FitnessSharingParams{ // parameters for selections based on fitness sharing
     double alpha;
