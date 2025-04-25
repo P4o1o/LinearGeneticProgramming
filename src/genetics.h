@@ -10,7 +10,7 @@
 #include <string.h>
 #include <omp.h>
 
-#define MAX_PROGRAM_SIZE 255
+#define MAX_PROGRAM_SIZE 254
 
 union InstrToU64{
 	const struct Instruction instr;
@@ -18,7 +18,7 @@ union InstrToU64{
 };
 
 struct Program{
-    struct Instruction content[MAX_PROGRAM_SIZE];
+    struct Instruction content[MAX_PROGRAM_SIZE + 1];
     uint64_t size;
 };
 
@@ -44,12 +44,12 @@ struct LGPInput{
 	const uint64_t res_size;
 	const uint64_t op_size;
 	const struct Operation *op;
-	const union ConstMemblock *memories;
+	const union ConstMemblock *memory;
 };
 
-typedef double (*fitness_fn)(const struct LGPInput *, const struct Program*, const uint64_t);
+typedef double (*fitness_fn)(const struct LGPInput *const, const struct Program *const, const uint64_t);
 
-double mse(const struct LGPInput *in, const struct Program* prog, const uint64_t max_clock);
+double mse(const struct LGPInput *const in, const struct Program *const prog, const uint64_t max_clock);
 
 enum FitnessType{
 	MINIMIZE,
@@ -60,6 +60,8 @@ struct FitnessAssesment{
 	fitness_fn fn;
 	enum FitnessType type;
 };
+
+extern const struct FitnessAssesment MSE;
 
 struct LGPResult{
 	const struct Population pop; // resulting pupulation
@@ -74,7 +76,7 @@ struct InitializationParams{
 	const uint64_t maxsize; // maximum size of a program generated in the initialization_func
 };
 
-typedef struct LGPResult (*initialization_fn)(const struct LGPInput*, const struct InitializationParams*, const struct FitnessAssesment, const uint64_t);
+typedef struct LGPResult (*initialization_fn)(const struct LGPInput *const, const struct InitializationParams *const, const struct FitnessAssesment *const, const uint64_t);
 
 // used in unique_population
 
@@ -87,8 +89,8 @@ struct ProgramTable{
 	struct PrgTableNode *table;
 	const uint64_t size;
 };
-struct LGPResult unique_population(const struct LGPInput* in, const struct InitializationParams* params, const struct FitnessAssesment fitness, const uint64_t max_clock);
-struct LGPResult rand_population(const struct LGPInput* in, const struct InitializationParams* params, const struct FitnessAssesment fitness, const uint64_t max_clock);
+struct LGPResult unique_population(const struct LGPInput *const in, const struct InitializationParams *const params, const struct FitnessAssesment *const fitness, const uint64_t max_clock);
+struct LGPResult rand_population(const struct LGPInput *const in, const struct InitializationParams *const params, const struct FitnessAssesment *const fitness, const uint64_t max_clock);
 
 struct FitnessSharingParams{ // parameters for selections based on fitness sharing
     const double alpha;
@@ -103,15 +105,15 @@ union SelectionParams{
     const struct FitnessSharingParams fs_params; // fitness_sharing_tournament, fitness_sharing_roulette
 };
 
-typedef struct Population(*selection_fn)(struct Population*, const union SelectionParams*);
+typedef void (*selection_fn)(struct Population*, const union SelectionParams*, const enum FitnessType);
 
-void tournament(struct Population* initial, const union SelectionParams* tourn_size);
-void elitism(struct Population* initial, const union SelectionParams* new_size);
-void percentual_elitism(struct Population* initial, const union SelectionParams *elite_size);
-void roulette_selection(struct Population* initial, const union SelectionParams* elite_size);
-void fitness_sharing_tournament(struct Population* initial, const union SelectionParams *params);
-void fitness_sharing_roulette(struct Population* initial, const union SelectionParams *params);
-void fitness_sharing_elitism(struct Population* initial, const union SelectionParams *params);
+void tournament(struct Population* initial, const union SelectionParams* tourn_size, const enum FitnessType ftype);
+void elitism(struct Population* initial, const union SelectionParams* new_size, const enum FitnessType ftype);
+void percentual_elitism(struct Population* initial, const union SelectionParams *elite_size, const enum FitnessType ftype);
+void roulette_selection(struct Population* initial, const union SelectionParams* elite_size, const enum FitnessType ftype);
+void fitness_sharing_tournament(struct Population* initial, const union SelectionParams *params, const enum FitnessType ftype);
+void fitness_sharing_roulette(struct Population* initial, const union SelectionParams *params, const enum FitnessType ftype);
+void fitness_sharing_elitism(struct Population* initial, const union SelectionParams *params, const enum FitnessType ftype);
 
 
 struct LGPOptions {
@@ -131,6 +133,6 @@ struct LGPOptions {
 	const unsigned verbose; // if 0 doesn't print anything else for every generations print "number of generation, best individual's mse, Population size and number of evaluations"
 };
 
-struct LGPResult evolve(const struct LGPInput* in, const struct LGPOptions* args);
+struct LGPResult evolve(const struct LGPInput *const in, const struct LGPOptions *const args);
 
 #endif
