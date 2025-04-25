@@ -3,6 +3,6 @@
 
 #include "genetics.h"
 
-struct LGPInput vector_distance(const uint64_t vector_len, const uint64_t instances);
+struct LGPInput vector_distance(const struct InstructionSet *const instr_set, const uint64_t vector_len, const uint64_t instances);
 
 #endif

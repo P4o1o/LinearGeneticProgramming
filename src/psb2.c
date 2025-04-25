@@ -1,7 +1,7 @@
 #include "psb2.h"
 
 
-struct LGPInput vector_distance(const uint64_t vector_len, const uint64_t instances){
+struct LGPInput vector_distance(const struct InstructionSet *const instr_set, const uint64_t vector_len, const uint64_t instances){
 	uint64_t input_num = instances;
 	uint64_t rom_size = vector_len * 2;
 	random_seed_init();
@@ -18,6 +18,6 @@ struct LGPInput vector_distance(const uint64_t vector_len, const uint64_t instan
 		}
 		memory[i * block_size + rom_size].f64 = sqrt(memory[i * block_size + rom_size].f64);
 	}
-    struct LGPInput res ={.memory = memory, .rom_size = rom_size, .input_num = input_num, .res_size = 1};
+    struct LGPInput res ={.memory = memory, .rom_size = rom_size, .input_num = input_num, .res_size = 1, .instr_set = *instr_set};
 	return res;
 }
