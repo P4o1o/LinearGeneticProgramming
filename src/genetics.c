@@ -2,7 +2,7 @@
 
 void print_program(const struct Program *const prog){
 	printf("\n");
-	for (uint64_t i = 0; i < prog->size; i++) {
+	for (uint64_t i = 0; i < prog->size + 1; i++) {
 		printf("%s ", INSTRSET[prog->content[i].op].name);
         for(uint64_t j = 0; j < INSTRSET[prog->content[i].op].regs; j++){
             printf("REG-%d ", prog->content[i].reg[j]);
@@ -15,7 +15,7 @@ void print_program(const struct Program *const prog){
 }
 
 static inline uint64_t instr_to_u64(const struct Instruction inst){
-    union InstrToU64 res = { .instr = inst};
+    const union InstrToU64 res = { .instr = inst};
     return res.u64;
 }
 
@@ -40,8 +40,11 @@ static inline uint64_t hash_program(const struct Program *const prog){
 }
 
 static inline struct Instruction rand_instruction(const struct LGPInput *const in, const uint64_t prog_size){
-    struct Operation op = in->instr_set.op[RAND_UPTO(in->instr_set.size - 1)];
-    enum InstrCode opcode = op.code;
+    ASSERT(prog_size > 0);
+    ASSERT(prog_size <= MAX_PROGRAM_SIZE);
+    ASSERT(in->rom_size > 0);
+    const struct Operation op = in->instr_set.op[RAND_UPTO(in->instr_set.size - 1)];
+    const enum InstrCode opcode = op.code;
     uint32_t addr;
     switch(op.addr){
         case 1:
@@ -63,20 +66,26 @@ static inline struct Instruction rand_instruction(const struct LGPInput *const i
             addr = 0;
         break;
         default:
-            unreachable();
+            ASSERT(0);
         break;
     }
     uint8_t regs[3] = {0, 0, 0};
     for (uint64_t j = 0; j < op.regs; j++){
         regs[j] = RAND_UPTO(REG_NUM - 1);
     }
-    struct Instruction res = { .op = opcode, .reg = {regs[0], regs[1], regs[2]}, .addr = addr};
+    const struct Instruction res = { .op = opcode, .reg = {regs[0], regs[1], regs[2]}, .addr = addr};
     return res;
 }
 
 
 static inline struct Program rand_program(const struct LGPInput *const in, const uint64_t minsize, const uint64_t maxsize) {
+    ASSERT(minsize > 0);
+    ASSERT(minsize <= maxsize);
+    ASSERT(maxsize <= MAX_PROGRAM_SIZE);
+    ASSERT(in->rom_size > 0);
 	struct Program res = { .size = RAND_BOUNDS(minsize, maxsize) };
+    ASSERT(minsize <= res.size);
+    ASSERT(res.size <= maxsize);
 	for (uint64_t i = 0; i < res.size; i++) {
         res.content[i] = rand_instruction(in, res.size);
 	}
@@ -85,8 +94,11 @@ static inline struct Program rand_program(const struct LGPInput *const in, const
 }
 
 struct LGPResult rand_population(const struct LGPInput *const in, const struct InitializationParams *const params, const struct FitnessAssesment *const fitness, const uint64_t max_clock) {
-	struct Population pop;
-	pop.size = params->pop_size;
+    ASSERT(params->pop_size > 0);
+    ASSERT(0 < params->minsize);
+    ASSERT(params->minsize <= params->maxsize);
+    ASSERT(params->maxsize <= MAX_PROGRAM_SIZE);
+	struct Population pop = {.size = params->pop_size};
 	pop.individual = (struct Individual *) malloc(sizeof(struct Individual) * pop.size);
 	if (pop.individual == NULL) {
 		MALLOC_FAIL;
@@ -94,6 +106,8 @@ struct LGPResult rand_population(const struct LGPInput *const in, const struct I
 #pragma omp parallel for schedule(dynamic,1)
 	for (uint64_t i = 0; i < pop.size; i++) {
         struct Program prog = rand_program(in, params->minsize, params->maxsize);
+        ASSERT(params->minsize <= prog.size);
+        ASSERT(prog.size <= params->maxsize);
 		pop.individual[i] = (struct Individual){ .prog = prog, .fitness = fitness->fn(in, &prog, max_clock)};
 	}
     struct LGPResult res = {.generations = 0, .pop = pop, .evaluations = pop.size};
@@ -101,14 +115,14 @@ struct LGPResult rand_population(const struct LGPInput *const in, const struct I
 }
 
 double mse(const struct LGPInput *const in, const struct Program *const prog, const uint64_t max_clock){
-    if (prog->size == 0)
-		return DBL_MAX;
+    ASSERT(prog->size > 0);
+    ASSERT(prog->size <= MAX_PROGRAM_SIZE);
     struct VirtualMachine vm;
     vm.program = prog->content;
-    double mse = 0;
+    double mse = 0.0;
     for(uint64_t i = 0; i < in->input_num; i++){
         memset(&(vm.core), 0, sizeof(struct Core));
-        memset(&(vm.ram), 0, sizeof(union Memblock) * RAM_SIZE);
+        memset(vm.ram, 0, sizeof(union Memblock) * RAM_SIZE);
         vm.rom = &(in->memory[(in->rom_size + in->res_size)* i]);
         run_vm(&vm, max_clock);
         double result = vm.ram[0].f64;
@@ -127,6 +141,7 @@ double mse(const struct LGPInput *const in, const struct Program *const prog, co
 const struct FitnessAssesment MSE = {.fn = mse, .type = MINIMIZE};
 
 static inline uint64_t best_individ(const struct Population *const pop, const enum FitnessType ftype){
+    ASSERT(pop->size > 0);
     double winner;
 	uint64_t best_individ = 0;
     switch(ftype){
@@ -153,6 +168,7 @@ static inline uint64_t best_individ(const struct Population *const pop, const en
 }
 
 static inline void shuffle_population(struct Population* pop) {
+    ASSERT(pop->size > 0);
 	for (uint64_t i = pop->size - 1; i > 0; i--) {
 		uint64_t j = RAND_UPTO(i - 1);
 		struct Individual tmp = pop->individual[i];
@@ -161,12 +177,13 @@ static inline void shuffle_population(struct Population* pop) {
 	}
 }
 
-void tournament(struct Population* initial, const union SelectionParams* tourn_size, const enum FitnessType ftype){
+struct Population tournament(struct Population * initial, const union SelectionParams* tourn_size, const enum FitnessType ftype){
+    ASSERT(initial->size > 0);
     shuffle_population(initial);
     uint64_t tournaments = initial->size / tourn_size->size;
 	uint64_t small_tourn = initial->size % tourn_size->size;
-	struct Population res;
-	res.size = tournaments + (small_tourn != 0);
+	struct Population res = { .size = tournaments + (small_tourn != 0) };
+    ASSERT(res.size > 0);
 	res.individual = (struct Individual*) malloc(sizeof(struct Individual) * res.size);
 	if (res.individual == NULL){
 		MALLOC_FAIL;
@@ -212,15 +229,15 @@ void tournament(struct Population* initial, const union SelectionParams* tourn_s
             res.individual[res.size - 1] = initial->individual[initial->size - winner];
         }
     }
-    free(initial->individual);
-    initial->individual = res.individual;
-    initial->size = res.size;
+    return res;
 }
 
 static inline struct Program mutation(const struct LGPInput *const in, const struct Program *const parent, const uint64_t max_mut_len, const uint64_t max_individ_len) {
+    ASSERT(parent->size > 0);
+    ASSERT(parent->size <= max_individ_len);
 	uint64_t start = RAND_UPTO(parent->size);
 	uint64_t last_piece = parent->size - start;
-	uint64_t substitution = RAND_BOUNDS(0, last_piece);
+	uint64_t substitution = RAND_UPTO(last_piece);
     uint64_t from_parent = parent->size - substitution;
     uint64_t max_mutation = max_individ_len - from_parent;
     if(max_mutation == 0){
@@ -237,15 +254,15 @@ static inline struct Program mutation(const struct LGPInput *const in, const str
         }
     }
     const uint64_t real_limit = (max_mutation < max_mut_len) ? max_mutation : max_mut_len;
-    const uint64_t mutation_len = RAND_UPTO(real_limit);
-    struct Program mutated;
-    mutated.size = from_parent + mutation_len;
-    if(mutated.size == 0){
-        mutated.content[0] = rand_instruction(in, 1);
-        mutated.size = 1;
-        mutated.content[max_individ_len + 1] = (struct Instruction) {.op = I_EXIT, .reg = {0, 0, 0}, .addr = 0};
-        return mutated;
+    uint64_t mutation_len;
+    if(from_parent == 0){
+        mutation_len = RAND_BOUNDS(1, real_limit);
+    }else{
+        mutation_len = RAND_UPTO(real_limit);
     }
+    struct Program mutated = { .size = from_parent + mutation_len};
+    ASSERT(mutated.size > 0);
+    ASSERT(mutated.size <= max_individ_len);
     if(start)
         memcpy(mutated.content, parent->content, sizeof(struct Instruction) * start);
     const uint64_t end_mutation = start + mutation_len;
@@ -256,11 +273,15 @@ static inline struct Program mutation(const struct LGPInput *const in, const str
     last_piece -= substitution;
     if(last_piece)
         memcpy(mutated.content + end_mutation, parent->content + restart, sizeof(struct Instruction) * last_piece);
-    mutated.content[max_individ_len + 1] = (struct Instruction) {.op = I_EXIT, .reg = {0, 0, 0}, .addr = 0};
+    mutated.content[mutated.size] = (struct Instruction) {.op = I_EXIT, .reg = {0, 0, 0}, .addr = 0};
     return mutated;
 }
 
 static inline struct ProgramCouple crossover(const struct Program *const father, const struct Program *const mother, const uint64_t max_individ_len) {
+    ASSERT(father->size > 0);
+    ASSERT(father->size <= MAX_PROGRAM_SIZE);
+    ASSERT(mother->size > 0);
+    ASSERT(mother->size <= MAX_PROGRAM_SIZE);
     const uint64_t start_f = RAND_UPTO(father->size - 1);
 	uint64_t end_f = RAND_BOUNDS(start_f + 1, father->size);
 	const uint64_t start_m = RAND_UPTO(mother->size - 1);
@@ -269,12 +290,12 @@ static inline struct ProgramCouple crossover(const struct Program *const father,
 	uint64_t slice_f_size = end_f - start_f;
     const int64_t slice_diff = slice_f_size - slice_m_size;
     if(slice_diff > 0){
-        if(mother->size + slice_diff > max_individ_len){
+        if((mother->size + slice_diff) > max_individ_len){
             end_f -= slice_diff;
             slice_f_size = slice_m_size;
         }
     }else if(slice_diff < 0){
-        if(father->size - slice_diff > max_individ_len){
+        if((father->size - slice_diff) > max_individ_len){
             end_m += slice_diff;
             slice_m_size = slice_f_size;
         }
@@ -283,6 +304,8 @@ static inline struct ProgramCouple crossover(const struct Program *const father,
     const uint64_t first_f_slice_m = start_f + slice_m_size;
 	const uint64_t last_of_f = father->size - end_f;
     struct Program first = {.size = first_f_slice_m + last_of_f};
+    ASSERT(first.size > 0);
+    ASSERT(first.size <= max_individ_len);
     if(start_f)
         memcpy(first.content, father->content, sizeof(struct Instruction) * start_f);
     memcpy(first.content + start_f, mother->content + start_m, sizeof(struct Instruction) * slice_m_size);
@@ -292,6 +315,8 @@ static inline struct ProgramCouple crossover(const struct Program *const father,
     const uint64_t first_m_slice_f = start_m + slice_f_size;
 	const uint64_t last_of_m = mother->size - end_m;
     struct Program second = {.size = first_m_slice_f + last_of_m};
+    ASSERT(second.size > 0);
+    ASSERT(second.size <= max_individ_len);
     if(start_m)
         memcpy(second.content, mother->content, sizeof(struct Instruction) * start_m);
     memcpy(second.content + start_m, father->content + start_f, sizeof(struct Instruction) * slice_f_size);
@@ -302,12 +327,20 @@ static inline struct ProgramCouple crossover(const struct Program *const father,
 }
 
 struct LGPResult evolve(const struct LGPInput *const in, const struct LGPOptions *const args){
+    ASSERT(args->max_individ_len <= MAX_PROGRAM_SIZE);
+    ASSERT(args->init_params.minsize > 0);
+    ASSERT(args->init_params.minsize <= args->init_params.maxsize);
+    ASSERT(args->init_params.maxsize <= args->max_individ_len);
+    ASSERT(in->rom_size > 0);
+    ASSERT(in->input_num > 0);
+    ASSERT(args->mutation_prob > 0.0);
+    ASSERT(args->crossover_prob > 0.0);
     double mut_int;
     const double mut_frac = modf(args->mutation_prob, &mut_int);
     const uint64_t mut_times = (uint64_t) mut_int;
     const prob mut_prob = PROBABILITY(mut_frac);
     double cross_int;
-    const double cross_frac = modf(args->mutation_prob, &cross_int);
+    const double cross_frac = modf(args->crossover_prob, &cross_int);
     const uint64_t cross_times = (uint64_t) cross_int;
 	const prob cross_prob = PROBABILITY(cross_frac);
 	random_seed_init();
@@ -323,7 +356,7 @@ struct LGPResult evolve(const struct LGPInput *const in, const struct LGPOptions
     }
     uint64_t winner = best_individ(&pop, args->fitness.type);
     if(args->verbose)
-		printf("\nGeneration 0, best_mse %lf, population_size %ld", pop.individual[winner].fitness, pop.size);
+		printf("Generation 0, best_mse %lf, population_size %ld\n", pop.individual[winner].fitness, pop.size);
     if(args->fitness.type == MINIMIZE){
         if (pop.individual[winner].fitness <= args->target){
             struct LGPResult res = {.evaluations = evaluations, .pop = pop, .generations = 0, .best_individ = winner};
@@ -336,22 +369,34 @@ struct LGPResult evolve(const struct LGPInput *const in, const struct LGPOptions
         }
     }
     // GENERATIONS LOOP
+    uint64_t buffer_size = pop.size;
     uint64_t gen;
     for(gen = 1; gen <= args->generations; gen++){
         // SELECTION
-        args->selection_func(&pop, &(args->select_param), args->fitness.type);
+        struct Population new_pop = args->selection_func(&pop, &(args->select_param), args->fitness.type);
+        ASSERT(new_pop.size > 0);
         // EVOLUTION
-        pop.individual = (struct Individual *) realloc(pop.individual, sizeof(struct Individual *) * (pop.size * (mut_times + 1 + 2 * (cross_times + 1))));
-        if (pop.individual == NULL){
-			MALLOC_FAIL;
+        uint64_t oldsize = new_pop.size;
+        uint64_t max_pop_size = oldsize * (mut_times + 1 + 2 * (cross_times + 1));
+        if(buffer_size < max_pop_size){
+            pop.individual = (struct Individual *) realloc(pop.individual, sizeof(struct Individual) * max_pop_size);
+            if (pop.individual == NULL){
+                MALLOC_FAIL;
+            }
+            buffer_size = max_pop_size;
         }
-        uint64_t oldsize = pop.size;
+        memcpy(pop.individual, new_pop.individual, oldsize);
+        free(new_pop.individual);
+        pop.size = oldsize;
 #pragma omp parallel for schedule(dynamic,1)
         for(uint64_t i = 0; i < oldsize; i++){
+            ASSERT(pop.individual[i].prog.size > 0);
+            // MUTATION
             for(uint64_t j = 0; j < mut_times + 1; j++){
                 if (WILL_HAPPEN(mut_prob)){
-                    struct Program child = mutation(in, &(pop.individual[i].prog), args->max_mutation_len, args->max_individ_len);
-                    struct Individual mutated = {.prog = child, .fitness = args->fitness.fn(in, &child, args->max_clock)};
+                    const struct Program child = mutation(in, &(pop.individual[i].prog), args->max_mutation_len, args->max_individ_len);
+                    ASSERT(child.size > 0);
+                    const struct Individual mutated = {.prog = child, .fitness = args->fitness.fn(in, &child, args->max_clock)};
 #pragma omp critical
                     {
                         pop.individual[pop.size] = mutated;
@@ -359,12 +404,16 @@ struct LGPResult evolve(const struct LGPInput *const in, const struct LGPOptions
                     }
                 }
             }
+            // MUTATION
             for(uint64_t j = 0; j < cross_times + 1; j++){
                 if (WILL_HAPPEN(cross_prob)){
-                    uint64_t mate = RAND_UPTO(oldsize - 1);
-                    struct ProgramCouple children = crossover(&(pop.individual[i].prog), &(pop.individual[mate].prog), args->max_individ_len);
-                    struct Individual child1 = {.prog = children.prog[0], .fitness = args->fitness.fn(in, &children.prog[0], args->max_clock)};
-                    struct Individual child2 = {.prog = children.prog[1], .fitness = args->fitness.fn(in, &children.prog[1], args->max_clock)};
+                    const uint64_t mate = RAND_UPTO(oldsize - 1);
+                    ASSERT(pop.individual[mate].prog.size > 0);
+                    const struct ProgramCouple children = crossover(&(pop.individual[i].prog), &(pop.individual[mate].prog), args->max_individ_len);
+                    ASSERT(children.prog[0].size > 0);
+                    ASSERT(children.prog[1].size > 0);
+                    const struct Individual child1 = {.prog = children.prog[0], .fitness = args->fitness.fn(in, &children.prog[0], args->max_clock)};
+                    const struct Individual child2 = {.prog = children.prog[1], .fitness = args->fitness.fn(in, &children.prog[1], args->max_clock)};
 #pragma omp critical
                     {
                         pop.individual[pop.size] = child1;
@@ -378,20 +427,20 @@ struct LGPResult evolve(const struct LGPInput *const in, const struct LGPOptions
         evaluations += (pop.size - oldsize);
         winner = best_individ(&pop, args->fitness.type);
         if(args->verbose)
-            printf("\nGeneration %ld, best_mse %lf, population_size %ld, evaluations %ld", gen, pop.individual[winner].fitness, pop.size, evaluations);
+            printf("Generation %ld, best_mse %lf, population_size %ld, evaluations %ld\n", gen, pop.individual[winner].fitness, pop.size, evaluations);
         if(args->fitness.type == MINIMIZE){
             if(pop.individual[winner].fitness <= args->target){
-                struct LGPResult res = {.evaluations = evaluations, .pop = pop, .generations = gen, .best_individ = winner};
+                const struct LGPResult res = {.evaluations = evaluations, .pop = pop, .generations = gen, .best_individ = winner};
                 return res;
             }
         }else if(args->fitness.type == MAXIMIZE){
             if(pop.individual[winner].fitness >= args->target){
-                struct LGPResult res = {.evaluations = evaluations, .pop = pop, .generations = gen, .best_individ = winner};
+                const struct LGPResult res = {.evaluations = evaluations, .pop = pop, .generations = gen, .best_individ = winner};
                 return res;
             }
         }
     }
     gen -= 1; // the loop will stop at when res.generations = args->generations + 1; but only args->generations generations were applied
-    struct LGPResult res = {.evaluations = evaluations, .pop = pop, .generations = gen, .best_individ = winner};
+    const struct LGPResult res = {.evaluations = evaluations, .pop = pop, .generations = gen, .best_individ = winner};
     return res;
 }

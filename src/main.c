@@ -10,14 +10,14 @@ int main(int argc, char *argv[]){
 		.select_param = (union SelectionParams) {.size = 3},
 		.initialization_func = rand_population,
 		.init_params = (struct InitializationParams) {
-			.pop_size = 400,
+			.pop_size = 100,
 			.minsize = 5,
 			.maxsize = 20
 		},
 		.target = 1e-27,
-		.mutation_prob = 0.33,
+		.mutation_prob = 0.5,
 		.max_mutation_len = 10,
-		.crossover_prob = 0.69,
+		.crossover_prob = 0.7,
 		.max_clock = 2200,
 		.max_individ_len = MAX_PROGRAM_SIZE,
 		.generations = 300,

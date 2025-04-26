@@ -27,25 +27,29 @@ uint64_t run_vm(struct VirtualMachine *env, const uint64_t clock_limit){
             break;
             case I_CMP: // CMP
                 imm = env->core.reg[reg1] - env->core.reg[reg2];
-                env->core.flag.zero = (imm == 0);  // 01 => 0; 10 => -; 00 => +
+                env->core.flag.zero = (imm == 0);
                 env->core.flag.negative = (imm >> ((uint64_t) 63));
-                env->core.flag.odd |= ((uint32_t) (imm & 1)); // 1-- odd, 0-- even
+                env->core.flag.odd |= ((uint32_t) (imm & 1));
+                env->core.flag.exist = 1;
             break;
             case I_TEST: // TEST
                 imm = env->core.reg[reg1];
-                env->core.flag.zero = (imm == 0);  // 01 => 0; 10 => -; 00 => +
+                env->core.flag.zero = (imm == 0);
                 env->core.flag.negative = (imm >> ((uint64_t) 63));
-                env->core.flag.odd |= (imm & 1); // 1-- odd, 0-- even
+                env->core.flag.odd = (imm & 1);
+                env->core.flag.exist = 1;
             break;
             case I_CMP_F: // CMP_F
                 immf = env->core.freg[reg1] - env->core.freg[reg2];
                 env->core.flag.zero = (immf == 0.0);  // 01 => 0; 10 => -; 00 => +
                 env->core.flag.negative = (immf < 0.0);
+                env->core.flag.exist = isfinite(immf);
             break;
             case I_TEST_F: // TEST_F
                 immf = env->core.freg[reg1];
                 env->core.flag.zero = (immf == 0.0);  // 01 => 0; 10 => -; 00 => +
                 env->core.flag.negative = (immf < 0.0);
+                env->core.flag.exist = isfinite(immf);
             break;
             case I_JMP: // JUMP
                 env->core.prcount=addr;
@@ -55,6 +59,12 @@ uint64_t run_vm(struct VirtualMachine *env, const uint64_t clock_limit){
             break;
             case I_JMP_NZ: // JNZ
                 if (! env->core.flag.zero) env->core.prcount = addr;
+            break;
+            case I_JMP_EXIST: // JNAN
+                if (env->core.flag.exist) env->core.prcount = addr;
+            break;
+            case I_JMP_NEXIST: // JNNAN
+                if (! env->core.flag.exist) env->core.prcount = addr;
             break;
             case I_JMP_L: // JL
                 if (env->core.flag.negative) env->core.prcount = addr;
@@ -98,6 +108,12 @@ uint64_t run_vm(struct VirtualMachine *env, const uint64_t clock_limit){
             case I_CMOV_GE: // MOVGE
                 if (! env->core.flag.negative) env->core.reg[reg1] = env->core.reg[reg2];
             break;
+            case I_CMOV_EXIST: // MOVGE
+                if (env->core.flag.exist) env->core.reg[reg1] = env->core.reg[reg2];
+            break;
+            case I_CMOV_NEXIST: // MOVGE
+                if (! env->core.flag.exist) env->core.reg[reg1] = env->core.reg[reg2];
+            break;
             case I_CMOV_ODD:
                 if (env->core.flag.odd) env->core.reg[reg1] = env->core.reg[reg2];
             break;
@@ -137,6 +153,12 @@ uint64_t run_vm(struct VirtualMachine *env, const uint64_t clock_limit){
             case I_CMOV_GE_F: // MOVFGE
                 if (! env->core.flag.negative) env->core.freg[reg1] = env->core.freg[reg2];
             break;
+            case I_CMOV_EXIST_F: // MOVGE
+                if (env->core.flag.exist) env->core.freg[reg1] = env->core.freg[reg2];
+            break;
+            case I_CMOV_NEXIST_F: // MOVGE
+                if (! env->core.flag.exist) env->core.freg[reg1] = env->core.freg[reg2];
+            break;
             case I_CMOV_ODD_F:
                 if (env->core.flag.odd) env->core.freg[reg1] = env->core.freg[reg2];
             break;
@@ -166,7 +188,8 @@ uint64_t run_vm(struct VirtualMachine *env, const uint64_t clock_limit){
                 env->core.reg[reg1] = env->core.reg[reg2] * env->core.reg[reg3];
             break;
             case I_DIV: // DIV
-                env->core.reg[reg1] = env->core.reg[reg2] / env->core.reg[reg3];
+                if(env->core.reg[reg3] != 0)
+                    env->core.reg[reg1] = env->core.reg[reg2] / env->core.reg[reg3];
             break;
             case I_ADD_F:  // ADDF
                 env->core.freg[reg1] = env->core.freg[reg2] + env->core.freg[reg3];
@@ -181,7 +204,8 @@ uint64_t run_vm(struct VirtualMachine *env, const uint64_t clock_limit){
                 env->core.freg[reg1] = env->core.freg[reg2] / env->core.freg[reg3];
             break;
             case I_MOD: // MOD
-                env->core.reg[reg1] = env->core.reg[reg2] % env->core.reg[reg3];
+                if(env->core.reg[reg3] != 0)
+                    env->core.reg[reg1] = env->core.reg[reg2] % env->core.reg[reg3];
             break;
             case I_INC: // INC
                 env->core.reg[reg1] += 1;
@@ -203,14 +227,17 @@ uint64_t run_vm(struct VirtualMachine *env, const uint64_t clock_limit){
                 env->core.reg[reg1] = ~ env->core.reg[reg1];
             break;
             case I_SHL: // SHL
-                env->core.reg[reg1] = env->core.reg[reg2] << env->core.reg[reg3];
+                if(env->core.reg[reg3] < 64)
+                    env->core.reg[reg1] = env->core.reg[reg2] << env->core.reg[reg3];
             break;
             case I_SHR: // SHR
-                env->core.reg[reg1] = env->core.reg[reg2] >> env->core.reg[reg3];
+                if(env->core.reg[reg3] < 64)
+                    env->core.reg[reg1] = env->core.reg[reg2] >> env->core.reg[reg3];
             break;
 
             case I_CAST: // CAST
-                env->core.reg[reg1] = (uint64_t) env->core.freg[reg2];
+                if(env->core.freg[reg2] > ((double) 0xFFFFFFFFFFFFFFFFUL))
+                    env->core.reg[reg1] = (uint64_t) env->core.freg[reg2];
             break;
             case I_CAST_F: // CASTF
                 env->core.freg[reg1] = (double) env->core.reg[reg2];
@@ -275,7 +302,7 @@ uint64_t run_vm(struct VirtualMachine *env, const uint64_t clock_limit){
                 env->core.reg[reg1] = rand();
             break;
             default:
-                unreachable();
+                ASSERT(0);
             break;
         }
     }

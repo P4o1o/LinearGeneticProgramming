@@ -10,6 +10,8 @@
 #include <string.h>
 #include <omp.h>
 
+#include "memdebug.h"
+
 #define MAX_PROGRAM_SIZE 254
 
 union InstrToU64{
@@ -109,15 +111,15 @@ union SelectionParams{
     const struct FitnessSharingParams fs_params; // fitness_sharing_tournament, fitness_sharing_roulette
 };
 
-typedef void (*selection_fn)(struct Population*, const union SelectionParams*, const enum FitnessType);
+typedef struct Population (*selection_fn)(struct Population*, const union SelectionParams*, const enum FitnessType);
 
-void tournament(struct Population* initial, const union SelectionParams* tourn_size, const enum FitnessType ftype);
-void elitism(struct Population* initial, const union SelectionParams* new_size, const enum FitnessType ftype);
-void percentual_elitism(struct Population* initial, const union SelectionParams *elite_size, const enum FitnessType ftype);
-void roulette_selection(struct Population* initial, const union SelectionParams* elite_size, const enum FitnessType ftype);
-void fitness_sharing_tournament(struct Population* initial, const union SelectionParams *params, const enum FitnessType ftype);
-void fitness_sharing_roulette(struct Population* initial, const union SelectionParams *params, const enum FitnessType ftype);
-void fitness_sharing_elitism(struct Population* initial, const union SelectionParams *params, const enum FitnessType ftype);
+struct Population tournament(struct Population* initial, const union SelectionParams* tourn_size, const enum FitnessType ftype);
+struct Population elitism(struct Population* initial, const union SelectionParams* new_size, const enum FitnessType ftype);
+struct Population percentual_elitism(struct Population* initial, const union SelectionParams *elite_size, const enum FitnessType ftype);
+struct Population roulette_selection(struct Population* initial, const union SelectionParams* elite_size, const enum FitnessType ftype);
+struct Population fitness_sharing_tournament(struct Population* initial, const union SelectionParams *params, const enum FitnessType ftype);
+struct Population fitness_sharing_roulette(struct Population* initial, const union SelectionParams *params, const enum FitnessType ftype);
+struct Population fitness_sharing_elitism(struct Population* initial, const union SelectionParams *params, const enum FitnessType ftype);
 
 
 struct LGPOptions {

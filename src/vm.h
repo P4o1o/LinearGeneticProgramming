@@ -7,7 +7,14 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-#define INSTR_NUM 80
+#include "memdebug.h"
+
+#define ASSERT(x) \
+	do \
+		if(!(x)) unreachable(); \
+	while(0)
+
+#define INSTR_NUM 86
 
 #define INSTR_MACRO \
 	X(EXIT,   0,	0,	1) \
@@ -21,6 +28,8 @@
 	X(CMOV_G,   2,	0,	0) \
 	X(CMOV_LE,  2,	0,	0) \
 	X(CMOV_GE,  2,	0,	0) \
+	X(CMOV_EXIST, 2, 0,	0) \
+	X(CMOV_NEXIST, 2, 0,	0) \
 	X(CMOV_ODD, 2,	0,	0) \
 	X(CMOV_EVEN, 2,	0,	0) \
 	X(MOV_I,   1,	1,	0) \
@@ -31,6 +40,8 @@
 	X(JMP_G,     0,	3,	1) \
 	X(JMP_LE,    0,	3,	1) \
 	X(JMP_GE,    0,	3,	1) \
+	X(JMP_EXIST, 0, 3,	1) \
+	X(JMP_NEXIST,0, 3,	1) \
 	X(JMP_EVEN,  0,	3,	1) \
 	X(JMP_ODD,   0,	3,	1) \
 	X(CLC,    0,	0,	1) \
@@ -62,6 +73,8 @@
 	X(CMOV_LE_F, 2,	0,	0) \
 	X(CMOV_GE_F, 2,	0,	0) \
 	X(MOV_I_F,  1,	5,	0) \
+	X(CMOV_EXIST_F, 2, 0,	0) \
+	X(CMOV_NEXIST_F,2, 0,	0) \
 	X(CMOV_ODD_F, 2,	0,	0) \
 	X(CMOV_EVEN_F, 2,	0,	0) \
 	X(CMP_F,   2,	0,	1) \
@@ -127,6 +140,7 @@ struct FlagReg{
     unsigned odd : 1;
     unsigned negative : 1;
     unsigned zero : 1;
+	unsigned exist : 1;
 };
 
 struct Core {

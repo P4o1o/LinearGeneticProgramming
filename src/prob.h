@@ -17,8 +17,8 @@ typedef uint64_t prob;
 #define WILL_HAPPEN(p) ((p) > (prob) rand()) // takes a probability expressed in prob (uint64_t), returns 1 if the event happen else 0
 
 // RANDOM INTEGERS
-#define RAND_BOUNDS(min, max) ((min) + (rand() % ((max) - (min) + 1)))
-#define RAND_UPTO(max) (rand() % ((max) + 1))
+#define RAND_BOUNDS(min, max) ((min) + ((uint64_t) rand() % ((max) - (min) + (uint64_t) 1)))
+#define RAND_UPTO(max) ((uint64_t) rand() % ((max) + (uint64_t) 1))
 
 // RANDOM DOUBLE
 #define RAND_DOUBLE() (DBL_MIN + ((double)rand() / RAND_MAX) * (DBL_MAX - DBL_MIN))
