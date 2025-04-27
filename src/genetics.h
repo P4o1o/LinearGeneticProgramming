@@ -14,26 +14,15 @@
 
 #define MAX_PROGRAM_SIZE 254
 
-union InstrToU64{
-	const struct Instruction instr;
-	const uint64_t u64;
-};
-
 struct Program{
     struct Instruction content[MAX_PROGRAM_SIZE + 1];
     uint64_t size;
-};
-
-struct ProgramCouple{
-	struct Program prog[2];
 };
 
 struct Individual{
 	struct Program prog;
     double fitness;
 };
-
-void print_program(const struct Program* prog);
 
 struct Population{
     struct Individual *individual;
@@ -53,22 +42,6 @@ struct LGPInput{
 	union Memblock *memory; //problem1, solution1, problem2, solution2, problem3, ...
 };
 
-typedef double (*fitness_fn)(const struct LGPInput *const, const struct Program *const, const uint64_t);
-
-double mse(const struct LGPInput *const in, const struct Program *const prog, const uint64_t max_clock);
-
-enum FitnessType{
-	MINIMIZE,
-	MAXIMIZE
-};
-
-struct FitnessAssesment{
-	fitness_fn fn;
-	enum FitnessType type;
-};
-
-extern const struct FitnessAssesment MSE;
-
 struct LGPResult{
 	const struct Population pop; // resulting pupulation
 	const uint64_t evaluations; // number of the total evaluations done in this evolution
@@ -76,69 +49,42 @@ struct LGPResult{
 	const uint64_t best_individ; // index of the best individual in the Population
 };
 
-struct InitializationParams{
-	const uint64_t pop_size; // size of the initial Population
-	const uint64_t minsize; // minimum size of a program generated in the initialization_func
-	const uint64_t maxsize; // maximum size of a program generated in the initialization_func
-};
-
-typedef struct LGPResult (*initialization_fn)(const struct LGPInput *const, const struct InitializationParams *const, const struct FitnessAssesment *const, const uint64_t);
-
-// used in unique_population
-
-struct PrgTableNode{
-	const struct Program prog;
-	const uint64_t hash;
-};
-
-struct ProgramTable{
-	struct PrgTableNode *table;
-	const uint64_t size;
-};
-struct LGPResult unique_population(const struct LGPInput *const in, const struct InitializationParams *const params, const struct FitnessAssesment *const fitness, const uint64_t max_clock);
-struct LGPResult rand_population(const struct LGPInput *const in, const struct InitializationParams *const params, const struct FitnessAssesment *const fitness, const uint64_t max_clock);
-
-struct FitnessSharingParams{ // parameters for selections based on fitness sharing
-    const double alpha;
-    const double beta;
-    const double sigma;
-    const uint64_t size;
-};
-
-union SelectionParams{
-    const uint64_t size; // size of the tournament, size of the elite for elitism, size of sampling in roulette_selection
-    const double val; // percentual_elitism
-    const struct FitnessSharingParams fs_params; // fitness_sharing_tournament, fitness_sharing_roulette
-};
-
-typedef void (*selection_fn)(struct Population*, const union SelectionParams*, const enum FitnessType);
-
-void tournament(struct Population* initial, const union SelectionParams* tourn_size, const enum FitnessType ftype);
-void elitism(struct Population* initial, const union SelectionParams* new_size, const enum FitnessType ftype);
-void percentual_elitism(struct Population* initial, const union SelectionParams *elite_size, const enum FitnessType ftype);
-void roulette_selection(struct Population* initial, const union SelectionParams* elite_size, const enum FitnessType ftype);
-void fitness_sharing_tournament(struct Population* initial, const union SelectionParams *params, const enum FitnessType ftype);
-void fitness_sharing_roulette(struct Population* initial, const union SelectionParams *params, const enum FitnessType ftype);
-void fitness_sharing_elitism(struct Population* initial, const union SelectionParams *params, const enum FitnessType ftype);
-
-
-struct LGPOptions {
-	const struct FitnessAssesment fitness;	// fitness function for program evaluation
-	const selection_fn selection_func; // selection function to be used
-	const initialization_fn initialization_func; // function for create an initial Population
-	const union SelectionParams select_param; // parameters for the selection function
-	const struct InitializationParams init_params; // parameters for the initialization function
-	const struct Population initial_pop; // if initialization_func == NULL then start with initial_pop
-	const double target; // the evolution stops if tollerance > mse of the best individual
-	const double mutation_prob; // mutation propability
-	const double crossover_prob; // crossover propability
-    const uint64_t max_clock;
-    const uint64_t max_individ_len;
-	const uint64_t max_mutation_len; // maximum lenght of the new cromosomes added by the mutation
-	const uint64_t generations; // maximum generation of execution
-	const unsigned verbose; // if 0 doesn't print anything else for every generations print "number of generation, best individual's mse, Population size and number of evaluations"
-};
-
-struct LGPResult evolve(const struct LGPInput *const in, const struct LGPOptions *const args);
+inline struct Instruction rand_instruction(const struct LGPInput *const in, const uint64_t prog_size){
+    ASSERT(prog_size > 0);
+    ASSERT(prog_size <= MAX_PROGRAM_SIZE);
+    ASSERT(in->rom_size > 0);
+    const struct Operation op = in->instr_set.op[RAND_UPTO(in->instr_set.size - 1)];
+    const enum InstrCode opcode = op.code;
+    uint32_t addr;
+    switch(op.addr){
+        case 1:
+            addr = rand();
+        break;
+        case 2:
+            addr = RAND_UPTO(RAM_SIZE - 1);
+        break;
+        case 3:
+            addr = RAND_UPTO(prog_size + 1);
+        break;
+        case 4:
+            addr = RAND_UPTO(in->rom_size - 1);
+        break;
+        case 5:
+            addr = RAND_DOUBLE();
+        break;
+        case 0:
+            addr = 0;
+        break;
+        default:
+            ASSERT(0);
+        break;
+    }
+    uint8_t regs[3] = {0, 0, 0};
+    for (uint64_t j = 0; j < op.regs; j++){
+        regs[j] = RAND_UPTO(REG_NUM - 1);
+    }
+    const struct Instruction res = { .op = opcode, .reg = {regs[0], regs[1], regs[2]}, .addr = addr};
+    return res;
+}
 
 #endif
