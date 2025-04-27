@@ -31,6 +31,88 @@ static inline unsigned int equal_program(const struct Program *const prog1, cons
 	return 1;
 }
 
+static inline double edit_distance(const struct Program *const prog1, const struct Program *const prog2){
+	uint64_t row_len = prog2->size + 1;
+	double *table = malloc((prog1->size + 1) * row_len * sizeof(double));
+	if(table == NULL)
+		MALLOC_FAIL_THREADSAFE;
+	for(uint64_t j = 0; j <= prog2->size; j++){
+		table[j] = (double) j;
+	}
+	for(uint64_t i = 1; i <= prog1->size; i++){
+		table[i * row_len] = (double) i;
+	}
+	for(uint64_t i = 1; i <= prog1->size; i++){
+		for(uint64_t j = 1; j <= prog2->size; j++){
+			double cost = 0.0;
+			if(prog1->content[i - 1].op == prog2->content[j - 1].op){
+                if(prog1->content[i - 1].addr != prog2->content[i - 1].addr)
+                    cost = 0.5;
+				if(prog1->content[i - 1].reg[0] != prog2->content[i - 1].reg[0]){
+					cost += 0.2;
+				}
+                if(prog1->content[i - 1].reg[1] != prog2->content[i - 1].reg[1]){
+					cost += 0.15;
+				}
+                if(prog1->content[i - 1].reg[2] != prog2->content[i - 1].reg[2]){
+					cost += 0.15;
+				}
+			}else{
+				cost = 1.0;				
+			}
+			double subst = table[(i - 1) * row_len + j - 1] + cost;
+			double delete = table[(i - 1) * row_len + j] + 1.0;
+			double insert = table[i * row_len + j - 1] + 1.0;
+			table[i * row_len + j] = (subst < insert && subst < delete) ? subst : (insert  < delete) ? insert : delete;
+		}
+	}
+	double result = table[ind1->dna_len * row_len + ind2->dna_len];
+	free(table);
+	return result;
+}
+
+static inline double *distances_table(const struct Population *const pop){
+	double *distance_tab = malloc(sizeof(double) * ((size_t) pop->size) * ((size_t) pop->size));
+	if(distance_tab == NULL)
+		MALLOC_FAIL;
+#pragma omp parallel for collapse(2)
+	for(length_t i = 0; i < pop->size; i++){
+		for(length_t j = i; j < pop->size; j++){
+			if(i == j){
+				distance_tab[i * pop->size + j] = 0.0;
+			}else{
+				distance_tab[i * pop->size + j] = edit_distance(genv, &pop->individuals[i], &pop->individuals[j]);
+				distance_tab[j * pop->size + i] = distance_tab[i * pop->size + j];
+			}
+		}
+	}
+	return distance_tab;
+}
+
+static inline double *fitness_sharing(struct Population *const initial, const union SelectionParams *const params){
+	double * dtab = distances_table(initial);
+	double *res = malloc(sizeof(double) * initial->size);
+	if(res == NULL)
+		MALLOC_FAIL;
+#pragma omp parallel for schedule(static, 1)
+	for(length_t i = 0; i < initial->size; i++){
+		double sharing = 0.0;
+		for(length_t j = 0; j < initial->size; j++){
+			if(dtab[i * initial->size + j] == 0){
+				sharing += 1;
+			}else if(dtab[i * initial->size + j] < params->fs_params.sigma){
+				sharing += 1.0 - pow((dtab[i * initial->size + j] / params->fs_params.sigma), params->fs_params.alpha);
+			}
+		}
+		if(sharing == 0.0)
+			sharing = 1.0;
+		res[i] = pow(initial->content.fitness[i], params->fs_params.beta) / sharing;
+	}
+	free(dtab);
+	return res;
+}
+
+
 static inline uint64_t hash_program(const struct Program *const prog){
     uint64_t hash = prog->size;
     for(uint64_t i = 0; i < prog->size; i++){
@@ -177,7 +259,7 @@ static inline void shuffle_population(struct Population* pop) {
 	}
 }
 
-struct Population tournament(struct Population * initial, const union SelectionParams* tourn_size, const enum FitnessType ftype){
+void tournament(struct Population * initial, const union SelectionParams* tourn_size, const enum FitnessType ftype){
     ASSERT(initial->size > 0);
     shuffle_population(initial);
     uint64_t tournaments = initial->size / tourn_size->size;
@@ -229,12 +311,15 @@ struct Population tournament(struct Population * initial, const union SelectionP
             res.individual[res.size - 1] = initial->individual[initial->size - winner];
         }
     }
-    return res;
+    memcpy(initial->individual, res.individual, res.size * sizeof(struct Individual));
+    initial->size = res.size;
+    free(res.individual);
 }
 
 static inline struct Program mutation(const struct LGPInput *const in, const struct Program *const parent, const uint64_t max_mut_len, const uint64_t max_individ_len) {
     ASSERT(parent->size > 0);
     ASSERT(parent->size <= max_individ_len);
+    ASSERT(max_individ_len <= MAX_PROGRAM_SIZE);
 	uint64_t start = RAND_UPTO(parent->size);
 	uint64_t last_piece = parent->size - start;
 	uint64_t substitution = RAND_UPTO(last_piece);
@@ -282,21 +367,22 @@ static inline struct ProgramCouple crossover(const struct Program *const father,
     ASSERT(father->size <= MAX_PROGRAM_SIZE);
     ASSERT(mother->size > 0);
     ASSERT(mother->size <= MAX_PROGRAM_SIZE);
+    ASSERT(max_individ_len <= MAX_PROGRAM_SIZE);
     const uint64_t start_f = RAND_UPTO(father->size - 1);
 	uint64_t end_f = RAND_BOUNDS(start_f + 1, father->size);
 	const uint64_t start_m = RAND_UPTO(mother->size - 1);
 	uint64_t end_m = RAND_BOUNDS(start_m + 1, mother->size);
 	uint64_t slice_m_size = end_m - start_m;
 	uint64_t slice_f_size = end_f - start_f;
-    const int64_t slice_diff = slice_f_size - slice_m_size;
+    const int64_t slice_diff = ((int64_t) slice_f_size) - ((int64_t) slice_m_size);
     if(slice_diff > 0){
-        if((mother->size + slice_diff) > max_individ_len){
-            end_f -= slice_diff;
+        if((mother->size + ((uint64_t) slice_diff)) > max_individ_len){
+            end_f -= ((uint64_t) slice_diff);
             slice_f_size = slice_m_size;
         }
     }else if(slice_diff < 0){
-        if((father->size - slice_diff) > max_individ_len){
-            end_m += slice_diff;
+        if((((int64_t) father->size) - slice_diff) > ((int64_t) max_individ_len)){
+            end_m += ((uint64_t) slice_diff);
             slice_m_size = slice_f_size;
         }
     }
@@ -373,11 +459,11 @@ struct LGPResult evolve(const struct LGPInput *const in, const struct LGPOptions
     uint64_t gen;
     for(gen = 1; gen <= args->generations; gen++){
         // SELECTION
-        struct Population new_pop = args->selection_func(&pop, &(args->select_param), args->fitness.type);
-        ASSERT(new_pop.size > 0);
+        args->selection_func(&pop, &(args->select_param), args->fitness.type);
+        ASSERT(pop.size > 0);
         // EVOLUTION
-        uint64_t oldsize = new_pop.size;
-        uint64_t max_pop_size = oldsize * (mut_times + 1 + 2 * (cross_times + 1));
+        uint64_t oldsize = pop.size;
+        uint64_t max_pop_size = oldsize * (mut_times + 1 + 2 * (cross_times + 1) + 1);
         if(buffer_size < max_pop_size){
             pop.individual = (struct Individual *) realloc(pop.individual, sizeof(struct Individual) * max_pop_size);
             if (pop.individual == NULL){
@@ -385,9 +471,6 @@ struct LGPResult evolve(const struct LGPInput *const in, const struct LGPOptions
             }
             buffer_size = max_pop_size;
         }
-        memcpy(pop.individual, new_pop.individual, oldsize);
-        free(new_pop.individual);
-        pop.size = oldsize;
 #pragma omp parallel for schedule(dynamic,1)
         for(uint64_t i = 0; i < oldsize; i++){
             ASSERT(pop.individual[i].prog.size > 0);
