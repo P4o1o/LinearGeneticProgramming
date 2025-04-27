@@ -1,10 +1,10 @@
 #include "vm.h"
 
-#define X(name, regs, addr, change) [I_##name] = {#name, regs, addr, change, I_##name},
+#define INSTRUCTION(name, regs, addr, change) [I_##name] = {#name, regs, addr, change, I_##name},
 const struct Operation INSTRSET[] = {
     INSTR_MACRO
 };
-#undef X
+#undef INSTRUCTION
 
 uint64_t run_vm(struct VirtualMachine *env, const uint64_t clock_limit){
     for(uint64_t i = 0; i < clock_limit; i++){

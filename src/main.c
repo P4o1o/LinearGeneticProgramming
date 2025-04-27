@@ -1,12 +1,12 @@
 #include <stdio.h>
-#include "genetics.h"
+#include "evolution.h"
 #include "psb2.h"
 
 int main(int argc, char *argv[]){
 
 	const struct LGPOptions par = {
 		.fitness = MSE,
-		.selection_func = tournament,
+		.selection = tournament,
 		.select_param = (union SelectionParams) {.size = 3},
 		.initialization_func = rand_population,
 		.init_params = (struct InitializationParams) {

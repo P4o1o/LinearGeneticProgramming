@@ -17,99 +17,99 @@
 #define INSTR_NUM 86
 
 #define INSTR_MACRO \
-	X(EXIT,   0,	0,	1) \
-	X(LOAD_RAM,   1,	2,	0) \
-	X(STORE_RAM,  1,	2,	2) \
-	X(LOAD_ROM,   1,	4,	0) \
-	X(MOV,    2,	0,	0) \
-	X(CMOV_Z,   2,	0,	0) \
-	X(CMOV_NZ,  2,	0,	0) \
-	X(CMOV_L,   2,	0,	0) \
-	X(CMOV_G,   2,	0,	0) \
-	X(CMOV_LE,  2,	0,	0) \
-	X(CMOV_GE,  2,	0,	0) \
-	X(CMOV_EXIST, 2, 0,	0) \
-	X(CMOV_NEXIST, 2, 0,	0) \
-	X(CMOV_ODD, 2,	0,	0) \
-	X(CMOV_EVEN, 2,	0,	0) \
-	X(MOV_I,   1,	1,	0) \
-	X(JMP,    0,	3,	1) \
-	X(JMP_Z,     0,	3,	1) \
-	X(JMP_NZ,    0,	3,	1) \
-	X(JMP_L,     0,	3,	1) \
-	X(JMP_G,     0,	3,	1) \
-	X(JMP_LE,    0,	3,	1) \
-	X(JMP_GE,    0,	3,	1) \
-	X(JMP_EXIST, 0, 3,	1) \
-	X(JMP_NEXIST,0, 3,	1) \
-	X(JMP_EVEN,  0,	3,	1) \
-	X(JMP_ODD,   0,	3,	1) \
-	X(CLC,    0,	0,	1) \
-	X(CMP,    2,	0,	1) \
-	X(TEST,   1,	0,	1) \
-	X(ADD,    3,	0,	0) \
-	X(SUB,    3,	0,	0) \
-	X(MUL,    3,	0,	0) \
-	X(DIV,    3,	0,	0) \
-	X(MOD,    3,	0,	0) \
-	X(INC,    1,	0,	0) \
-	X(DEC,    1,	0,	0) \
-	X(AND,    3,	0,	0) \
-	X(OR,     3,	0,	0) \
-	X(XOR,    3,	0,	0) \
-	X(NOT,    2,	0,	0) \
-	X(SHL,    3,	0,	0) \
-	X(SHR,    3,	0,	0) \
-	X(CAST,   2,	0,	0) \
-	X(NOP,    0,	0,	0) \
-	X(LOAD_RAM_F,  1,	2,	0) \
-	X(LOAD_ROM_F,  1,	4,	0) \
-	X(STORE_RAM_F, 1,	2,	2) \
-	X(MOV_F,   2,	0,	0) \
-	X(CMOV_Z_F,  2,	0,	0) \
-	X(CMOV_NZ_F, 2,	0,	0) \
-	X(CMOV_L_F,  2,	0,	0) \
-	X(CMOV_G_F,  2,	0,	0) \
-	X(CMOV_LE_F, 2,	0,	0) \
-	X(CMOV_GE_F, 2,	0,	0) \
-	X(MOV_I_F,  1,	5,	0) \
-	X(CMOV_EXIST_F, 2, 0,	0) \
-	X(CMOV_NEXIST_F,2, 0,	0) \
-	X(CMOV_ODD_F, 2,	0,	0) \
-	X(CMOV_EVEN_F, 2,	0,	0) \
-	X(CMP_F,   2,	0,	1) \
-	X(TEST_F,  1,	0,	1) \
-	X(ADD_F,   3,	0,	0) \
-	X(SUB_F,   3,	0,	0) \
-	X(MUL_F,   3,	0,	0) \
-	X(DIV_F,   3,	0,	0) \
-	X(SQRT,   2,	0,	0) \
-	X(POW,    3,	0,	0) \
-	X(EXP,    2,	0,	0) \
-	X(LN,     2,	0,	0) \
-	X(LOG,    2,	0,	0) \
-	X(LOG10,  2,	0,	0) \
-	X(COS,    2,	0,	0) \
-	X(SIN,    2,	0,	0) \
-	X(TAN,    2,	0,	0) \
-	X(ACOS,   2,	0,	0) \
-	X(ASIN,   2,	0,	0) \
-	X(ATAN,   2,	0,	0) \
-	X(COSH,   2,	0,	0) \
-	X(SINH,   2,	0,	0) \
-	X(TANH,   2,	0,	0) \
-	X(ACOSH,  2,	0,	0) \
-	X(ASINH,  2,	0,	0) \
-	X(ATANH,  2,	0,	0) \
-	X(CAST_F,  2,	0,	0) \
-	X(RAND,   1,	0,	0)
+	INSTRUCTION(EXIT,   0,	0,	1) \
+	INSTRUCTION(LOAD_RAM,   1,	2,	0) \
+	INSTRUCTION(STORE_RAM,  1,	2,	2) \
+	INSTRUCTION(LOAD_ROM,   1,	4,	0) \
+	INSTRUCTION(MOV,    2,	0,	0) \
+	INSTRUCTION(CMOV_Z,   2,	0,	0) \
+	INSTRUCTION(CMOV_NZ,  2,	0,	0) \
+	INSTRUCTION(CMOV_L,   2,	0,	0) \
+	INSTRUCTION(CMOV_G,   2,	0,	0) \
+	INSTRUCTION(CMOV_LE,  2,	0,	0) \
+	INSTRUCTION(CMOV_GE,  2,	0,	0) \
+	INSTRUCTION(CMOV_EXIST, 2, 0,	0) \
+	INSTRUCTION(CMOV_NEXIST, 2, 0,	0) \
+	INSTRUCTION(CMOV_ODD, 2,	0,	0) \
+	INSTRUCTION(CMOV_EVEN, 2,	0,	0) \
+	INSTRUCTION(MOV_I,   1,	1,	0) \
+	INSTRUCTION(JMP,    0,	3,	1) \
+	INSTRUCTION(JMP_Z,     0,	3,	1) \
+	INSTRUCTION(JMP_NZ,    0,	3,	1) \
+	INSTRUCTION(JMP_L,     0,	3,	1) \
+	INSTRUCTION(JMP_G,     0,	3,	1) \
+	INSTRUCTION(JMP_LE,    0,	3,	1) \
+	INSTRUCTION(JMP_GE,    0,	3,	1) \
+	INSTRUCTION(JMP_EXIST, 0, 3,	1) \
+	INSTRUCTION(JMP_NEXIST,0, 3,	1) \
+	INSTRUCTION(JMP_EVEN,  0,	3,	1) \
+	INSTRUCTION(JMP_ODD,   0,	3,	1) \
+	INSTRUCTION(CLC,    0,	0,	1) \
+	INSTRUCTION(CMP,    2,	0,	1) \
+	INSTRUCTION(TEST,   1,	0,	1) \
+	INSTRUCTION(ADD,    3,	0,	0) \
+	INSTRUCTION(SUB,    3,	0,	0) \
+	INSTRUCTION(MUL,    3,	0,	0) \
+	INSTRUCTION(DIV,    3,	0,	0) \
+	INSTRUCTION(MOD,    3,	0,	0) \
+	INSTRUCTION(INC,    1,	0,	0) \
+	INSTRUCTION(DEC,    1,	0,	0) \
+	INSTRUCTION(AND,    3,	0,	0) \
+	INSTRUCTION(OR,     3,	0,	0) \
+	INSTRUCTION(XOR,    3,	0,	0) \
+	INSTRUCTION(NOT,    2,	0,	0) \
+	INSTRUCTION(SHL,    3,	0,	0) \
+	INSTRUCTION(SHR,    3,	0,	0) \
+	INSTRUCTION(CAST,   2,	0,	0) \
+	INSTRUCTION(NOP,    0,	0,	0) \
+	INSTRUCTION(LOAD_RAM_F,  1,	2,	0) \
+	INSTRUCTION(LOAD_ROM_F,  1,	4,	0) \
+	INSTRUCTION(STORE_RAM_F, 1,	2,	2) \
+	INSTRUCTION(MOV_F,   2,	0,	0) \
+	INSTRUCTION(CMOV_Z_F,  2,	0,	0) \
+	INSTRUCTION(CMOV_NZ_F, 2,	0,	0) \
+	INSTRUCTION(CMOV_L_F,  2,	0,	0) \
+	INSTRUCTION(CMOV_G_F,  2,	0,	0) \
+	INSTRUCTION(CMOV_LE_F, 2,	0,	0) \
+	INSTRUCTION(CMOV_GE_F, 2,	0,	0) \
+	INSTRUCTION(MOV_I_F,  1,	5,	0) \
+	INSTRUCTION(CMOV_EXIST_F, 2, 0,	0) \
+	INSTRUCTION(CMOV_NEXIST_F,2, 0,	0) \
+	INSTRUCTION(CMOV_ODD_F, 2,	0,	0) \
+	INSTRUCTION(CMOV_EVEN_F, 2,	0,	0) \
+	INSTRUCTION(CMP_F,   2,	0,	1) \
+	INSTRUCTION(TEST_F,  1,	0,	1) \
+	INSTRUCTION(ADD_F,   3,	0,	0) \
+	INSTRUCTION(SUB_F,   3,	0,	0) \
+	INSTRUCTION(MUL_F,   3,	0,	0) \
+	INSTRUCTION(DIV_F,   3,	0,	0) \
+	INSTRUCTION(SQRT,   2,	0,	0) \
+	INSTRUCTION(POW,    3,	0,	0) \
+	INSTRUCTION(EXP,    2,	0,	0) \
+	INSTRUCTION(LN,     2,	0,	0) \
+	INSTRUCTION(LOG,    2,	0,	0) \
+	INSTRUCTION(LOG10,  2,	0,	0) \
+	INSTRUCTION(COS,    2,	0,	0) \
+	INSTRUCTION(SIN,    2,	0,	0) \
+	INSTRUCTION(TAN,    2,	0,	0) \
+	INSTRUCTION(ACOS,   2,	0,	0) \
+	INSTRUCTION(ASIN,   2,	0,	0) \
+	INSTRUCTION(ATAN,   2,	0,	0) \
+	INSTRUCTION(COSH,   2,	0,	0) \
+	INSTRUCTION(SINH,   2,	0,	0) \
+	INSTRUCTION(TANH,   2,	0,	0) \
+	INSTRUCTION(ACOSH,  2,	0,	0) \
+	INSTRUCTION(ASINH,  2,	0,	0) \
+	INSTRUCTION(ATANH,  2,	0,	0) \
+	INSTRUCTION(CAST_F,  2,	0,	0) \
+	INSTRUCTION(RAND,   1,	0,	0)
 
 
-#define X(name, regs, addr, change) I_##name,
+#define INSTRUCTION(name, regs, addr, change) I_##name,
 enum InstrCode : uint8_t {
 	INSTR_MACRO
 };
-#undef X
+#undef INSTRUCTION
 
 struct Operation {
 	const char *name;
