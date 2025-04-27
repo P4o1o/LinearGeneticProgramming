@@ -17,7 +17,7 @@ int main(int argc, char *argv[]){
 		.target = 1e-27,
 		.mutation_prob = 0.5,
 		.max_mutation_len = 10,
-		.crossover_prob = 0.7,
+		.crossover_prob = 0.8,
 		.max_clock = 2200,
 		.max_individ_len = MAX_PROGRAM_SIZE,
 		.generations = 300,
