@@ -11,8 +11,8 @@
 
 // DON'T USE THIS
 
-void log_error_exit(const char* error_message, const char* file, const size_t line);
-void log_error_exit_ts(const char* error_message, const char* file, const size_t line);
+[[noreturn]] void log_error_exit(const char* error_message, const char* file, const size_t line);
+[[noreturn]] void log_error_exit_ts(const char* error_message, const char* file, const size_t line);
 
 // USE THIS INSTEAD
 

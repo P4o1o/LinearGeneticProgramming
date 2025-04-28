@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -O3 -Wall -pedantic -std=c2x
+CFLAGS = -O3 -Wall -pedantic -std=c2x -mavx512f -mavx512dq
 DFLAGS = -ggdb3 -fsanitize=undefined
 LIBFLAGS = -lm -fopenmp
 SRCDIR = src
