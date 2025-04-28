@@ -32,11 +32,11 @@ static inline uint64_t xxh_roll(const uint64_t previous, const uint64_t input){
 
 #if defined(__AVX512F__) | defined(__AVX512DQ__)
     static inline __m512i avx512_xxh_roll(const __m512i previous, const __m512i input){
-        __m512i prime2 = _mm512_set1_epi64(PRIME2);
-        __m512i prime1 = _mm512_set1_epi64(PRIME1);
-        __m512i multiplied = _mm512_mullo_epi64(input, prime2);
-        __m512i added = _mm512_add_epi64(previous, multiplied);
-        __m512i rolled = _mm512_rol_epi64(added, 31);
+        const __m512i prime2 = _mm512_set1_epi64(PRIME2);
+        const __m512i prime1 = _mm512_set1_epi64(PRIME1);
+        const __m512i multiplied = _mm512_mullo_epi64(input, prime2);
+        const __m512i added = _mm512_add_epi64(previous, multiplied);
+        const __m512i rolled = _mm512_rol_epi64(added, 31);
         return _mm512_mullo_epi64(rolled, prime1);
     }
 #endif
@@ -143,7 +143,7 @@ struct LGPResult rand_population(const struct LGPInput *const in, const struct I
 	return res;
 }
 
-static uint64_t next_power_of_two(uint64_t x) {
+static inline uint64_t next_power_of_two(uint64_t x) {
     ASSERT(x > 0);
     for (uint64_t shift = 1; shift < sizeof(uint64_t)*8; shift <<= 1)
         x |= (x >> shift);
