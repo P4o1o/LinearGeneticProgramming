@@ -5,13 +5,15 @@
 #include <stdint.h>
 #include <float.h>
 
-uint64_t random(void);
+uint32_t random(void);
 
 void random_init(const uint32_t seed);
 
+#define RANDOM_MAX 0xFFFFFFFF
+
 // PROBABILITY
 typedef uint64_t prob;
-#define MAX_PROB (((prob) RAND_MAX) + 1) // this is 1.0 probability
+#define MAX_PROB (((prob) RANDOM_MAX) + 1) // this is 1.0 probability
 #define MIN_PROB 0 // this is 0.0 probability
 #define PROB_PRECISION 1.0 / MAX_PROB
 #define PROBABILITY(val) ((prob)(((double) MAX_PROB) * (val))) // give the probability in prob (uint64_t) from the double from 0.0 to 1.0 rappresenting it
@@ -23,8 +25,8 @@ typedef uint64_t prob;
 #define RAND_UPTO(max) ((uint64_t) rand() % ((max) + (uint64_t) 1))
 
 // RANDOM DOUBLE
-#define RAND_DOUBLE() (DBL_MIN + ((double)rand() / RAND_MAX) * (DBL_MAX - DBL_MIN))
-#define RAND_DBL_BOUNDS(min, max) (min + ((double)rand() / RAND_MAX) * (max - min))
+#define RAND_DOUBLE() (DBL_MIN + ((double)rand() / RANDOM_MAX) * (DBL_MAX - DBL_MIN))
+#define RAND_DBL_BOUNDS(min, max) (min + ((double)rand() / RANDOM_MAX) * (max - min))
 
 
 #define N 624
@@ -40,18 +42,25 @@ typedef uint64_t prob;
 #endif
 
 struct RandEngine{
-    alignas(32) uint32_t state[N];
-    uint64_t index;
+    union RandState{
     #if defined(__AVX512F__)
-        __m512i state256[N/8];
+        alignas(64) uint32_t i32[N];
+        alignas(64) __m512i avx512[N/16];
     #else
         #if defined(__AVX2__)
-            __m256i state256[N/4];
+            alignas(32) __m256i avx256[N/8];
+            alignas(32) uint32_t i32[N];
         #else
             #if defined(__SSE2__)
-                __m128i state128[N/2];
+                alignas(18) __m128i sse128[N/4];
+                alignas(18) uint32_t i32[N];
+            #else
+                uint32_t i32[N];
             #endif
+        #endif
     #endif
+    }state;
+    uint64_t index;
 };
 
 extern struct RandEngine rand_engine;
