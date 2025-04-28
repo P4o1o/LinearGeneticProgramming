@@ -133,40 +133,36 @@ static inline uint64_t xxhash_program(const struct Program *const prog){
                 _mm256_store_si256(counter, small_acc);
                 input += 4;
             }
+        #elif defined(__AVX2__)
+            __m256i acc = _mm256_load_si256(counter);
+            while(input + 4 <= end){
+                __m256i data = _mm256_load_si256(input);
+                acc = avx256_xxh_roll(acc, data);
+                input += 4;
+            }
+            _mm256_store_si256(counter, small_acc);
+        #elif defined(__SSE2__) || defined(_M_X64) || (defined(_M_IX86_FP) && _M_IX86_FP >= 1)
+            __m128i small_acc1 = _mm_set1_epi64(counter[1], counter[0]);
+            __m128i small_acc2 = _mm_set1_epi64(counter[3], counter[2]);
+            while(input + 4 <= end){
+                small_acc1 = sse2_xxh_roll(small_acc1, data);
+                input += 2;
+                small_acc2 = sse2_xxh_roll(small_acc2, data);
+                input += 2;
+            }
+            _mm_store_si128(counter, small_acc1);
+            _mm_store_si128(counter + 2, small_acc2);
         #else
-            #if defined(__AVX2__)
-                __m256i acc = _mm256_load_si256(counter);
-                while(input + 4 <= end){
-                    __m256i data = _mm256_load_si256(input);
-                    acc = avx256_xxh_roll(acc, data);
-                    input += 4;
-                }
-                _mm256_store_si256(counter, small_acc);
-            #else
-                #if defined(__SSE2__) || defined(_M_X64) || (defined(_M_IX86_FP) && _M_IX86_FP >= 1)
-                    __m128i small_acc1 = _mm_set1_epi64(counter[1], counter[0]);
-                    __m128i small_acc2 = _mm_set1_epi64(counter[3], counter[2]);
-                    while(input + 4 <= end){
-                        small_acc1 = sse2_xxh_roll(small_acc1, data);
-                        input += 2;
-                        small_acc2 = sse2_xxh_roll(small_acc2, data);
-                        input += 2;
-                    }
-                    _mm_store_si128(counter, small_acc1);
-                    _mm_store_si128(counter + 2, small_acc2);
-                #else
-                    while(input + 4 <= end){
-                        counter[0] = xxh_roll(counter[0], *input);
-                        input += 1;
-                        counter[1] = xxh_roll(counter[1], *input);
-                        input += 1;
-                        counter[2] = xxh_roll(counter[2], *input);
-                        input += 1;
-                        counter[3] = xxh_roll(counter[3], *input);
-                        input += 1;
-                    }
-                #endif
-            #endif
+            while(input + 4 <= end){
+                counter[0] = xxh_roll(counter[0], *input);
+                input += 1;
+                counter[1] = xxh_roll(counter[1], *input);
+                input += 1;
+                counter[2] = xxh_roll(counter[2], *input);
+                input += 1;
+                counter[3] = xxh_roll(counter[3], *input);
+                input += 1;
+            }
         #endif
         hash = roll_left(counter[0], 1) + roll_left(counter[1], 7) + roll_left(counter[2], 12) + roll_left(counter[3], 18);
     }else{
