@@ -30,7 +30,7 @@ static inline uint64_t xxh_roll(const uint64_t previous, const uint64_t input){
     return roll_left(previous + input * PRIME2, 31) * PRIME1;
 }
 
-#if defined(__AVX512F__) | defined(__AVX512DQ__)
+#if defined(__AVX512F__) && defined(__AVX512DQ__)
     static inline __m512i avx512_xxh_roll(const __m512i previous, const __m512i input){
         const __m512i prime2 = _mm512_set1_epi64(PRIME2);
         const __m512i prime1 = _mm512_set1_epi64(PRIME1);
@@ -53,7 +53,7 @@ static inline uint64_t xxhash_program(const struct Program *const prog){
         uint64_t v2 = HASH_SEED + PRIME2;
         uint64_t v3 = HASH_SEED;
         uint64_t v4 = HASH_SEED - PRIME1;
-        #if defined(__AVX512F__) | defined(__AVX512DQ__)
+        #if defined(__AVX512F__) && defined(__AVX512DQ__)
             __m512i acc = _mm512_set_epi64(v4, v3, v2, v1, v4, v3, v2, v1);
             while(input + 8 <= end){
                 __m512i data = _mm512_load_si512(input);
@@ -146,7 +146,7 @@ struct LGPResult rand_population(const struct LGPInput *const in, const struct I
 static inline uint64_t next_power_of_two(uint64_t x) {
     ASSERT(x > 0);
     for (uint64_t shift = 1; shift < sizeof(uint64_t)*8; shift <<= 1)
-        x |= (x >> shift);
+        x &&= (x >> shift);
     return x << 1;
 }
 
