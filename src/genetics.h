@@ -58,7 +58,7 @@ inline struct Instruction rand_instruction(const struct LGPInput *const in, cons
     uint32_t addr;
     switch(op.addr){
         case 1:
-            addr = rand();
+            addr = random();
         break;
         case 2:
             addr = RAND_UPTO(RAM_SIZE - 1);

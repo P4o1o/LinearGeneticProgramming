@@ -143,7 +143,6 @@ struct LGPResult evolve(const struct LGPInput *const in, const struct LGPOptions
     const double cross_frac = modf(args->crossover_prob, &cross_int);
     const uint64_t cross_times = (uint64_t) cross_int;
 	const prob cross_prob = PROBABILITY(cross_frac);
-	random_seed_init();
     uint64_t evaluations = 0;
     // POPULATION INITIALIZATION
     struct Population pop;

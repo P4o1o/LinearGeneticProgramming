@@ -5,9 +5,8 @@
 #include <string.h>
 #include <math.h>
 #include <stddef.h>
-#include <stdlib.h>
 
-#include "memdebug.h"
+#include "prob.h"
 
 #define ASSERT(x) \
 	do \

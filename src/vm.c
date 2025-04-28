@@ -299,7 +299,7 @@ uint64_t run_vm(struct VirtualMachine *env, const uint64_t clock_limit){
                 env->core.freg[reg1] = log10(env->core.freg[reg2]);
             break;
             case I_RAND:
-                env->core.reg[reg1] = rand();
+                env->core.reg[reg1] = random();
             break;
             default:
                 ASSERT(0);
