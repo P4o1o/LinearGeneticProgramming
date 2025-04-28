@@ -37,18 +37,14 @@ struct RandEngine{
     #if defined(__AVX512F__)
         alignas(64) uint32_t i32[N];
         alignas(64) __m512i avx512[N/16];
+    #elif defined(__AVX2__)
+        alignas(32) __m256i avx256[N/8];
+        alignas(32) uint32_t i32[N];
+    #elif defined(__SSE2__)
+        alignas(16) __m128i sse128[N/4];
+        alignas(16) uint32_t i32[N];
     #else
-        #if defined(__AVX2__)
-            alignas(32) __m256i avx256[N/8];
-            alignas(32) uint32_t i32[N];
-        #else
-            #if defined(__SSE2__)
-                alignas(16) __m128i sse128[N/4];
-                alignas(16) uint32_t i32[N];
-            #else
-                uint32_t i32[N];
-            #endif
-        #endif
+        uint32_t i32[N];
     #endif
     }state;
     uint64_t index;
