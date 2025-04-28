@@ -146,8 +146,8 @@ struct LGPResult rand_population(const struct LGPInput *const in, const struct I
 static inline uint64_t next_power_of_two(uint64_t x) {
     ASSERT(x > 0);
     for (uint64_t shift = 1; shift < sizeof(uint64_t)*8; shift <<= 1)
-        x &&= (x >> shift);
-    return x << 1;
+        x &= (x >> shift);
+    return x + 1;
 }
 
 struct LGPResult unique_population(const struct LGPInput *const in, const struct InitializationParams *const params, const struct FitnessAssesment *const fitness, const uint64_t max_clock){
