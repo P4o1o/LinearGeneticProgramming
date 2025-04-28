@@ -29,16 +29,31 @@ typedef uint64_t prob;
 
 #define N 624
 
+#if defined(__AVX512F__) || defined(__AVX512DQ__) || defined(__AVX2__)
+	#include <immintrin.h>
+#else
+    #if defined(__SSE2__) /* GNU/Clang */ \
+        || defined(_M_X64) || (defined(_M_IX86_FP) && _M_IX86_FP >= 1)  /* MSVC */ 
+            #include <xmmintrin.h>
+            #include <emmintrin>
+    #endif
+#endif
+
 struct RandEngine{
     alignas(32) uint32_t state[N];
     uint64_t index;
+    #if defined(__AVX512F__)
+        __m512i state256[N/8];
+    #else
+        #if defined(__AVX2__)
+            __m256i state256[N/4];
+        #else
+            #if defined(__SSE2__)
+                __m128i state128[N/2];
+            #endif
+    #endif
 };
 
 extern struct RandEngine rand_engine;
-
-#if defined(__SSE2__) /* GNU/Clang */ \
-    || defined(_M_X64) || (defined(_M_IX86_FP) && _M_IX86_FP >= 1)  /* MSVC */ 
-        #include <xmmintrin.h>
-#endif
 
 #endif
