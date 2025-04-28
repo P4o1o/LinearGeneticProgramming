@@ -1,6 +1,6 @@
 #include "logger.h"
 
-inline void log_error_exit(const char* error_message, const char* file, const size_t line){
+[[noreturn]] inline void log_error_exit(const char* error_message, const char* file, const size_t line){
     time_t now;
     time(&now);
     struct tm* timeinfo;
@@ -13,7 +13,7 @@ inline void log_error_exit(const char* error_message, const char* file, const si
     exit(-1);
 }
 
-void log_error_exit_ts(const char* error_message, const char* file, const size_t line){
+[[noreturn]] void log_error_exit_ts(const char* error_message, const char* file, const size_t line){
 #pragma omp critical
         {
             log_error_exit((error_message), __FILE__, __LINE__);

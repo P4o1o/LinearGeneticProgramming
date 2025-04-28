@@ -17,19 +17,24 @@ struct LGPResult rand_population(const struct LGPInput *const in, const struct I
 
 // used in unique_population
 
+#if defined(__AVX512F__) | defined(__AVX512DQ__)
+	#include <immintrin.h>
+#endif
+
 union InstrToU64{
 	const struct Instruction instr;
 	const uint64_t u64;
 };
 
-struct PrgTableNode{
-	const struct Program prog;
-	const uint64_t hash;
+struct ProgramSetNode{
+	struct Program prog;
+	uint64_t hash;
 };
 
-struct ProgramTable{
-	struct PrgTableNode *table;
-	const uint64_t size;
+struct ProgramSet{
+	struct ProgramSetNode *table;
+	uint64_t size;
+	const uint64_t capacity;
 };
 
 #endif
