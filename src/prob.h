@@ -43,8 +43,8 @@ struct RandEngine{
             alignas(32) uint32_t i32[N];
         #else
             #if defined(__SSE2__)
-                alignas(18) __m128i sse128[N/4];
-                alignas(18) uint32_t i32[N];
+                alignas(16) __m128i sse128[N/4];
+                alignas(16) uint32_t i32[N];
             #else
                 uint32_t i32[N];
             #endif
