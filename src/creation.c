@@ -30,14 +30,74 @@ static inline uint64_t xxh_roll(const uint64_t previous, const uint64_t input){
     return roll_left(previous + input * PRIME2, 31) * PRIME1;
 }
 
-#if defined(__AVX512F__) && defined(__AVX512DQ__)
+#if defined(__AVX512F__)
+
     static inline __m512i avx512_xxh_roll(const __m512i previous, const __m512i input){
         const __m512i prime2 = _mm512_set1_epi64(PRIME2);
         const __m512i prime1 = _mm512_set1_epi64(PRIME1);
-        const __m512i multiplied = _mm512_mullo_epi64(input, prime2);
+        #if defined(__AVX512DQ__)
+            const __m512i multiplied = _mm512_mullo_epi64(input, prime2);
+        #else
+            const __m512i lo = _mm512_mul_epu32(a, b);
+            const __m512i a_shuf = _mm512_shuffle_epi32(a, _MM_SHUFFLE(3,1,2,0));
+            const __m512i b_shuf = _mm512_shuffle_epi32(b, _MM_SHUFFLE(3,1,2,0));
+            const __m512i hi = _mm512_mul_epu32(a_shuf, b_shuf);
+            const __m512i hi_shifted = _mm512_slli_epi64(hi, 32);
+            const __m512i multiplied = _mm512_blend_epi32(lo, hi_shifted, 0xAA);
+        #endif
         const __m512i added = _mm512_add_epi64(previous, multiplied);
         const __m512i rolled = _mm512_rol_epi64(added, 31);
         return _mm512_mullo_epi64(rolled, prime1);
+    }
+#endif
+
+#if defined(__AVX2__) || defined(__AVX512F__)
+
+    static inline __m256i avx256_mul_epi64(const __m256i a, const __m256i b){
+        const __m256i lo = _mm256_mul_epu32(a, b);
+        const __m256i a_shuf = _mm256_shuffle_epi32(a, _MM_SHUFFLE(3,1,2,0));
+        const __m256i b_shuf = _mm256_shuffle_epi32(b, _MM_SHUFFLE(3,1,2,0));
+        const __m256i hi = _mm256_mul_epu32(a_shuf, b_shuf);
+        const __m256i hi_shifted = _mm256_slli_epi64(hi, 32);
+        return _mm256_blend_epi32(lo, hi_shifted, 0xAA);
+    }
+
+    static inline __m256i avx256_xxh_roll(const __m256i previous, const __m256i input){
+        const __m256i prime2 = _mm256_set1_epi64x(PRIME2);
+        const __m256i prime1 = _mm256_set1_epi64x(PRIME1);
+        #if defined(__AVX512DQ__) && defined(__AVX512VL__)
+            const __m256i multiplied = _mm256_mullo_epi64(input, prime2);
+        #else
+            const __m256i multiplied = avx256_mul_epi64(input, prime2);
+        #endif
+        const __m256i added = _mm256_add_epi64(previous, multiplied);
+        const __m256i rolled = _mm256_or_si256(_mm256_slli_epi64(added, 31), _mm256_slli_epi64(added, 33));
+        return avx256_mul_epi64(rolled, prime1);
+    }
+#endif
+
+#if defined(__SSE2__) || defined(_M_X64) || (defined(_M_IX86_FP) && _M_IX86_FP >= 1)
+
+    static inline __m128i sse2_mul_epi64(const __m128i a, const __m128i b){
+        const __m128i lo = _mm_mul_epu32(a, b);
+        const __m128i a_shuf = _mm_shuffle_epi32(a, _MM_SHUFFLE(3,1,2,0));
+        const __m128i b_shuf = _mm_shuffle_epi32(b, _MM_SHUFFLE(3,1,2,0));
+        const  __m128i hi = _mm_mul_epu32(a_shuf, b_shuf);
+        const __m128i hi_shifted = _mm_slli_epi64(hi, 32);
+        #if defined(__SSE4_1__)
+            return _mm_blend_epi16(lo, hi_shifted, 0xA);
+        #else
+            return _mm_or_si128(lo, hi_shifted, 0xA);
+        #endif
+    }
+
+    static inline __m128i sse2_xxh_roll(const __m128i previous, const __m128i input){
+        const __m128i prime2 = _mm_set1_epi64x(PRIME2);
+        const __m128i prime1 = _mm_set1_epi64x(PRIME1);
+        const __m128i multiplied = sse2_mul_epi64(input, prime2);
+        const __m128i added = _mm_add_epi64(previous, multiplied);
+        const __m128i rolled = _mm_or_si128(_mm_slli_epi64(added, 31), _mm_slli_epi64(added, 33));
+        return sse2_mul_epi64(rolled, prime1);
     }
 #endif
 
@@ -49,46 +109,66 @@ static inline uint64_t xxhash_program(const struct Program *const prog){
     const uint64_t *const end = input + prog->size;
     uint64_t hash;
     if (prog->size >= 4) {
-        uint64_t v1 = HASH_SEED + PRIME1 + PRIME2;
-        uint64_t v2 = HASH_SEED + PRIME2;
-        uint64_t v3 = HASH_SEED;
-        uint64_t v4 = HASH_SEED - PRIME1;
+        uint64_t counter[8];
+        counter[0] = HASH_SEED + PRIME1 + PRIME2;
+        counter[1] = HASH_SEED + PRIME2;
+        counter[2] = HASH_SEED;
+        counter[3] = HASH_SEED - PRIME1;
+        counter[4] = HASH_SEED + PRIME1 + PRIME2;
+        counter[5] = HASH_SEED + PRIME2;
+        counter[6] = HASH_SEED;
+        counter[7] = HASH_SEED - PRIME1;
         #if defined(__AVX512F__) && defined(__AVX512DQ__)
-            __m512i acc = _mm512_set_epi64(v4, v3, v2, v1, v4, v3, v2, v1);
+            __m512i acc = _mm512_loadu_si512(counter);
             while(input + 8 <= end){
                 __m512i data = _mm512_load_si512(input);
                 acc = avx512_xxh_roll(acc, data);
                 input += 8;
             }
-            uint64_t tmp[8];
-            _mm512_storeu_si512(tmp, acc);
-            v1 = tmp[0];
-            v2 = tmp[1];
-            v3 = tmp[2];
-            v4 = tmp[3];
+            _mm512_storeu_si512(counter, acc);
             if (input + 4 <= end){
-                v1 = xxh_roll(v1, *input);
-                input += 1;
-                v2 = xxh_roll(v2, *input);
-                input += 1;
-                v3 = xxh_roll(v3, *input);
-                input += 1;
-                v4 = xxh_roll(v4, *input);
-                input += 1;
+                __m256i data = _mm256_load_si256(input);
+                __m256i small_acc = _mm512_castsi512_si256(acc);
+                small_acc = avx256_xxh_roll(small_acc, data);
+                _mm256_store_si256(counter, small_acc);
+                input += 4;
             }
         #else
-            while(input + 4 <= end){
-                v1 = xxh_roll(v1, *input);
-                input += 1;
-                v2 = xxh_roll(v2, *input);
-                input += 1;
-                v3 = xxh_roll(v3, *input);
-                input += 1;
-                v4 = xxh_roll(v4, *input);
-                input += 1;
-            }
+            #if defined(__AVX2__)
+                __m256i acc = _mm256_load_si256(counter);
+                while(input + 4 <= end){
+                    __m256i data = _mm256_load_si256(input);
+                    acc = avx256_xxh_roll(acc, data);
+                    input += 4;
+                }
+                _mm256_store_si256(counter, small_acc);
+            #else
+                #if defined(__SSE2__) || defined(_M_X64) || (defined(_M_IX86_FP) && _M_IX86_FP >= 1)
+                    __m128i small_acc1 = _mm_set1_epi64(counter[1], counter[0]);
+                    __m128i small_acc2 = _mm_set1_epi64(counter[3], counter[2]);
+                    while(input + 4 <= end){
+                        small_acc1 = sse2_xxh_roll(small_acc1, data);
+                        input += 2;
+                        small_acc2 = sse2_xxh_roll(small_acc2, data);
+                        input += 2;
+                    }
+                    _mm_store_si128(counter, small_acc1);
+                    _mm_store_si128(counter + 2, small_acc2);
+                #else
+                    while(input + 4 <= end){
+                        counter[0] = xxh_roll(counter[0], *input);
+                        input += 1;
+                        counter[1] = xxh_roll(counter[1], *input);
+                        input += 1;
+                        counter[2] = xxh_roll(counter[2], *input);
+                        input += 1;
+                        counter[3] = xxh_roll(counter[3], *input);
+                        input += 1;
+                    }
+                #endif
+            #endif
         #endif
-        hash = roll_left(v1, 1) + roll_left(v2, 7) + roll_left(v3, 12) + roll_left(v4, 18);
+        hash = roll_left(counter[0], 1) + roll_left(counter[1], 7) + roll_left(counter[2], 12) + roll_left(counter[3], 18);
     }else{
         hash = PRIME5 + HASH_SEED;
     }
