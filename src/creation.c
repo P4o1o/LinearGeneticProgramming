@@ -66,7 +66,7 @@ static inline uint64_t xxhash_program(const struct Program *const prog){
             v2 = tmp[1];
             v3 = tmp[2];
             v4 = tmp[3];
-            while (input + 4 <= end){
+            if (input + 4 <= end){
                 v1 = xxh_roll(v1, *input);
                 input += 1;
                 v2 = xxh_roll(v2, *input);
