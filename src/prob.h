@@ -5,7 +5,9 @@
 #include <stdint.h>
 #include <float.h>
 
-void random_seed_init(void);
+uint64_t random(void);
+
+void random_init(const uint32_t seed);
 
 // PROBABILITY
 typedef uint64_t prob;
@@ -23,5 +25,20 @@ typedef uint64_t prob;
 // RANDOM DOUBLE
 #define RAND_DOUBLE() (DBL_MIN + ((double)rand() / RAND_MAX) * (DBL_MAX - DBL_MIN))
 #define RAND_DBL_BOUNDS(min, max) (min + ((double)rand() / RAND_MAX) * (max - min))
+
+
+#define N 624
+
+struct RandEngine{
+    alignas(32) uint32_t state[N];
+    uint64_t index;
+};
+
+extern struct RandEngine rand_engine;
+
+#if defined(__SSE2__) /* GNU/Clang */ \
+    || defined(_M_X64) || (defined(_M_IX86_FP) && _M_IX86_FP >= 1)  /* MSVC */ 
+        #include <xmmintrin.h>
+#endif
 
 #endif

@@ -3,7 +3,7 @@
 #include "psb2.h"
 
 int main(int argc, char *argv[]){
-
+	random_init(0);
 	const struct LGPOptions par = {
 		.fitness = MSE,
 		.selection = tournament,
