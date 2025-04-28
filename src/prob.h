@@ -4,6 +4,7 @@
 #include <time.h>
 #include <stdint.h>
 #include <float.h>
+#include "macros.h"
 
 uint32_t random(void);
 
@@ -29,17 +30,7 @@ typedef uint64_t prob;
 #define RAND_DBL_BOUNDS(min, max) (min + ((double)rand() / RANDOM_MAX) * (max - min))
 
 
-#define N 624
-
-#if defined(__AVX512F__) || defined(__AVX512DQ__) || defined(__AVX2__)
-	#include <immintrin.h>
-#else
-    #if defined(__SSE2__) /* GNU/Clang */ \
-        || defined(_M_X64) || (defined(_M_IX86_FP) && _M_IX86_FP >= 1)  /* MSVC */ 
-            #include <xmmintrin.h>
-            #include <emmintrin>
-    #endif
-#endif
+#define N 156
 
 struct RandEngine{
     union RandState{

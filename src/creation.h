@@ -17,10 +17,6 @@ struct LGPResult rand_population(const struct LGPInput *const in, const struct I
 
 // used in unique_population
 
-#if defined(__AVX512F__) && defined(__AVX512DQ__)
-	#include <immintrin.h>
-#endif
-
 union InstrToU64{
 	const struct Instruction instr;
 	const uint64_t u64;
