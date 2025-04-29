@@ -15,6 +15,13 @@
 #define MAX_PROGRAM_SIZE 254
 
 struct Program{
+    #if defined(__AVX512F__)
+        alignas(64)
+    #elif defined(__AVX2__)
+        alignas(32)
+    #elif defined(__SSE2__)
+        alignas(16)
+    #endif
     struct Instruction content[MAX_PROGRAM_SIZE + 1];
     uint64_t size;
 };

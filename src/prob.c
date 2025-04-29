@@ -23,7 +23,7 @@ uint32_t random(void){
     {
         if(rand_engine.index >= N){
             #if defined(__AVX512F__)
-                for(uint64_t i = 1; i < N/16; i++){
+                for(uint64_t i = 0; i < N/16; i++){
                     __m512i x = rand_engine.state.avx512[i];
                     __m512i x_next = rand_engine.state.avx512[(i + 1) % (N/16)];
                     __m512i mag = _mm512_and_si512(x, _mm512_set1_epi32(UMASK));
@@ -56,7 +56,7 @@ uint32_t random(void){
                     rand_engine.state.state128[i] = _mm_xor_si128(rand_engine.state.state128[(i + M/4) % (N/4)], xA);
                 }
             #else
-                for(uint64_t i = 1; i < N; i++){
+                for(uint64_t i = 0; i < N; i++){
                     uint32_t x = (rand_engine.state.i32[i] & UMASK) | (rand_engine.state.i32[(i + 1) % N] & LMASK);
                     uint32_t xA = x >> 1;
                     xA ^= (x & 1) * A;
