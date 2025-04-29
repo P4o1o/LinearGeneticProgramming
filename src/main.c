@@ -23,7 +23,10 @@ int main(int argc, char *argv[]){
 		.generations = 300,
 		.verbose = 1
 	};
-	struct InstructionSet instr_set = (struct InstructionSet) {.size = INSTR_NUM, .op = INSTRSET,};
+	struct Operation opset[9] = {OP_ADD_F, OP_SUB_F, OP_MUL_F, OP_DIV_F, OP_SQRT, OP_LOAD_RAM_F, OP_LOAD_ROM_F, OP_STORE_RAM_F, OP_MOV_F};
+	struct InstructionSet instr_set = (struct InstructionSet) {
+		.size = 9, .op = opset,
+	};
 	struct LGPInput in = vector_distance(&instr_set, 2, 100);
 	const struct LGPResult res = evolve(&in, &par);
 	free(in.memory);
