@@ -40,14 +40,14 @@ uint32_t random(void){
                 __m256i *state256 = (__m256i*)rand_engine.state;
                 for (uint64_t i = 0; i < STATE_SIZE/8; i++) {
                     uint64_t idx = i * 8;
-                    __m256i x = _mm256_load_si256(rand_engine.state + idx);
-                    __m256i x_next = _mm256_load_si256(rand_engine.state + ((idx + 8) % (STATE_SIZE)));
+                    __m256i x = _mm256_load_si256((__m256*)rand_engine.state + idx));
+                    __m256i x_next = _mm256_load_si256((__m256*)(rand_engine.state + ((idx + 8) % (STATE_SIZE))));
                     __m256i mag = _mm256_and_si256(x, _mm256_set1_epi32(UMASK));
                     mag = _mm256_or_si256(mag, _mm256_and_si256(x_next, _mm256_set1_epi32(LMASK)));
                     __m256i xA = _mm256_srli_epi32(mag, 1);
                     __m256i mask = _mm256_and_si256(mag, _mm256_set1_epi32(1));
                     xA = _mm256_xor_si256(xA, _mm256_and_si256(mask, _mm256_set1_epi32(A)));
-                    __m256i lastpiece = _mm256_load_si256(rand_engine.state + ((idx + M) % (STATE_SIZE)));
+                    __m256i lastpiece = _mm256_load_si256((__m256*)(rand_engine.state + ((idx + M) % (STATE_SIZE))));
                     __m256i result = _mm256_xor_si256(result, xA);
                     _mm256_store_si256(rand_engine.state + idx, result);
                 }
