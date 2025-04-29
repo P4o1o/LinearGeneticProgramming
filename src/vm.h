@@ -120,6 +120,11 @@ struct Operation {
 
 extern const struct Operation INSTRSET[INSTR_NUM];
 
+#define INSTRUCTION(name, regs, addr, change) \
+extern const struct Operation OP_##name;
+INSTR_MACRO
+#undef INSTRUCTION
+
 #define REG_NUM 4
 #define FREG_NUM 4
 #define RAM_SIZE 64

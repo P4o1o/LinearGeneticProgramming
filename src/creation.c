@@ -22,8 +22,8 @@ static inline unsigned int equal_program(const struct Program *const prog1, cons
 #define PRIME1 0x9E3779B185EBCA87ULL
 #define PRIME2 0xC2B2AE3D27D4EB4FULL
 
-static inline uint64_t roll_left(const uint64_t num, const uint64_t counter){
-    return ((num << counter) | (num >> (64 - counter)));
+static inline uint64_t roll_left(const uint64_t num, const uint64_t step){
+    return ((num << step) | (num >> (64 - step)));
 }
 
 static inline uint64_t xxh_roll(const uint64_t previous, const uint64_t input){
@@ -100,7 +100,7 @@ static inline __m512i avx512_mul_epi64(const __m512i a, const __m512i b){
         #if defined(__SSE4_1__)
             return _mm_blend_epi16(lo, hi_shifted, 0xA);
         #else
-            return _mm_or_si128(lo, hi_shifted, 0xA);
+            return _mm_or_si128(lo, hi_shifted);
         #endif
     }
 
@@ -122,22 +122,17 @@ static inline uint64_t xxhash_program(const struct Program *const prog){
     const uint64_t *const end = input + prog->size;
     uint64_t hash;
     if (prog->size >= 4) {
-        uint64_t counter[8];
-        counter[0] = HASH_SEED + PRIME1 + PRIME2;
-        counter[1] = HASH_SEED + PRIME2;
-        counter[2] = HASH_SEED;
-        counter[3] = HASH_SEED - PRIME1;
-        counter[4] = HASH_SEED + PRIME1 + PRIME2;
-        counter[5] = HASH_SEED + PRIME2;
-        counter[6] = HASH_SEED;
-        counter[7] = HASH_SEED - PRIME1;
         #if defined(__AVX512F__)
-            __m512i acc = _mm512_loadu_si512(counter);
+            __m512i acc = _mm512_set_epi64(
+                HASH_SEED + PRIME1 + PRIME2, HASH_SEED + PRIME2, HASH_SEED, HASH_SEED - PRIME1,
+                HASH_SEED + PRIME1 + PRIME2, HASH_SEED + PRIME2, HASH_SEED, HASH_SEED - PRIME1
+            );
             while(input + 8 <= end){
                 __m512i data = _mm512_load_si512(input);
                 acc = avx512_xxh_roll(acc, data);
                 input += 8;
             }
+            alignas(64) uint64_t counter[8];
             _mm512_storeu_si512(counter, acc);
             if (input + 4 <= end){
                 __m256i data = _mm256_load_si256(input);
@@ -147,25 +142,33 @@ static inline uint64_t xxhash_program(const struct Program *const prog){
                 input += 4;
             }
         #elif defined(__AVX2__)
-            __m256i acc = _mm256_load_si256(counter);
+            __m256i acc = _mm256_set_epi64x(HASH_SEED + PRIME1 + PRIME2, HASH_SEED + PRIME2, HASH_SEED, HASH_SEED - PRIME1);
             while(input + 4 <= end){
                 __m256i data = _mm256_load_si256(input);
                 acc = avx256_xxh_roll(acc, data);
                 input += 4;
             }
+            alignas(32) uint64_t counter[4];
             _mm256_store_si256(counter, acc);
         #elif defined(__SSE2__) || defined(_M_X64) || (defined(_M_IX86_FP) && _M_IX86_FP >= 1)
-            __m128i small_acc1 = _mm_set1_epi64(counter[1], counter[0]);
-            __m128i small_acc2 = _mm_set1_epi64(counter[3], counter[2]);
+            __m128i small_acc1 = _mm_set_epi64x(HASH_SEED + PRIME1 + PRIME2, HASH_SEED + PRIME2);
+            __m128i small_acc2 = _mm_set_epi64x(HASH_SEED, HASH_SEED - PRIME1);
             while(input + 4 <= end){
+                __m128i data = _mm_loadu_si128((__m128i*)(input));
                 small_acc1 = sse2_xxh_roll(small_acc1, data);
                 input += 2;
                 small_acc2 = sse2_xxh_roll(small_acc2, data);
                 input += 2;
             }
-            _mm_store_si128(counter, small_acc1);
-            _mm_store_si128(counter + 2, small_acc2);
+            alignas(16) uint64_t counter[4];
+            _mm_storeu_si64(counter, small_acc1);
+            _mm_storeu_si64((counter + 2), small_acc2);
         #else
+            uint64_t counter[4];
+            counter[0] = HASH_SEED + PRIME1 + PRIME2;
+            counter[1] = HASH_SEED + PRIME2;
+            counter[2] = HASH_SEED;
+            counter[3] = HASH_SEED - PRIME1;
             while(input + 4 <= end){
                 counter[0] = xxh_roll(counter[0], *input);
                 input += 1;

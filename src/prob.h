@@ -19,34 +19,28 @@ typedef uint64_t prob;
 #define PROB_PRECISION 1.0 / MAX_PROB
 #define PROBABILITY(val) ((prob)(((double) MAX_PROB) * (val))) // give the probability in prob (uint64_t) from the double from 0.0 to 1.0 rappresenting it
 #define INVERSE_PROB(p) (MAX_PROB - (p)) // takes a probability expressed in prob (uint64_t)
-#define WILL_HAPPEN(p) ((p) > (prob) rand()) // takes a probability expressed in prob (uint64_t), returns 1 if the event happen else 0
+#define WILL_HAPPEN(p) ((p) > (prob) random()) // takes a probability expressed in prob (uint64_t), returns 1 if the event happen else 0
 
 // RANDOM INTEGERS
-#define RAND_BOUNDS(min, max) ((min) + ((uint64_t) rand() % ((max) - (min) + (uint64_t) 1)))
-#define RAND_UPTO(max) ((uint64_t) rand() % ((max) + (uint64_t) 1))
+#define RAND_BOUNDS(min, max) ((min) + ((uint64_t) random() % ((max) - (min) + (uint64_t) 1)))
+#define RAND_UPTO(max) ((uint64_t) random() % ((max) + (uint64_t) 1))
 
 // RANDOM DOUBLE
-#define RAND_DOUBLE() (DBL_MIN + ((double)rand() / RANDOM_MAX) * (DBL_MAX - DBL_MIN))
-#define RAND_DBL_BOUNDS(min, max) (min + ((double)rand() / RANDOM_MAX) * (max - min))
+#define RAND_DOUBLE() (DBL_MIN + ((double)random() / RANDOM_MAX) * (DBL_MAX - DBL_MIN))
+#define RAND_DBL_BOUNDS(min, max) (min + ((double)random() / RANDOM_MAX) * (max - min))
 
-
-#define N 156
+#define STATE_SIZE 624 
 
 struct RandEngine{
-    union RandState{
     #if defined(__AVX512F__)
-        alignas(64) uint32_t i32[N];
-        alignas(64) __m512i avx512[N/16];
+        alignas(64) uint32_t state[STATE_SIZE];
     #elif defined(__AVX2__)
-        alignas(32) __m256i avx256[N/8];
-        alignas(32) uint32_t i32[N];
+        alignas(32) uint32_t state[STATE_SIZE];
     #elif defined(__SSE2__)
-        alignas(16) __m128i sse128[N/4];
-        alignas(16) uint32_t i32[N];
+        alignas(16) uint32_t state[STATE_SIZE];
     #else
-        uint32_t i32[N];
+        uint32_t state[STATE_SIZE];
     #endif
-    }state;
     uint64_t index;
 };
 

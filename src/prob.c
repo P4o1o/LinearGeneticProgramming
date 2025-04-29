@@ -1,6 +1,6 @@
 #include "prob.h"
 
-#define M 122
+#define M 397
 #define W 32
 #define R 31
 #define A 0x9908B0DFU
@@ -21,54 +21,64 @@ uint32_t random(void){
     uint32_t res;
 #pragma omp critical
     {
-        if(rand_engine.index >= N){
+        if(rand_engine.index >= STATE_SIZE){
             #if defined(__AVX512F__)
-                for(uint64_t i = 0; i < N/16; i++){
-                    __m512i x = rand_engine.state.avx512[i];
-                    __m512i x_next = rand_engine.state.avx512[(i + 1) % (N/16)];
+                for(uint64_t i = 0; i < STATE_SIZE/16; i++){
+                    uint64_t idx = i * 16;
+                    __m512i x = _mm512_load_epi32(rand_engine.state + idx);
+                    __m512i x_next = _mm512_load_epi32(rand_engine.state + ((idx + 16) % (STATE_SIZE)));
                     __m512i mag = _mm512_and_si512(x, _mm512_set1_epi32(UMASK));
                     mag = _mm512_or_si512(mag, _mm512_and_si512(x_next, _mm512_set1_epi32(LMASK)));
                     __m512i xA = _mm512_srli_epi32(mag, 1);
                     __m512i mask = _mm512_and_si512(mag, _mm512_set1_epi32(1));
                     xA = _mm512_xor_si512(xA, _mm512_and_si512(mask, _mm512_set1_epi32(A)));
-                    rand_engine.state.avx512[i] = _mm512_xor_si512(rand_engine.state.avx512[(i + M/16) % (N/16)], xA);
+                    __m512i lastpiece =  _mm512_load_epi32(rand_engine.state + ((idx + M/16) % (STATE_SIZE/16)));
+                    __m512i result = _mm512_xor_si512(lastpiece, xA);
+                    _mm512_store_epi64(rand_engine.state + idx, result);
                 }
             #elif defined(__AVX2__)
-                for (uint64_t i = 0; i < N/8; i++) {
-                    __m256i x = rand_engine.state.state256[i];
-                    __m256i x_next = rand_engine.state.state256[(i + 1) % (N/8)];
+                __m256i *state256 = (__m256i*)rand_engine.state;
+                for (uint64_t i = 0; i < STATE_SIZE/8; i++) {
+                    uint64_t idx = i * 8;
+                    __m256i x = _mm256_load_si256(rand_engine.state + idx);
+                    __m256i x_next = _mm256_load_si256(rand_engine.state + ((idx + 8) % (STATE_SIZE)));
                     __m256i mag = _mm256_and_si256(x, _mm256_set1_epi32(UMASK));
                     mag = _mm256_or_si256(mag, _mm256_and_si256(x_next, _mm256_set1_epi32(LMASK)));
                     __m256i xA = _mm256_srli_epi32(mag, 1);
                     __m256i mask = _mm256_and_si256(mag, _mm256_set1_epi32(1));
                     xA = _mm256_xor_si256(xA, _mm256_and_si256(mask, _mm256_set1_epi32(A)));
-                    rand_engine.state.state256[i] = _mm256_xor_si256(rand_engine.state.state256[(i + M/8) % (N/8)], xA);
+                    __m256i lastpiece = _mm256_load_si256(rand_engine.state + ((idx + M) % (STATE_SIZE)));
+                    __m256i result = _mm256_xor_si256(result, xA);
+                    _mm256_store_si256(rand_engine.state + idx, result);
                 }
             #elif defined(INCLUDE_SSE2)
-                for (uint64_t i = 0; i < N/4; i++) {
-                    __m128i x = rand_engine.state.state128[i];
-                    __m128i x_next = rand_engine.state.state128[(i + 1) % (N/4)];
+                for (uint64_t i = 0; i < STATE_SIZE/4; i++) {
+                    uint64_t idx = i * 4;
+                    __m128i x = _mm_loadu_si128((__m128i*)(rand_engine.state + idx));
+                    __m128i x_next = _mm_loadu_si128((__m128i*)(rand_engine.state + ((idx + 4) % (STATE_SIZE))));
                     __m128i mag = _mm_and_si128(x, _mm_set1_epi32(UMASK));
                     mag = _mm_or_si128(mag, _mm_and_si128(x_next, _mm_set1_epi32(LMASK)));
                     __m128i xA = _mm_srli_epi32(mag, 1);
                     __m128i mask = _mm_and_si128(mag, _mm_set1_epi32(1));
                     xA = _mm_xor_si128(xA, _mm_and_si128(mask, _mm_set1_epi32(A)));
-                    rand_engine.state.state128[i] = _mm_xor_si128(rand_engine.state.state128[(i + M/4) % (N/4)], xA);
+                    __m128i lastpiece = _mm_load_si128((__m128i*)(rand_engine.state + ((idx + M) % (STATE_SIZE))));
+                    __m128i result = _mm_xor_si128(lastpiece, xA);
+                    _mm_storeu_si64((__m128i*)(rand_engine.state + idx), result);
                 }
             #else
-                for(uint64_t i = 0; i < N; i++){
-                    uint32_t x = (rand_engine.state.i32[i] & UMASK) | (rand_engine.state.i32[(i + 1) % N] & LMASK);
+                for(uint64_t i = 0; i < STATE_SIZE; i++){
+                    uint32_t x = (rand_engine.state[i] & UMASK) | (rand_engine.state[(i + 1) % STATE_SIZE] & LMASK);
                     uint32_t xA = x >> 1;
                     xA ^= (x & 1) * A;
-                    rand_engine.state.i32[i] = rand_engine.state.i32[(i + M) % N] ^ xA;
+                    rand_engine.state[i] = rand_engine.state[(i + M) % STATE_SIZE] ^ xA;
                     #if defined(__GNUC__) || defined(__clang__)
-                        __builtin_prefetch((const void*)&(rand_engine.state[(i + 8) % N]), 0, 3);
+                        __builtin_prefetch((const void*)&(rand_engine.state[(i + 8) % STATE_SIZE]), 0, 3);
                     #endif
                 }
             #endif
             rand_engine.index = 0;
         }
-        res = rand_engine.state.i32[rand_engine.index];
+        res = rand_engine.state[rand_engine.index];
         rand_engine.index += 1;
     }
     res ^= (res >> U);
@@ -79,9 +89,9 @@ uint32_t random(void){
 }
 
 void random_init(const uint32_t seed) {
-    rand_engine.state.i32[0] = seed;
-    for(uint64_t i = 1; i < N; i++){
-        rand_engine.state.i32[i] = F * (rand_engine.state.i32[i - 1] ^ (rand_engine.state.i32[i - 1] >> (W - 2))) + i;
+    rand_engine.state[0] = seed;
+    for(uint64_t i = 1; i < STATE_SIZE; i++){
+        rand_engine.state[i] = F * (rand_engine.state[i - 1] ^ (rand_engine.state[i - 1] >> (W - 2))) + i;
     }
-    rand_engine.index = N;
+    rand_engine.index = STATE_SIZE;
 }
