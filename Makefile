@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -O3 -Wall -pedantic -std=c2x -mavx512f -mavx512dq -mavx512vl -mavx2 -msse2
-DFLAGS = -ggdb3 -fsanitize=undefined
+DFLAGS = -ggdb3
 LIBFLAGS = -lm -fopenmp
 SRCDIR = src
 BINDIR = bin
