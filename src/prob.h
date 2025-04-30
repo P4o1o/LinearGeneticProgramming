@@ -32,11 +32,11 @@ typedef uint64_t prob;
 #define STATE_SIZE 624 
 
 struct RandEngine{
-    #if defined(__AVX512F__)
+    #if defined(INCLUDE_AVX512F)
         alignas(64) uint32_t state[STATE_SIZE];
-    #elif defined(__AVX2__)
+    #elif defined(INCLUDE_AVX2)
         alignas(32) uint32_t state[STATE_SIZE];
-    #elif defined(__SSE2__)
+    #elif defined(INCLUDE_SSE2)
         alignas(16) uint32_t state[STATE_SIZE];
     #else
         uint32_t state[STATE_SIZE];
