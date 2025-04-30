@@ -30,7 +30,7 @@ static inline uint64_t xxh_roll(const uint64_t previous, const uint64_t input){
     return roll_left(previous + input * PRIME2, 31) * PRIME1;
 }
 
-#if defined(__AVX512F__)
+#if defined(INCLUDE_AVX512F)
 
 static inline __m512i avx512_mul_epi64(const __m512i a, const __m512i b){
     const __m512i lo = _mm512_mul_epu32(a, b);
@@ -44,14 +44,14 @@ static inline __m512i avx512_mul_epi64(const __m512i a, const __m512i b){
     static inline __m512i avx512_xxh_roll(const __m512i previous, const __m512i input){
         const __m512i prime2 = _mm512_set1_epi64(PRIME2);
         const __m512i prime1 = _mm512_set1_epi64(PRIME1);
-        #if defined(__AVX512DQ__)
+        #if defined(INCLUDE_AVX512DQ)
             const __m512i multiplied = _mm512_mullo_epi64(input, prime2);
         #else
             const __m512i multiplied = avx512_mul_epi64(input, prime2);
         #endif
         const __m512i added = _mm512_add_epi64(previous, multiplied);
         const __m512i rolled = _mm512_rol_epi64(added, 31);
-        #if defined(__AVX512DQ__)
+        #if defined(INCLUDE_AVX512DQ)
             return _mm512_mullo_epi64(rolled, prime1);
         #else
             return avx512_mul_epi64(rolled, prime1);
@@ -60,7 +60,7 @@ static inline __m512i avx512_mul_epi64(const __m512i a, const __m512i b){
     }
 #endif
 
-#if defined(__AVX2__) || defined(__AVX512F__)
+#if defined(INCLUDE_AVX2) || defined(INCLUDE_AVX512F)
 
     static inline __m256i avx256_mul_epi64(const __m256i a, const __m256i b){
         const __m256i lo = _mm256_mul_epu32(a, b);
@@ -74,14 +74,14 @@ static inline __m512i avx512_mul_epi64(const __m512i a, const __m512i b){
     static inline __m256i avx256_xxh_roll(const __m256i previous, const __m256i input){
         const __m256i prime2 = _mm256_set1_epi64x(PRIME2);
         const __m256i prime1 = _mm256_set1_epi64x(PRIME1);
-        #if defined(__AVX512DQ__) && defined(__AVX512VL__)
+        #if defined(INCLUDE_AVX512DQ) && defined(INCLUDE_AVX512VL)
             const __m256i multiplied = _mm256_mullo_epi64(input, prime2);
         #else
             const __m256i multiplied = avx256_mul_epi64(input, prime2);
         #endif
         const __m256i added = _mm256_add_epi64(previous, multiplied);
         const __m256i rolled = _mm256_or_si256(_mm256_slli_epi64(added, 31), _mm256_slli_epi64(added, 33));
-        #if defined(__AVX512DQ__) && defined(__AVX512VL__)
+        #if defined(INCLUDE_AVX512DQ) && defined(INCLUDE_AVX512VL)
             return _mm256_mullo_epi64(rolled, prime1);
         #else
             return avx256_mul_epi64(rolled, prime1);
@@ -89,7 +89,7 @@ static inline __m512i avx512_mul_epi64(const __m512i a, const __m512i b){
     }
 #endif
 
-#if defined(__SSE2__) || defined(_M_X64) || (defined(_M_IX86_FP) && _M_IX86_FP >= 1)
+#if defined(INCLUDE_SSE2)
 
     static inline __m128i sse2_mul_epi64(const __m128i a, const __m128i b){
         const __m128i lo = _mm_mul_epu32(a, b);
@@ -97,10 +97,10 @@ static inline __m512i avx512_mul_epi64(const __m512i a, const __m512i b){
         const __m128i b_shuf = _mm_shuffle_epi32(b, _MM_SHUFFLE(3,1,2,0));
         const  __m128i hi = _mm_mul_epu32(a_shuf, b_shuf);
         const __m128i hi_shifted = _mm_slli_epi64(hi, 32);
-        #if defined(__SSE4_1__)
+        #if defined(INCLUDE_SSE4_1)
             return _mm_blend_epi16(lo, hi_shifted, 0xA);
         #else
-            return _mm_or_si128(lo, hi_shifted);
+            return _mm_add_epi64(lo, hi_shifted);
         #endif
     }
 
@@ -122,7 +122,7 @@ static inline uint64_t xxhash_program(const struct Program *const prog){
     const uint64_t *const end = input + prog->size;
     uint64_t hash;
     if (prog->size >= 4) {
-        #if defined(__AVX512F__)
+        #if defined(INCLUDE_AVX512F)
             __m512i acc = _mm512_set_epi64(
                 HASH_SEED + PRIME1 + PRIME2, HASH_SEED + PRIME2, HASH_SEED, HASH_SEED - PRIME1,
                 HASH_SEED + PRIME1 + PRIME2, HASH_SEED + PRIME2, HASH_SEED, HASH_SEED - PRIME1
@@ -135,22 +135,22 @@ static inline uint64_t xxhash_program(const struct Program *const prog){
             alignas(64) uint64_t counter[8];
             _mm512_storeu_si512(counter, acc);
             if (input + 4 <= end){
-                __m256i data = _mm256_load_si256(input);
+                __m256i data = _mm256_load_si256((const __m256i *)input);
                 __m256i small_acc = _mm512_castsi512_si256(acc);
                 small_acc = avx256_xxh_roll(small_acc, data);
-                _mm256_store_si256(counter, small_acc);
+                _mm256_store_si256((__m256i *) counter, small_acc);
                 input += 4;
             }
-        #elif defined(__AVX2__)
+        #elif defined(INCLUDE_AVX2)
             __m256i acc = _mm256_set_epi64x(HASH_SEED + PRIME1 + PRIME2, HASH_SEED + PRIME2, HASH_SEED, HASH_SEED - PRIME1);
             while(input + 4 <= end){
-                __m256i data = _mm256_load_si256(input);
+                __m256i data = _mm256_load_si256((const __m256i *)input);
                 acc = avx256_xxh_roll(acc, data);
                 input += 4;
             }
             alignas(32) uint64_t counter[4];
-            _mm256_store_si256(counter, acc);
-        #elif defined(__SSE2__) || defined(_M_X64) || (defined(_M_IX86_FP) && _M_IX86_FP >= 1)
+            _mm256_store_si256((__m256i *)counter, acc);
+        #elif defined(INCLUDE_SSE2)
             __m128i small_acc1 = _mm_set_epi64x(HASH_SEED + PRIME1 + PRIME2, HASH_SEED + PRIME2);
             __m128i small_acc2 = _mm_set_epi64x(HASH_SEED, HASH_SEED - PRIME1);
             while(input + 4 <= end){
@@ -161,8 +161,8 @@ static inline uint64_t xxhash_program(const struct Program *const prog){
                 input += 2;
             }
             alignas(16) uint64_t counter[4];
-            _mm_storeu_si64(counter, small_acc1);
-            _mm_storeu_si64((counter + 2), small_acc2);
+            _mm_store_si128((__m128i *)(counter), small_acc1);
+            _mm_store_si128((__m128i *)(counter + 2), small_acc2);
         #else
             uint64_t counter[4];
             counter[0] = HASH_SEED + PRIME1 + PRIME2;
