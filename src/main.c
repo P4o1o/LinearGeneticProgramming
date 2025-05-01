@@ -31,6 +31,7 @@ int main(int argc, char *argv[]){
 	const struct LGPResult res = evolve(&in, &par);
 	free(in.memory);
 	free(res.pop.individual);
+
 	return 0;
 }
 
