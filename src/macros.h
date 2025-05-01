@@ -1,6 +1,8 @@
 #ifndef MACROS_H_INCLUDED
 #define MACROS_H_INCLUDED
 
+#define MAX_OMP_THREAD 16
+
 #if defined(__AVX512DQ__)
     #define INCLUDE_AVX512DQ
 #endif
@@ -31,8 +33,6 @@
         #define INCLUDE_SSE4_1
     #endif
 #endif
-
-
 
 #ifdef INCLUDE_SSE2
     #include <xmmintrin.h> // SSE2

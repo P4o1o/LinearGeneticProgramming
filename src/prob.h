@@ -4,11 +4,12 @@
 #include <time.h>
 #include <stdint.h>
 #include <float.h>
+#include <omp.h>
 #include "macros.h"
 
 uint32_t random(void);
 
-void random_init(const uint32_t seed);
+void random_init(const uint32_t seed, uint64_t thread_num);
 
 #define RANDOM_MAX 0xFFFFFFFF
 
@@ -44,6 +45,6 @@ struct RandEngine{
     uint64_t index;
 };
 
-extern struct RandEngine rand_engine;
+extern struct RandEngine rand_engine[MAX_OMP_THREAD];
 
 #endif

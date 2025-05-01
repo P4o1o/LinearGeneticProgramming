@@ -188,35 +188,58 @@ struct LGPResult evolve(const struct LGPInput *const in, const struct LGPOptions
         for(uint64_t i = 0; i < oldsize; i++){
             ASSERT(pop.individual[i].prog.size > 0);
             // MUTATION
-            for(uint64_t j = 0; j < mut_times + 1; j++){
-                if (WILL_HAPPEN(mut_prob)){
-                    const struct Program child = mutation(in, &(pop.individual[i].prog), args->max_mutation_len, args->max_individ_len);
-                    ASSERT(child.size > 0);
-                    const struct Individual mutated = {.prog = child, .fitness = args->fitness.fn(in, &child, args->max_clock)};
+            for(uint64_t j = 0; j < mut_times; j++){
+                const struct Program child = mutation(in, &(pop.individual[i].prog), args->max_mutation_len, args->max_individ_len);
+                ASSERT(child.size > 0);
+                const struct Individual mutated = {.prog = child, .fitness = args->fitness.fn(in, &child, args->max_clock)};
 #pragma omp critical
-                    {
-                        pop.individual[pop.size] = mutated;
-                        pop.size += 1;
-                    }
+                {
+                    pop.individual[pop.size] = mutated;
+                    pop.size += 1;
+                }
+                
+            }
+            if (WILL_HAPPEN(mut_prob)){
+                const struct Program child = mutation(in, &(pop.individual[i].prog), args->max_mutation_len, args->max_individ_len);
+                ASSERT(child.size > 0);
+                const struct Individual mutated = {.prog = child, .fitness = args->fitness.fn(in, &child, args->max_clock)};
+#pragma omp critical
+                {
+                    pop.individual[pop.size] = mutated;
+                    pop.size += 1;
                 }
             }
-            // MUTATION
-            for(uint64_t j = 0; j < cross_times + 1; j++){
-                if (WILL_HAPPEN(cross_prob)){
-                    const uint64_t mate = RAND_UPTO(oldsize - 1);
-                    ASSERT(pop.individual[mate].prog.size > 0);
-                    const struct ProgramCouple children = crossover(&(pop.individual[i].prog), &(pop.individual[mate].prog), args->max_individ_len);
-                    ASSERT(children.prog[0].size > 0);
-                    ASSERT(children.prog[1].size > 0);
-                    const struct Individual child1 = {.prog = children.prog[0], .fitness = args->fitness.fn(in, &children.prog[0], args->max_clock)};
-                    const struct Individual child2 = {.prog = children.prog[1], .fitness = args->fitness.fn(in, &children.prog[1], args->max_clock)};
+            // CROSSOVER
+            for(uint64_t j = 0; j < cross_times; j++){
+                const uint64_t mate = RAND_UPTO(oldsize - 1);
+                ASSERT(pop.individual[mate].prog.size > 0);
+                const struct ProgramCouple children = crossover(&(pop.individual[i].prog), &(pop.individual[mate].prog), args->max_individ_len);
+                ASSERT(children.prog[0].size > 0);
+                ASSERT(children.prog[1].size > 0);
+                const struct Individual child1 = {.prog = children.prog[0], .fitness = args->fitness.fn(in, &children.prog[0], args->max_clock)};
+                const struct Individual child2 = {.prog = children.prog[1], .fitness = args->fitness.fn(in, &children.prog[1], args->max_clock)};
 #pragma omp critical
-                    {
-                        pop.individual[pop.size] = child1;
-                        pop.size += 1;
-                        pop.individual[pop.size] = child2;
-                        pop.size += 1;
-                    }
+                {
+                    pop.individual[pop.size] = child1;
+                    pop.size += 1;
+                    pop.individual[pop.size] = child2;
+                    pop.size += 1;
+                }
+            }
+            if (WILL_HAPPEN(cross_prob)){
+                const uint64_t mate = RAND_UPTO(oldsize - 1);
+                ASSERT(pop.individual[mate].prog.size > 0);
+                const struct ProgramCouple children = crossover(&(pop.individual[i].prog), &(pop.individual[mate].prog), args->max_individ_len);
+                ASSERT(children.prog[0].size > 0);
+                ASSERT(children.prog[1].size > 0);
+                const struct Individual child1 = {.prog = children.prog[0], .fitness = args->fitness.fn(in, &children.prog[0], args->max_clock)};
+                const struct Individual child2 = {.prog = children.prog[1], .fitness = args->fitness.fn(in, &children.prog[1], args->max_clock)};
+#pragma omp critical
+                {
+                    pop.individual[pop.size] = child1;
+                    pop.size += 1;
+                    pop.individual[pop.size] = child2;
+                    pop.size += 1;
                 }
             }
         }

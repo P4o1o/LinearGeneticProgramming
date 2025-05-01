@@ -1,23 +1,36 @@
 #include <stdio.h>
 #include "evolution.h"
 #include "psb2.h"
+#include <time.h>
+ 
+
+static inline double get_time_sec() {
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    return ts.tv_sec + ts.tv_nsec * 1e-9;
+}
 
 int main(int argc, char *argv[]){
-	random_init(0);
+	random_init(7, 0);
+	for(uint64_t i = 0; i < MAX_OMP_THREAD; i++){
+		uint32_t seed = random();
+		printf("seed %ld: %0x\n", i, seed);
+		random_init(seed, i);
+	}
 	const struct LGPOptions par = {
 		.fitness = MSE,
 		.selection = tournament,
-		.select_param = (union SelectionParams) {.size = 3},
-		.initialization_func = rand_population,
+		.select_param = (union SelectionParams) {.size = 4},
+		.initialization_func = unique_population,
 		.init_params = (struct InitializationParams) {
-			.pop_size = 100,
+			.pop_size = 10000,
 			.minsize = 5,
 			.maxsize = 20
 		},
 		.target = 1e-27,
-		.mutation_prob = 0.5,
+		.mutation_prob = 1.0,
 		.max_mutation_len = 10,
-		.crossover_prob = 0.8,
+		.crossover_prob = 1.0,
 		.max_clock = 2200,
 		.max_individ_len = MAX_PROGRAM_SIZE,
 		.generations = 300,
@@ -28,10 +41,14 @@ int main(int argc, char *argv[]){
 		.size = 9, .op = opset,
 	};
 	struct LGPInput in = vector_distance(&instr_set, 2, 100);
+	double start = get_time_sec();
 	const struct LGPResult res = evolve(&in, &par);
+	double end = get_time_sec();
 	free(in.memory);
+	printf("Solution:\n");
+	print_program(&(res.pop.individual[res.best_individ].prog));
+	printf("Time: %lf, evaluations: %lu, eval/sec: %lf\n", end - start, res.evaluations, ((double) res.evaluations) / (end - start));
 	free(res.pop.individual);
-
 	return 0;
 }
 

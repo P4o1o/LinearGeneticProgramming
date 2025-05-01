@@ -154,7 +154,7 @@ static inline uint64_t xxhash_program(const struct Program *const prog){
             __m128i small_acc1 = _mm_set_epi64x(HASH_SEED + PRIME1 + PRIME2, HASH_SEED + PRIME2);
             __m128i small_acc2 = _mm_set_epi64x(HASH_SEED, HASH_SEED - PRIME1);
             while(input + 4 <= end){
-                __m128i data = _mm_loadu_si128((__m128i*)(input));
+                __m128i data = _mm_load_si128((__m128i*)(input));
                 small_acc1 = sse2_xxh_roll(small_acc1, data);
                 input += 2;
                 small_acc2 = sse2_xxh_roll(small_acc2, data);
@@ -238,7 +238,7 @@ struct LGPResult rand_population(const struct LGPInput *const in, const struct I
 static inline uint64_t next_power_of_two(uint64_t x) {
     ASSERT(x > 0);
     for (uint64_t shift = 1; shift < sizeof(uint64_t)*8; shift <<= 1)
-        x &= (x >> shift);
+        x |= (x >> shift);
     return x + 1;
 }
 
