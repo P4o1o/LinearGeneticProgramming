@@ -184,7 +184,8 @@ struct LGPResult evolve(const struct LGPInput *const in, const struct LGPOptions
             }
             buffer_size = max_pop_size;
         }
-#pragma omp parallel for schedule(dynamic,1)
+        uint64_t last_program = pop.size - 1;
+#pragma omp parallel for schedule(dynamic,1) num_threads(MAX_OMP_THREAD)
         for(uint64_t i = 0; i < oldsize; i++){
             ASSERT(pop.individual[i].prog.size > 0);
             // MUTATION
@@ -192,22 +193,19 @@ struct LGPResult evolve(const struct LGPInput *const in, const struct LGPOptions
                 const struct Program child = mutation(in, &(pop.individual[i].prog), args->max_mutation_len, args->max_individ_len);
                 ASSERT(child.size > 0);
                 const struct Individual mutated = {.prog = child, .fitness = args->fitness.fn(in, &child, args->max_clock)};
-#pragma omp critical
-                {
-                    pop.individual[pop.size] = mutated;
-                    pop.size += 1;
-                }
+#pragma omp atomic
+                    ++last_program;
+                pop.individual[last_program] = mutated;
+                    
                 
             }
             if (WILL_HAPPEN(mut_prob)){
                 const struct Program child = mutation(in, &(pop.individual[i].prog), args->max_mutation_len, args->max_individ_len);
                 ASSERT(child.size > 0);
                 const struct Individual mutated = {.prog = child, .fitness = args->fitness.fn(in, &child, args->max_clock)};
-#pragma omp critical
-                {
-                    pop.individual[pop.size] = mutated;
-                    pop.size += 1;
-                }
+#pragma omp atomic
+                    ++last_program;
+                pop.individual[last_program] = mutated;
             }
             // CROSSOVER
             for(uint64_t j = 0; j < cross_times; j++){
@@ -218,13 +216,12 @@ struct LGPResult evolve(const struct LGPInput *const in, const struct LGPOptions
                 ASSERT(children.prog[1].size > 0);
                 const struct Individual child1 = {.prog = children.prog[0], .fitness = args->fitness.fn(in, &children.prog[0], args->max_clock)};
                 const struct Individual child2 = {.prog = children.prog[1], .fitness = args->fitness.fn(in, &children.prog[1], args->max_clock)};
-#pragma omp critical
-                {
-                    pop.individual[pop.size] = child1;
-                    pop.size += 1;
-                    pop.individual[pop.size] = child2;
-                    pop.size += 1;
-                }
+#pragma omp atomic
+                    ++last_program;
+                pop.individual[last_program] = child1;
+#pragma omp atomic
+                    ++last_program;
+                pop.individual[last_program] = child2;
             }
             if (WILL_HAPPEN(cross_prob)){
                 const uint64_t mate = RAND_UPTO(oldsize - 1);
@@ -234,15 +231,15 @@ struct LGPResult evolve(const struct LGPInput *const in, const struct LGPOptions
                 ASSERT(children.prog[1].size > 0);
                 const struct Individual child1 = {.prog = children.prog[0], .fitness = args->fitness.fn(in, &children.prog[0], args->max_clock)};
                 const struct Individual child2 = {.prog = children.prog[1], .fitness = args->fitness.fn(in, &children.prog[1], args->max_clock)};
-#pragma omp critical
-                {
-                    pop.individual[pop.size] = child1;
-                    pop.size += 1;
-                    pop.individual[pop.size] = child2;
-                    pop.size += 1;
-                }
+#pragma omp atomic
+                    ++last_program;
+                pop.individual[last_program] = child1;
+#pragma omp atomic
+                    ++last_program;
+                pop.individual[last_program] = child2;
             }
         }
+        pop.size = last_program + 1;
         evaluations += (pop.size - oldsize);
         winner = best_individ(&pop, args->fitness.type);
         if(args->verbose)

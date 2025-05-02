@@ -44,7 +44,7 @@ static inline double *distances_table(const struct Population *const pop){
 	double *distance_tab = malloc(sizeof(double) * ((size_t) pop->size) * ((size_t) pop->size));
 	if(distance_tab == NULL)
 		MALLOC_FAIL;
-#pragma omp parallel for collapse(2)
+#pragma omp parallel for collapse(2) num_threads(MAX_OMP_THREAD)
 	for(uint64_t i = 0; i < pop->size; i++){
 		for(uint64_t j = i; j < pop->size; j++){
 			if(i == j){
@@ -64,7 +64,7 @@ static inline double *fitness_sharing_##NAME(struct Population *const initial, c
 	double *res = malloc(sizeof(double) * initial->size); \
 	if(res == NULL) \
 		MALLOC_FAIL; \
-    _Pragma("omp parallel for schedule(static, 1)") \
+    _Pragma("omp parallel for schedule(static, 1) num_threads(MAX_OMP_THREAD)") \
 	for(uint64_t i = 0; i < initial->size; i++){ \
 		double sharing = 0.0; \
 		for(uint64_t j = 0; j < initial->size; j++){ \
@@ -100,14 +100,11 @@ static inline void shuffle_population(struct Population* pop) {
 static inline void merge_sort_##NAME(struct Population *pop) { \
 	uint64_t width; \
     for (width = 1; width < pop->size; width *= 2) { \
-        _Pragma("omp parallel") \
+        _Pragma("omp parallel num_threads(MAX_OMP_THREAD)") \
 		{ \
 			struct Individual *temp_pop = (struct Individual *) malloc( 2 * width * sizeof(struct Individual)); \
 			if (temp_pop == NULL) { \
-                _Pragma("omp critical") \
-				{ \
-					MALLOC_FAIL; \
-				} \
+                MALLOC_FAIL_THREADSAFE; \
 			} \
             _Pragma("omp for") \
 			for (uint64_t i = 0; i < pop->size; i += 2 * width) { \
@@ -154,14 +151,11 @@ DECLARE_MERGE_SORT(MAXIMIZE, >=)
 static inline void fitness_sharing_merge_sort_##NAME(struct Population *pop, const double *const fitness_sharing) { \
 	uint64_t width; \
     for (width = 1; width < pop->size; width *= 2) { \
-        _Pragma("omp parallel") \
+        _Pragma("omp parallel num_threads(MAX_OMP_THREAD)") \
 		{ \
 			struct Individual *temp_pop = (struct Individual *) malloc( 2 * width * sizeof(struct Individual)); \
 			if (temp_pop == NULL) { \
-                _Pragma("omp critical") \
-				{ \
-					MALLOC_FAIL; \
-				} \
+                MALLOC_FAIL_THREADSAFE; \
 			} \
             _Pragma("omp for") \
 			for (uint64_t i = 0; i < pop->size; i += 2 * width) { \
@@ -262,7 +256,7 @@ void tournament_##TYPE(struct Population * initial, const union SelectionParams*
 	if (res.individual == NULL){ \
 		MALLOC_FAIL; \
     } \
-    _Pragma("omp parallel for schedule(static,1)") \
+    _Pragma("omp parallel for schedule(static,1) num_threads(MAX_OMP_THREAD)") \
     for (uint64_t i = 0; i < tournaments; i++) { \
         uint64_t winner = 0; \
         for (uint64_t j = 1; j < params->size; j++) { \
@@ -299,7 +293,7 @@ void fitness_sharing_tournament_##TYPE(struct Population * initial, const union 
 		MALLOC_FAIL; \
     } \
     double *fs = fitness_sharing_##TYPE(initial, params); \
-    _Pragma("omp parallel for schedule(static,1)") \
+    _Pragma("omp parallel for schedule(static,1) num_threads(MAX_OMP_THREAD)") \
     for (uint64_t i = 0; i < tournaments; i++) { \
         uint64_t winner = 0; \
         for (uint64_t j = 1; j < params->size; j++) { \
@@ -372,32 +366,30 @@ void roulette_##TYPE(struct Population * initial, const union SelectionParams* p
 	const struct DoubleCouple maxmin = get_info_roulette_##TYPE(initial); \
     if(maxmin.val[0] == maxmin.val[1]){ \
         res.individual[0] = initial->individual[0]; \
-        res.size = 1; \
-        _Pragma("omp parallel for schedule(dynamic,1)") \
+        uint64_t last_elem = 0; \
+        _Pragma("omp parallel for schedule(dynamic,1) num_threads(MAX_OMP_THREAD)") \
         for(uint64_t i = 1; i < initial->size; i++){ \
             prob probability = PROBABILITY(0.5); \
             if(WILL_HAPPEN(probability)){ \
-                _Pragma("omp critical") \
-                { \
-                    res.individual[res.size] = initial->individual[i]; \
-                    res.size += 1; \
-                } \
+                _Pragma("omp atomic") \
+                    ++last_elem; \
+                res.individual[last_elem] = initial->individual[i]; \
             } \
         } \
+        res.size = last_elem + 1; \
     }else{ \
-        res.size = 0; \
-        _Pragma("omp parallel for schedule(dynamic,1)") \
+        uint64_t last_elem = -1; \
+        _Pragma("omp parallel for schedule(dynamic,1) num_threads(MAX_OMP_THREAD)") \
         for(uint64_t i = 0; i < initial->size; i++){ \
             double doubleprob = probability_roulette_##TYPE(initial->individual[i].fitness, maxmin); \
             prob probability = PROBABILITY(doubleprob); \
             if(WILL_HAPPEN(probability)){ \
-                _Pragma("omp critical") \
-                { \
-                    res.individual[res.size] = initial->individual[i]; \
-                    res.size += 1; \
-                } \
+                _Pragma("omp atomic") \
+                    ++last_elem; \
+                res.individual[last_elem] = initial->individual[i]; \
             } \
         } \
+        res.size = last_elem + 1; \
     } \
     memcpy(initial->individual, res.individual, res.size * sizeof(struct Individual)); \
     initial->size = res.size; \
@@ -441,33 +433,31 @@ void fitness_sharing_roulette_##TYPE(struct Population * initial, const union Se
     if(maxmin.val[0] == maxmin.val[1]){ \
         free(fs); \
         res.individual[0] = initial->individual[0]; \
-        res.size = 1; \
-        _Pragma("omp parallel for schedule(dynamic,1)") \
+        uint64_t last_elem = 0; \
+        _Pragma("omp parallel for schedule(dynamic,1) num_threads(MAX_OMP_THREAD)") \
         for(uint64_t i = 1; i < initial->size; i++){ \
             prob probability = PROBABILITY(0.5); \
             if(WILL_HAPPEN(probability)){ \
-                _Pragma("omp critical") \
-                { \
-                    res.individual[res.size] = initial->individual[i]; \
-                    res.size += 1; \
-                } \
+                _Pragma("omp atomic") \
+                    ++last_elem; \
+                res.individual[last_elem] = initial->individual[i]; \
             } \
         } \
+        res.size = last_elem + 1; \
     }else{ \
-        res.size = 0; \
-        _Pragma("omp parallel for schedule(dynamic,1)") \
+        uint64_t last_elem = -1; \
+        _Pragma("omp parallel for schedule(dynamic,1) num_threads(MAX_OMP_THREAD)") \
         for(uint64_t i = 0; i < initial->size; i++){ \
             double doubleprob = probability_roulette_##TYPE(fs[i], maxmin); \
             prob probability = PROBABILITY(doubleprob); \
             if(WILL_HAPPEN(probability)){ \
-                _Pragma("omp critical") \
-                { \
-                    res.individual[res.size] = initial->individual[i]; \
-                    res.size += 1; \
-                } \
+                _Pragma("omp atomic") \
+                    ++last_elem; \
+                res.individual[last_elem] = initial->individual[i]; \
             } \
         } \
         free(fs); \
+        res.size = last_elem + 1; \
     } \
     memcpy(initial->individual, res.individual, res.size * sizeof(struct Individual)); \
     initial->size = res.size; \

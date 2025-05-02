@@ -31,6 +31,13 @@ make
 ./lgp
 ```
 
+### CLANG
+before compiling with clang you must have libomp-dev installed
+```bash
+sudo apt update
+sudo apt install libomp-dev
+```
+
 ## Usage Example
 
 ```c
