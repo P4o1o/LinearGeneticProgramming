@@ -1,13 +1,16 @@
 #include <stdio.h>
 #include "evolution.h"
 #include "psb2.h"
-#include <time.h>
  
 
 static inline double get_time_sec() {
-    struct timespec ts;
-    clock_gettime(CLOCK_MONOTONIC, &ts);
-    return ts.tv_sec + ts.tv_nsec * 1e-9;
+	#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L // >= C11
+		struct timespec ts;
+		if (timespec_get(&ts, TIME_UTC) == TIME_UTC) {
+			return ts.tv_sec + ts.tv_nsec * 1e-9;
+		}
+	#endif
+	return (double)clock() / (double)CLOCKS_PER_SEC;    
 }
 
 int main(int argc, char *argv[]){
@@ -19,8 +22,8 @@ int main(int argc, char *argv[]){
 	}
 	const struct LGPOptions par = {
 		.fitness = MSE,
-		.selection = tournament,
-		.select_param = (union SelectionParams) {.size = 4},
+		.selection = elitism,
+		.select_param = (union SelectionParams) {.size = 5000},
 		.initialization_func = unique_population,
 		.init_params = (struct InitializationParams) {
 			.pop_size = 10000,
@@ -51,4 +54,3 @@ int main(int argc, char *argv[]){
 	free(res.pop.individual);
 	return 0;
 }
-

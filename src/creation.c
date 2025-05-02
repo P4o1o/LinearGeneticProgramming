@@ -224,7 +224,7 @@ struct LGPResult rand_population(const struct LGPInput *const in, const struct I
 	if (pop.individual == NULL) {
 		MALLOC_FAIL;
 	}
-#pragma omp parallel for schedule(dynamic,1)
+#pragma omp parallel for schedule(dynamic,1) num_threads(MAX_OMP_THREAD)
 	for (uint64_t i = 0; i < pop.size; i++) {
         struct Program prog = rand_program(in, params->minsize, params->maxsize);
         ASSERT(params->minsize <= prog.size);
@@ -259,7 +259,7 @@ struct LGPResult unique_population(const struct LGPInput *const in, const struct
         MALLOC_FAIL;
     }
     memset(progmap.table, 0, sizeof(struct ProgramSetNode) * progmap.capacity);
-#pragma omp parallel for schedule(dynamic,1)
+#pragma omp parallel for schedule(dynamic,1) num_threads(MAX_OMP_THREAD)
     for (uint64_t i = 0; i < pop.size; i++) {
         struct Program prog;
         uint64_t found;

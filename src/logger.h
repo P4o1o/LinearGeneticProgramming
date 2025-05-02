@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <omp.h>
+#include "macros.h"
 
 #define LOG_FILE "genetic.log"
 
@@ -11,8 +12,9 @@
 
 // DON'T USE THIS
 
-[[noreturn]] void log_error_exit(const char* error_message, const char* file, const size_t line);
-[[noreturn]] void log_error_exit_ts(const char* error_message, const char* file, const size_t line);
+NORETURN_ATTRIBUTE void log_error_exit(const char* error_message, const char* file, const size_t line);
+
+NORETURN_ATTRIBUTE void log_error_exit_ts(const char* error_message, const char* file, const size_t line);
 
 // USE THIS INSTEAD
 

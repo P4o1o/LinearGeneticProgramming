@@ -6,107 +6,104 @@
 #include <math.h>
 #include <stddef.h>
 
-#include "prob.h"
+#include "macros.h"
 
-#define ASSERT(x) \
-	do \
-		if(!(x)) unreachable(); \
-	while(0)
+#include "prob.h"
 
 #define INSTR_NUM 86
 
 #define INSTR_MACRO \
-	INSTRUCTION(EXIT,   0,	0,	1) \
-	INSTRUCTION(LOAD_RAM,   1,	2,	0) \
-	INSTRUCTION(STORE_RAM,  1,	2,	2) \
-	INSTRUCTION(LOAD_ROM,   1,	4,	0) \
-	INSTRUCTION(MOV,    2,	0,	0) \
-	INSTRUCTION(CMOV_Z,   2,	0,	0) \
-	INSTRUCTION(CMOV_NZ,  2,	0,	0) \
-	INSTRUCTION(CMOV_L,   2,	0,	0) \
-	INSTRUCTION(CMOV_G,   2,	0,	0) \
-	INSTRUCTION(CMOV_LE,  2,	0,	0) \
-	INSTRUCTION(CMOV_GE,  2,	0,	0) \
-	INSTRUCTION(CMOV_EXIST, 2, 0,	0) \
-	INSTRUCTION(CMOV_NEXIST, 2, 0,	0) \
-	INSTRUCTION(CMOV_ODD, 2,	0,	0) \
-	INSTRUCTION(CMOV_EVEN, 2,	0,	0) \
-	INSTRUCTION(MOV_I,   1,	1,	0) \
-	INSTRUCTION(JMP,    0,	3,	1) \
-	INSTRUCTION(JMP_Z,     0,	3,	1) \
-	INSTRUCTION(JMP_NZ,    0,	3,	1) \
-	INSTRUCTION(JMP_L,     0,	3,	1) \
-	INSTRUCTION(JMP_G,     0,	3,	1) \
-	INSTRUCTION(JMP_LE,    0,	3,	1) \
-	INSTRUCTION(JMP_GE,    0,	3,	1) \
-	INSTRUCTION(JMP_EXIST, 0, 3,	1) \
-	INSTRUCTION(JMP_NEXIST,0, 3,	1) \
-	INSTRUCTION(JMP_EVEN,  0,	3,	1) \
-	INSTRUCTION(JMP_ODD,   0,	3,	1) \
-	INSTRUCTION(CLC,    0,	0,	1) \
-	INSTRUCTION(CMP,    2,	0,	1) \
-	INSTRUCTION(TEST,   1,	0,	1) \
-	INSTRUCTION(ADD,    3,	0,	0) \
-	INSTRUCTION(SUB,    3,	0,	0) \
-	INSTRUCTION(MUL,    3,	0,	0) \
-	INSTRUCTION(DIV,    3,	0,	0) \
-	INSTRUCTION(MOD,    3,	0,	0) \
-	INSTRUCTION(INC,    1,	0,	0) \
-	INSTRUCTION(DEC,    1,	0,	0) \
-	INSTRUCTION(AND,    3,	0,	0) \
-	INSTRUCTION(OR,     3,	0,	0) \
-	INSTRUCTION(XOR,    3,	0,	0) \
-	INSTRUCTION(NOT,    2,	0,	0) \
-	INSTRUCTION(SHL,    3,	0,	0) \
-	INSTRUCTION(SHR,    3,	0,	0) \
-	INSTRUCTION(CAST,   2,	0,	0) \
-	INSTRUCTION(NOP,    0,	0,	0) \
-	INSTRUCTION(LOAD_RAM_F,  1,	2,	0) \
-	INSTRUCTION(LOAD_ROM_F,  1,	4,	0) \
-	INSTRUCTION(STORE_RAM_F, 1,	2,	2) \
-	INSTRUCTION(MOV_F,   2,	0,	0) \
-	INSTRUCTION(CMOV_Z_F,  2,	0,	0) \
-	INSTRUCTION(CMOV_NZ_F, 2,	0,	0) \
-	INSTRUCTION(CMOV_L_F,  2,	0,	0) \
-	INSTRUCTION(CMOV_G_F,  2,	0,	0) \
-	INSTRUCTION(CMOV_LE_F, 2,	0,	0) \
-	INSTRUCTION(CMOV_GE_F, 2,	0,	0) \
-	INSTRUCTION(MOV_I_F,  1,	5,	0) \
-	INSTRUCTION(CMOV_EXIST_F, 2, 0,	0) \
-	INSTRUCTION(CMOV_NEXIST_F,2, 0,	0) \
-	INSTRUCTION(CMOV_ODD_F, 2,	0,	0) \
-	INSTRUCTION(CMOV_EVEN_F, 2,	0,	0) \
-	INSTRUCTION(CMP_F,   2,	0,	1) \
-	INSTRUCTION(TEST_F,  1,	0,	1) \
-	INSTRUCTION(ADD_F,   3,	0,	0) \
-	INSTRUCTION(SUB_F,   3,	0,	0) \
-	INSTRUCTION(MUL_F,   3,	0,	0) \
-	INSTRUCTION(DIV_F,   3,	0,	0) \
-	INSTRUCTION(SQRT,   2,	0,	0) \
-	INSTRUCTION(POW,    3,	0,	0) \
-	INSTRUCTION(EXP,    2,	0,	0) \
-	INSTRUCTION(LN,     2,	0,	0) \
-	INSTRUCTION(LOG,    2,	0,	0) \
-	INSTRUCTION(LOG10,  2,	0,	0) \
-	INSTRUCTION(COS,    2,	0,	0) \
-	INSTRUCTION(SIN,    2,	0,	0) \
-	INSTRUCTION(TAN,    2,	0,	0) \
-	INSTRUCTION(ACOS,   2,	0,	0) \
-	INSTRUCTION(ASIN,   2,	0,	0) \
-	INSTRUCTION(ATAN,   2,	0,	0) \
-	INSTRUCTION(COSH,   2,	0,	0) \
-	INSTRUCTION(SINH,   2,	0,	0) \
-	INSTRUCTION(TANH,   2,	0,	0) \
-	INSTRUCTION(ACOSH,  2,	0,	0) \
-	INSTRUCTION(ASINH,  2,	0,	0) \
-	INSTRUCTION(ATANH,  2,	0,	0) \
-	INSTRUCTION(CAST_F,  2,	0,	0) \
-	INSTRUCTION(RAND,   1,	0,	0)
+	INSTRUCTION(EXIT,  			0, 		0,	0,	1) \
+	INSTRUCTION(LOAD_RAM,   	1,		1,	2,	0) \
+	INSTRUCTION(STORE_RAM,  	2,		1,	2,	2) \
+	INSTRUCTION(LOAD_ROM,   	3,		1,	4,	0) \
+	INSTRUCTION(MOV,    		4, 		2,	0,	0) \
+	INSTRUCTION(CMOV_Z,   		5,		2,	0,	0) \
+	INSTRUCTION(CMOV_NZ,  		6,		2,	0,	0) \
+	INSTRUCTION(CMOV_L,   		7,		2,	0,	0) \
+	INSTRUCTION(CMOV_G,   		8,		2,	0,	0) \
+	INSTRUCTION(CMOV_LE,  		9,		2,	0,	0) \
+	INSTRUCTION(CMOV_GE,  		10,		2,	0,	0) \
+	INSTRUCTION(CMOV_EXIST, 	11,		2, 	0,	0) \
+	INSTRUCTION(CMOV_NEXIST, 	12,		2, 	0,	0) \
+	INSTRUCTION(CMOV_ODD, 		13,		2,	0,	0) \
+	INSTRUCTION(CMOV_EVEN, 		14,		2,	0,	0) \
+	INSTRUCTION(MOV_I,   		15,		1,	1,	0) \
+	INSTRUCTION(JMP,    		16,		0,	3,	1) \
+	INSTRUCTION(JMP_Z,     		17,		0,	3,	1) \
+	INSTRUCTION(JMP_NZ,   		18,		0,	3,	1) \
+	INSTRUCTION(JMP_L,     		19,		0,	3,	1) \
+	INSTRUCTION(JMP_G,     		20,		0,	3,	1) \
+	INSTRUCTION(JMP_LE,    		21,		0,	3,	1) \
+	INSTRUCTION(JMP_GE,    		22,		0,	3,	1) \
+	INSTRUCTION(JMP_EXIST, 		23,		0, 	3,	1) \
+	INSTRUCTION(JMP_NEXIST,		24,		0, 	3,	1) \
+	INSTRUCTION(JMP_EVEN,  		25,		0,	3,	1) \
+	INSTRUCTION(JMP_ODD,   		26,		0,	3,	1) \
+	INSTRUCTION(CLC,    		27,		0,	0,	1) \
+	INSTRUCTION(CMP,    		28,		2,	0,	1) \
+	INSTRUCTION(TEST,   		29,		1,	0,	1) \
+	INSTRUCTION(ADD,    		30,		3,	0,	0) \
+	INSTRUCTION(SUB,    		31,		3,	0,	0) \
+	INSTRUCTION(MUL,    		32,		3,	0,	0) \
+	INSTRUCTION(DIV,    		33,		3,	0,	0) \
+	INSTRUCTION(MOD,    		34,		3,	0,	0) \
+	INSTRUCTION(INC,    		35,		1,	0,	0) \
+	INSTRUCTION(DEC,    		36,		1,	0,	0) \
+	INSTRUCTION(AND,   			37,		3,	0,	0) \
+	INSTRUCTION(OR,     		38,		3,	0,	0) \
+	INSTRUCTION(XOR,    		39,		3,	0,	0) \
+	INSTRUCTION(NOT,    		40,		2,	0,	0) \
+	INSTRUCTION(SHL,    		41,		3,	0,	0) \
+	INSTRUCTION(SHR,    		42,		3,	0,	0) \
+	INSTRUCTION(CAST,   		43,		2,	0,	0) \
+	INSTRUCTION(NOP,    		44,		0,	0,	0) \
+	INSTRUCTION(LOAD_RAM_F,  	45,		1,	2,	0) \
+	INSTRUCTION(LOAD_ROM_F,  	46,		1,	4,	0) \
+	INSTRUCTION(STORE_RAM_F, 	47,		1,	2,	2) \
+	INSTRUCTION(MOV_F,   		48,		2,	0,	0) \
+	INSTRUCTION(CMOV_Z_F,  		49,		2,	0,	0) \
+	INSTRUCTION(CMOV_NZ_F, 		50,		2,	0,	0) \
+	INSTRUCTION(CMOV_L_F,  		51,		2,	0,	0) \
+	INSTRUCTION(CMOV_G_F,  		52,		2,	0,	0) \
+	INSTRUCTION(CMOV_LE_F, 		53,		2,	0,	0) \
+	INSTRUCTION(CMOV_GE_F, 		54,		2,	0,	0) \
+	INSTRUCTION(MOV_I_F,  		55,		1,	5,	0) \
+	INSTRUCTION(CMOV_EXIST_F, 	56,		2, 	0,	0) \
+	INSTRUCTION(CMOV_NEXIST_F,	57,		2, 	0,	0) \
+	INSTRUCTION(CMOV_ODD_F, 	58,		2,	0,	0) \
+	INSTRUCTION(CMOV_EVEN_F, 	59,		2,	0,	0) \
+	INSTRUCTION(CMP_F,   		60,		2,	0,	1) \
+	INSTRUCTION(TEST_F,  		61,		1,	0,	1) \
+	INSTRUCTION(ADD_F,   		62,		3,	0,	0) \
+	INSTRUCTION(SUB_F,   		63,		3,	0,	0) \
+	INSTRUCTION(MUL_F,   		64,		3,	0,	0) \
+	INSTRUCTION(DIV_F,   		65,		3,	0,	0) \
+	INSTRUCTION(SQRT,   		66,		2,	0,	0) \
+	INSTRUCTION(POW,    		67,		3,	0,	0) \
+	INSTRUCTION(EXP,    		68,		2,	0,	0) \
+	INSTRUCTION(LN,     		69,		2,	0,	0) \
+	INSTRUCTION(LOG,    		70,		2,	0,	0) \
+	INSTRUCTION(LOG10,  		71,		2,	0,	0) \
+	INSTRUCTION(COS,    		72,		2,	0,	0) \
+	INSTRUCTION(SIN,    		73,		2,	0,	0) \
+	INSTRUCTION(TAN,    		74,		2,	0,	0) \
+	INSTRUCTION(ACOS,   		75,		2,	0,	0) \
+	INSTRUCTION(ASIN,   		76,		2,	0,	0) \
+	INSTRUCTION(ATAN,   		77,		2,	0,	0) \
+	INSTRUCTION(COSH,   		78,		2,	0,	0) \
+	INSTRUCTION(SINH,   		79,		2,	0,	0) \
+	INSTRUCTION(TANH,   		80,		2,	0,	0) \
+	INSTRUCTION(ACOSH,  		81,		2,	0,	0) \
+	INSTRUCTION(ASINH,  		82,		2,	0,	0) \
+	INSTRUCTION(ATANH,  		83,		2,	0,	0) \
+	INSTRUCTION(CAST_F,  		84,		2,	0,	0) \
+	INSTRUCTION(RAND,   		85,		1,	0,	0)
 
 
-#define INSTRUCTION(name, regs, addr, change) I_##name,
-enum InstrCode : uint8_t {
-	INSTR_MACRO
+#define INSTRUCTION(name, code, regs, addr, change) I_##name = code,
+enum InstrCode{
+INSTR_MACRO
 };
 #undef INSTRUCTION
 
@@ -115,12 +112,12 @@ struct Operation {
     const uint8_t regs;
     const int8_t addr; // 1 = immediate, 2 = ram memory address, 3 = program address, 4 = rom memory address, 5 = float immediate
 	const uint8_t state_changer; // 0 = no, 1 = yes, 2 = memory change
-	const enum InstrCode code;
+	const uint8_t code;
 };
 
 extern const struct Operation INSTRSET[INSTR_NUM];
 
-#define INSTRUCTION(name, regs, addr, change) \
+#define INSTRUCTION(name, code, regs, addr, change) \
 extern const struct Operation OP_##name;
 INSTR_MACRO
 #undef INSTRUCTION
@@ -130,7 +127,7 @@ INSTR_MACRO
 #define RAM_SIZE 64
 
 struct Instruction{
-    enum InstrCode op;
+    uint8_t op;
     uint8_t reg[3];
     uint32_t addr;
 };

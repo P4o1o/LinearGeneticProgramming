@@ -10,8 +10,6 @@
 #include <string.h>
 #include <omp.h>
 
-#include "memdebug.h"
-
 #define MAX_PROGRAM_SIZE 254
 
 struct Program{
@@ -61,7 +59,7 @@ inline struct Instruction rand_instruction(const struct LGPInput *const in, cons
     ASSERT(prog_size <= MAX_PROGRAM_SIZE);
     ASSERT(in->rom_size > 0);
     const struct Operation op = in->instr_set.op[RAND_UPTO(in->instr_set.size - 1)];
-    const enum InstrCode opcode = op.code;
+    const uint8_t opcode = op.code;
     uint32_t addr;
     switch(op.addr){
         case 1:

@@ -1,11 +1,11 @@
 #include "vm.h"
 
-#define INSTRUCTION(name, regs, addr, change) \
-const struct Operation OP_##name = {#name, regs, addr, change, I_##name};
+#define INSTRUCTION(name, code, regs, addr, change) \
+const struct Operation OP_##name = {#name, regs, addr, change, code};
 INSTR_MACRO
 #undef INSTRUCTION
 
-#define INSTRUCTION(name, regs, addr, change) [I_##name] = {#name, regs, addr, change, I_##name},
+#define INSTRUCTION(name, code, regs, addr, change) [code] = {#name, regs, addr, change, code},
 const struct Operation INSTRSET[] = {
     INSTR_MACRO
 };
