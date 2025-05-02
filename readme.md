@@ -41,40 +41,92 @@ sudo apt install libomp-dev
 ## Usage Example
 
 ```c
-#include "genetics.h"
-#include "evolution.h"
+#include <stdio.h>
 
-int main() {
-    // Create a genetic environment with basic operations
-    struct genetic_env env = simple_genv(5);
-    
-    // Create input data for the problem
-    struct genetic_input input = vector_distance(&env, 3, 100);
-    
-    // Configure evolution parameters
-    struct genetic_options params;
-    params.tollerance = 1e-12;
-    params.generations = 100;
-    params.initial_pop_size = 4000;
-    params.init_type = unique_population;
-    params.dna_minsize = 2;
-    params.dna_maxsize = 5;
-    params.evolution_cycles = 1;
-    params.crossover_prob = 0.77;
-    params.mutation_prob = 0.96;
-    params.mut_max_len = 5;
-    params.select_type = elitism;
-    params.select_param.size = 1000;
-    params.verbose = 1;
-    
-    // Execute evolution
-    print_evolution(&input, &params);
-    
-    // Clean up
-    free_genetic_input(&input);
-    
-    return 0;
+#define NUMBER_OF_OMP_THREADS 16
+
+#include "evolution.h"
+#include "psb2.h"
+ 
+
+static inline double get_time_sec() {
+	#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L // >= C11
+		struct timespec ts;
+		if (timespec_get(&ts, TIME_UTC) == TIME_UTC) {
+			return ts.tv_sec + ts.tv_nsec * 1e-9;
+		}
+	#endif
+	return (double)clock() / (double)CLOCKS_PER_SEC;    
 }
+
+int main(int argc, char *argv[]){
+	random_init(7, 0);
+	for(uint64_t i = 0; i < MAX_OMP_THREAD; i++){
+		uint32_t seed = random();
+		printf("seed %ld: %0x\n", i, seed);
+		random_init(seed, i);
+	}
+	const struct LGPOptions par = {
+		.fitness = MSE,
+		.selection = elitism,
+		.select_param = (union SelectionParams) {.size = 5000},
+		.initialization_func = unique_population,
+		.init_params = (struct InitializationParams) {
+			.pop_size = 10000,
+			.minsize = 5,
+			.maxsize = 20
+		},
+		.target = 1e-27,
+		.mutation_prob = 1.0,
+		.max_mutation_len = 10,
+		.crossover_prob = 1.0,
+		.max_clock = 2200,
+		.max_individ_len = MAX_PROGRAM_SIZE,
+		.generations = 300,
+		.verbose = 1
+	};
+	struct Operation opset[9] = {OP_ADD_F, OP_SUB_F, OP_MUL_F, OP_DIV_F, OP_SQRT, OP_LOAD_RAM_F, OP_LOAD_ROM_F, OP_STORE_RAM_F, OP_MOV_F};
+	struct InstructionSet instr_set = (struct InstructionSet) {
+		.size = 9, .op = opset,
+	};
+	struct LGPInput in = vector_distance(&instr_set, 2, 100);
+	double start = get_time_sec();
+	const struct LGPResult res = evolve(&in, &par);
+	double end = get_time_sec();
+	free(in.memory);
+	printf("Solution:\n");
+	print_program(&(res.pop.individual[res.best_individ].prog));
+	printf("Time: %lf, evaluations: %lu, eval/sec: %lf\n", end - start, res.evaluations, ((double) res.evaluations) / (end - start));
+	free(res.pop.individual);
+	return 0;
+}
+```
+
+You should get this output:
+```
+seed 0: 1388f0af
+seed 1: e4598df
+seed 2: aa034494
+seed 3: 8080eea0
+seed 4: 853e7fd5
+seed 5: 97f02c44
+seed 6: 8e669fb2
+seed 7: 593a42f0
+seed 8: 10fc29eb
+seed 9: c5908fb1
+seed 10: 5e3b8c1a
+seed 11: f6a5574e
+seed 12: 69f3cb7a
+seed 13: 82a7766f
+seed 14: 2d72df96
+seed 15: 70fa473
+Generation 0, best_mse 4958.227465, population_size 10000
+Generation 1, best_mse 0.000000, population_size 20000, evaluations 25000
+Solution:
+
+EXIT 
+Time: 0.064297, evaluations: 25000, eval/sec: 388820.866134
+
 ```
 
 ## Project Structure
@@ -82,7 +134,7 @@ int main() {
 ```
 ├── src/             # Source code
 │   ├── benchmarks.c # Benchmark problem implementations
-│   ├── creations.c  # Population initialization functions
+│   ├── creation.c  # Population initialization functions
 │   ├── evolution.c  # Main evolutionary algorithm
 │   ├── float_psb2.c # PSB2 problem implementations
 │   ├── genetics.c   # Core genetic operations

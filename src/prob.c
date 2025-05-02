@@ -15,7 +15,7 @@
 #define UMASK (0xFFFFFFFFU << R)
 #define LMASK (0xFFFFFFFFU >> (W - R))
 
-struct RandEngine rand_engine[MAX_OMP_THREAD];
+struct RandEngine rand_engine[NUMBER_OF_OMP_THREADS];
 
 uint32_t random(void){
     uint64_t thread_num = omp_get_thread_num();

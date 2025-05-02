@@ -178,14 +178,14 @@ struct LGPResult evolve(const struct LGPInput *const in, const struct LGPOptions
         uint64_t oldsize = pop.size;
         uint64_t max_pop_size = oldsize * (mut_times + 1 + 2 * (cross_times + 1) + 1);
         if(buffer_size < max_pop_size){
-            pop.individual = (struct Individual *) realloc(pop.individual, sizeof(struct Individual) * max_pop_size);
+            pop.individual = (struct Individual *) aligned_realloc(pop.individual, sizeof(struct Individual) * buffer_size, sizeof(struct Individual) * max_pop_size, VECT_ALIGNMENT);
             if (pop.individual == NULL){
                 MALLOC_FAIL;
             }
             buffer_size = max_pop_size;
         }
         uint64_t last_program = pop.size - 1;
-#pragma omp parallel for schedule(dynamic,1) num_threads(MAX_OMP_THREAD)
+#pragma omp parallel for schedule(dynamic,1) num_threads(NUMBER_OF_OMP_THREADS)
         for(uint64_t i = 0; i < oldsize; i++){
             ASSERT(pop.individual[i].prog.size > 0);
             // MUTATION
@@ -193,9 +193,10 @@ struct LGPResult evolve(const struct LGPInput *const in, const struct LGPOptions
                 const struct Program child = mutation(in, &(pop.individual[i].prog), args->max_mutation_len, args->max_individ_len);
                 ASSERT(child.size > 0);
                 const struct Individual mutated = {.prog = child, .fitness = args->fitness.fn(in, &child, args->max_clock)};
-#pragma omp atomic
-                    ++last_program;
-                pop.individual[last_program] = mutated;
+                uint64_t index;
+#pragma omp atomic capture
+                    index = ++last_program;
+                pop.individual[index] = mutated;
                     
                 
             }
@@ -203,9 +204,10 @@ struct LGPResult evolve(const struct LGPInput *const in, const struct LGPOptions
                 const struct Program child = mutation(in, &(pop.individual[i].prog), args->max_mutation_len, args->max_individ_len);
                 ASSERT(child.size > 0);
                 const struct Individual mutated = {.prog = child, .fitness = args->fitness.fn(in, &child, args->max_clock)};
-#pragma omp atomic
-                    ++last_program;
-                pop.individual[last_program] = mutated;
+                uint64_t index;
+#pragma omp atomic capture
+                    index = ++last_program;
+                pop.individual[index] = mutated;
             }
             // CROSSOVER
             for(uint64_t j = 0; j < cross_times; j++){
@@ -216,12 +218,13 @@ struct LGPResult evolve(const struct LGPInput *const in, const struct LGPOptions
                 ASSERT(children.prog[1].size > 0);
                 const struct Individual child1 = {.prog = children.prog[0], .fitness = args->fitness.fn(in, &children.prog[0], args->max_clock)};
                 const struct Individual child2 = {.prog = children.prog[1], .fitness = args->fitness.fn(in, &children.prog[1], args->max_clock)};
-#pragma omp atomic
-                    ++last_program;
-                pop.individual[last_program] = child1;
-#pragma omp atomic
-                    ++last_program;
-                pop.individual[last_program] = child2;
+                uint64_t index;
+#pragma omp atomic capture
+                    index = ++last_program;
+                pop.individual[index] = child1;
+#pragma omp atomic capture
+                    index = ++last_program;
+                pop.individual[index] = child2;
             }
             if (WILL_HAPPEN(cross_prob)){
                 const uint64_t mate = RAND_UPTO(oldsize - 1);
@@ -231,12 +234,13 @@ struct LGPResult evolve(const struct LGPInput *const in, const struct LGPOptions
                 ASSERT(children.prog[1].size > 0);
                 const struct Individual child1 = {.prog = children.prog[0], .fitness = args->fitness.fn(in, &children.prog[0], args->max_clock)};
                 const struct Individual child2 = {.prog = children.prog[1], .fitness = args->fitness.fn(in, &children.prog[1], args->max_clock)};
-#pragma omp atomic
-                    ++last_program;
-                pop.individual[last_program] = child1;
-#pragma omp atomic
-                    ++last_program;
-                pop.individual[last_program] = child2;
+                uint64_t index;
+#pragma omp atomic capture
+                    index = ++last_program;
+                pop.individual[index] = child1;
+#pragma omp atomic capture
+                    index = ++last_program;
+                pop.individual[index] = child2;
             }
         }
         pop.size = last_program + 1;

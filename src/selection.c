@@ -44,7 +44,7 @@ static inline double *distances_table(const struct Population *const pop){
 	double *distance_tab = malloc(sizeof(double) * ((size_t) pop->size) * ((size_t) pop->size));
 	if(distance_tab == NULL)
 		MALLOC_FAIL;
-#pragma omp parallel for collapse(2) num_threads(MAX_OMP_THREAD)
+#pragma omp parallel for collapse(2) num_threads(NUMBER_OF_OMP_THREADS)
 	for(uint64_t i = 0; i < pop->size; i++){
 		for(uint64_t j = i; j < pop->size; j++){
 			if(i == j){
@@ -64,7 +64,7 @@ static inline double *fitness_sharing_##NAME(struct Population *const initial, c
 	double *res = malloc(sizeof(double) * initial->size); \
 	if(res == NULL) \
 		MALLOC_FAIL; \
-    _Pragma("omp parallel for schedule(static, 1) num_threads(MAX_OMP_THREAD)") \
+    _Pragma("omp parallel for schedule(static, 1) num_threads(NUMBER_OF_OMP_THREADS)") \
 	for(uint64_t i = 0; i < initial->size; i++){ \
 		double sharing = 0.0; \
 		for(uint64_t j = 0; j < initial->size; j++){ \
@@ -100,7 +100,7 @@ static inline void shuffle_population(struct Population* pop) {
 static inline void merge_sort_##NAME(struct Population *pop) { \
 	uint64_t width; \
     for (width = 1; width < pop->size; width *= 2) { \
-        _Pragma("omp parallel num_threads(MAX_OMP_THREAD)") \
+        _Pragma("omp parallel num_threads(NUMBER_OF_OMP_THREADS)") \
 		{ \
 			struct Individual *temp_pop = (struct Individual *) malloc( 2 * width * sizeof(struct Individual)); \
 			if (temp_pop == NULL) { \
@@ -151,7 +151,7 @@ DECLARE_MERGE_SORT(MAXIMIZE, >=)
 static inline void fitness_sharing_merge_sort_##NAME(struct Population *pop, const double *const fitness_sharing) { \
 	uint64_t width; \
     for (width = 1; width < pop->size; width *= 2) { \
-        _Pragma("omp parallel num_threads(MAX_OMP_THREAD)") \
+        _Pragma("omp parallel num_threads(NUMBER_OF_OMP_THREADS)") \
 		{ \
 			struct Individual *temp_pop = (struct Individual *) malloc( 2 * width * sizeof(struct Individual)); \
 			if (temp_pop == NULL) { \
@@ -217,17 +217,17 @@ void percentual_elitism_##TYPE(struct Population * initial, const union Selectio
 
 #define DECLARE_fitness_sharing_elitism(TYPE) \
 void fitness_sharing_elitism_##TYPE(struct Population * initial, const union SelectionParams* params){ \
-    if(initial->size <= params->size) \
+    if(initial->size <= params->fs_params.select_factor.size) \
 		return; \
     double *fitness_sharing  = fitness_sharing_##TYPE(initial, params); \
     fitness_sharing_merge_sort_##TYPE(initial, fitness_sharing); \
     free(fitness_sharing); \
-    initial->size = params->size; \
+    initial->size = params->fs_params.select_factor.size; \
 } /* END MACRO */
 
 #define DECLARE_fitness_sharing_percentual_elitism(TYPE) \
 void fitness_sharing_percentual_elitism_##TYPE(struct Population * initial, const union SelectionParams* params){ \
-    uint64_t final_size = (uint64_t)(params->val * ((double) initial->size)); \
+    uint64_t final_size = (uint64_t)(params->fs_params.select_factor.val * ((double) initial->size)); \
     if(final_size == 0) \
 		return; \
     double *fitness_sharing  = fitness_sharing_##TYPE(initial, params); \
@@ -252,11 +252,11 @@ void tournament_##TYPE(struct Population * initial, const union SelectionParams*
 	uint64_t small_tourn = initial->size % params->size; \
 	struct Population res = { .size = tournaments + (small_tourn != 0) }; \
     ASSERT(res.size > 0); \
-	res.individual = (struct Individual*) malloc(sizeof(struct Individual) * res.size); \
+	res.individual = (struct Individual*) aligned_alloc(VECT_ALIGNMENT, sizeof(struct Individual) * res.size); \
 	if (res.individual == NULL){ \
 		MALLOC_FAIL; \
     } \
-    _Pragma("omp parallel for schedule(static,1) num_threads(MAX_OMP_THREAD)") \
+    _Pragma("omp parallel for schedule(static,1) num_threads(NUMBER_OF_OMP_THREADS)") \
     for (uint64_t i = 0; i < tournaments; i++) { \
         uint64_t winner = 0; \
         for (uint64_t j = 1; j < params->size; j++) { \
@@ -284,24 +284,24 @@ void tournament_##TYPE(struct Population * initial, const union SelectionParams*
 void fitness_sharing_tournament_##TYPE(struct Population * initial, const union SelectionParams* params){ \
     ASSERT(initial->size > 0); \
     shuffle_population(initial); \
-    uint64_t tournaments = initial->size / params->size; \
-	uint64_t small_tourn = initial->size % params->size; \
+    uint64_t tournaments = initial->size / params->fs_params.select_factor.size; \
+	uint64_t small_tourn = initial->size % params->fs_params.select_factor.size; \
 	struct Population res = { .size = tournaments + (small_tourn != 0) }; \
     ASSERT(res.size > 0); \
-	res.individual = (struct Individual*) malloc(sizeof(struct Individual) * res.size); \
+	res.individual = (struct Individual*) aligned_alloc(VECT_ALIGNMENT, sizeof(struct Individual) * res.size); \
 	if (res.individual == NULL){ \
 		MALLOC_FAIL; \
     } \
     double *fs = fitness_sharing_##TYPE(initial, params); \
-    _Pragma("omp parallel for schedule(static,1) num_threads(MAX_OMP_THREAD)") \
+    _Pragma("omp parallel for schedule(static,1) num_threads(NUMBER_OF_OMP_THREADS)") \
     for (uint64_t i = 0; i < tournaments; i++) { \
         uint64_t winner = 0; \
-        for (uint64_t j = 1; j < params->size; j++) { \
-            if (cmp_tournament_##TYPE(fs[i * params->size + winner], fs[i * params->size + j])) { \
+        for (uint64_t j = 1; j < params->fs_params.select_factor.size; j++) { \
+            if (cmp_tournament_##TYPE(fs[i * params->fs_params.select_factor.size + winner], fs[i * params->fs_params.select_factor.size + j])) { \
                 winner = j; \
             } \
         } \
-        res.individual[i] = initial->individual[i * params->size + winner]; \
+        res.individual[i] = initial->individual[i * params->fs_params.select_factor.size + winner]; \
     } \
     if (small_tourn) { \
         uint64_t winner = 1; /* initial->size - 1 */ \
@@ -359,7 +359,7 @@ static inline struct DoubleCouple get_info_roulette_MINIMIZE(struct Population *
 #define DECLARE_roulette(TYPE) \
 void roulette_##TYPE(struct Population * initial, const union SelectionParams* params){ \
     struct Population res; \
-	res.individual = (struct Individual*) malloc(initial->size * sizeof(struct Individual)); \
+	res.individual = (struct Individual*) aligned_alloc(VECT_ALIGNMENT, initial->size * sizeof(struct Individual)); \
     if(res.individual == NULL){ \
         MALLOC_FAIL; \
     } \
@@ -367,26 +367,28 @@ void roulette_##TYPE(struct Population * initial, const union SelectionParams* p
     if(maxmin.val[0] == maxmin.val[1]){ \
         res.individual[0] = initial->individual[0]; \
         uint64_t last_elem = 0; \
-        _Pragma("omp parallel for schedule(dynamic,1) num_threads(MAX_OMP_THREAD)") \
+        _Pragma("omp parallel for schedule(dynamic,1) num_threads(NUMBER_OF_OMP_THREADS)") \
         for(uint64_t i = 1; i < initial->size; i++){ \
             prob probability = PROBABILITY(0.5); \
             if(WILL_HAPPEN(probability)){ \
-                _Pragma("omp atomic") \
-                    ++last_elem; \
-                res.individual[last_elem] = initial->individual[i]; \
+                uint64_t index; \
+                _Pragma("omp atomic capture") \
+                    index = ++last_elem; \
+                res.individual[index] = initial->individual[i]; \
             } \
         } \
         res.size = last_elem + 1; \
     }else{ \
         uint64_t last_elem = -1; \
-        _Pragma("omp parallel for schedule(dynamic,1) num_threads(MAX_OMP_THREAD)") \
+        _Pragma("omp parallel for schedule(dynamic,1) num_threads(NUMBER_OF_OMP_THREADS)") \
         for(uint64_t i = 0; i < initial->size; i++){ \
             double doubleprob = probability_roulette_##TYPE(initial->individual[i].fitness, maxmin); \
             prob probability = PROBABILITY(doubleprob); \
             if(WILL_HAPPEN(probability)){ \
-                _Pragma("omp atomic") \
-                    ++last_elem; \
-                res.individual[last_elem] = initial->individual[i]; \
+                uint64_t index; \
+                _Pragma("omp atomic capture") \
+                    index = ++last_elem; \
+                res.individual[index] = initial->individual[i]; \
             } \
         } \
         res.size = last_elem + 1; \
@@ -424,7 +426,7 @@ static inline struct DoubleCouple get_info_fitness_sharing_roulette_MINIMIZE(dou
 #define DECLARE_fitness_sharing_roulette(TYPE) \
 void fitness_sharing_roulette_##TYPE(struct Population * initial, const union SelectionParams* params){ \
     struct Population res; \
-	res.individual = (struct Individual*) malloc(initial->size * sizeof(struct Individual)); \
+	res.individual = (struct Individual*) aligned_alloc(VECT_ALIGNMENT, initial->size * sizeof(struct Individual)); \
     if(res.individual == NULL){ \
         MALLOC_FAIL; \
     } \
@@ -434,26 +436,28 @@ void fitness_sharing_roulette_##TYPE(struct Population * initial, const union Se
         free(fs); \
         res.individual[0] = initial->individual[0]; \
         uint64_t last_elem = 0; \
-        _Pragma("omp parallel for schedule(dynamic,1) num_threads(MAX_OMP_THREAD)") \
+        _Pragma("omp parallel for schedule(dynamic,1) num_threads(NUMBER_OF_OMP_THREADS)") \
         for(uint64_t i = 1; i < initial->size; i++){ \
             prob probability = PROBABILITY(0.5); \
             if(WILL_HAPPEN(probability)){ \
-                _Pragma("omp atomic") \
-                    ++last_elem; \
-                res.individual[last_elem] = initial->individual[i]; \
+                uint64_t index; \
+                _Pragma("omp atomic capture") \
+                    index = ++last_elem; \
+                res.individual[index] = initial->individual[i]; \
             } \
         } \
         res.size = last_elem + 1; \
     }else{ \
         uint64_t last_elem = -1; \
-        _Pragma("omp parallel for schedule(dynamic,1) num_threads(MAX_OMP_THREAD)") \
+        _Pragma("omp parallel for schedule(dynamic,1) num_threads(NUMBER_OF_OMP_THREADS)") \
         for(uint64_t i = 0; i < initial->size; i++){ \
             double doubleprob = probability_roulette_##TYPE(fs[i], maxmin); \
             prob probability = PROBABILITY(doubleprob); \
             if(WILL_HAPPEN(probability)){ \
-                _Pragma("omp atomic") \
-                    ++last_elem; \
-                res.individual[last_elem] = initial->individual[i]; \
+                uint64_t index; \
+                _Pragma("omp atomic capture") \
+                    index = ++last_elem; \
+                res.individual[index] = initial->individual[i]; \
             } \
         } \
         free(fs); \
@@ -484,7 +488,7 @@ static inline double * slot_sizes_roulette_MINIMIZE(const struct Population *con
 void roulette_##TYPE(struct Population * initial, const union SelectionParams* params){ \
     struct Population res; \
 	res.size = new_size->size; \
-	res.individual = (struct Individual*) malloc(new_size->size * sizeof(struct Individual)); \
+	res.individual = (struct Individual*) aligned_alloc(VECT_ALIGNMENT, new_size->size * sizeof(struct Individual)); \
     if(res.individual == NULL) \
         MALLOC_FAIL; \
     shuffle_population(initial, *mse); \

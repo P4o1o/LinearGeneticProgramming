@@ -1,7 +1,7 @@
 CC = gcc
 CLANG = clang
-CFLAGS = -O3 -Wall -pedantic -std=c2x -msse2 #-mavx2 -mavx512f -mavx512dq -mavx512vl
-DFLAGS = -ggdb3
+CFLAGS = -O3 -Wall -Wextra -pedantic -std=c2x -msse2 -mavx2 -mavx512f -mavx512dq -mavx512vl
+DFLAGS = -ggdb3 -fsanitize=undefined -fsanitize=signed-integer-overflow
 LIBFLAGS = -lm -fopenmp
 SRCDIR = src
 BINDIR = bin

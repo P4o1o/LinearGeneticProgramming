@@ -13,12 +13,8 @@
 #define MAX_PROGRAM_SIZE 254
 
 struct Program{
-    #if defined(INCLUDE_AVX512F)
-        alignas(64)
-    #elif defined(INCLUDE_AVX2)
-        alignas(32)
-    #elif defined(INCLUDE_SSE2)
-        alignas(16)
+    #if defined(VECT_ALIGNMENT)
+        alignas(VECT_ALIGNMENT)
     #endif
     struct Instruction content[MAX_PROGRAM_SIZE + 1];
     uint64_t size;
@@ -60,6 +56,7 @@ inline struct Instruction rand_instruction(const struct LGPInput *const in, cons
     ASSERT(in->rom_size > 0);
     const struct Operation op = in->instr_set.op[RAND_UPTO(in->instr_set.size - 1)];
     const uint8_t opcode = op.code;
+    union Memblock tmp;
     uint32_t addr;
     switch(op.addr){
         case 1:
@@ -75,7 +72,8 @@ inline struct Instruction rand_instruction(const struct LGPInput *const in, cons
             addr = RAND_UPTO(in->rom_size - 1);
         break;
         case 5:
-            addr = RAND_DOUBLE();
+            tmp.f64 = RAND_DOUBLE();
+            addr = tmp.i64;
         break;
         case 0:
             addr = 0;

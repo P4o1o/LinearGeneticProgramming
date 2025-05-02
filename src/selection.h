@@ -8,7 +8,10 @@ struct FitnessSharingParams{ // parameters for selections based on fitness shari
     const double alpha;
     const double beta;
     const double sigma;
-    const uint64_t size;
+    union {
+        const uint64_t size;
+        const double val;
+    }select_factor;
 };
 
 union SelectionParams{
