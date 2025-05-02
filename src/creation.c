@@ -220,11 +220,11 @@ struct LGPResult rand_population(const struct LGPInput *const in, const struct I
     ASSERT(params->minsize <= params->maxsize);
     ASSERT(params->maxsize <= MAX_PROGRAM_SIZE);
 	struct Population pop = {.size = params->pop_size};
-	pop.individual = (struct Individual *) malloc(sizeof(struct Individual) * pop.size);
+	pop.individual = (struct Individual *) aligned_alloc(VECT_ALIGNMENT, sizeof(struct Individual) * pop.size);
 	if (pop.individual == NULL) {
 		MALLOC_FAIL;
 	}
-#pragma omp parallel for schedule(dynamic,1) num_threads(MAX_OMP_THREAD)
+#pragma omp parallel for schedule(dynamic,1) num_threads(NUMBER_OF_OMP_THREADS)
 	for (uint64_t i = 0; i < pop.size; i++) {
         struct Program prog = rand_program(in, params->minsize, params->maxsize);
         ASSERT(params->minsize <= prog.size);
@@ -248,18 +248,18 @@ struct LGPResult unique_population(const struct LGPInput *const in, const struct
     ASSERT(params->minsize <= params->maxsize);
     ASSERT(params->maxsize <= MAX_PROGRAM_SIZE);
 	struct Population pop = {.size = params->pop_size};
-    pop.individual = (struct Individual *) malloc(sizeof(struct Individual) * pop.size);
+    pop.individual = (struct Individual *) aligned_alloc(VECT_ALIGNMENT, sizeof(struct Individual) * pop.size);
 	if (pop.individual == NULL) {
 		MALLOC_FAIL;
 	}
     struct ProgramSet progmap = {.capacity = next_power_of_two(params->pop_size), .size = 0};
     uint64_t mask = progmap.capacity - 1;
-    progmap.table = (struct ProgramSetNode *) malloc(sizeof(struct ProgramSetNode) * progmap.capacity);
+    progmap.table = (struct ProgramSetNode *) aligned_alloc(VECT_ALIGNMENT, sizeof(struct ProgramSetNode) * progmap.capacity);
     if(progmap.table == NULL){
         MALLOC_FAIL;
     }
     memset(progmap.table, 0, sizeof(struct ProgramSetNode) * progmap.capacity);
-#pragma omp parallel for schedule(dynamic,1) num_threads(MAX_OMP_THREAD)
+#pragma omp parallel for schedule(dynamic,1) num_threads(NUMBER_OF_OMP_THREADS)
     for (uint64_t i = 0; i < pop.size; i++) {
         struct Program prog;
         uint64_t found;
@@ -292,7 +292,7 @@ struct LGPResult unique_population(const struct LGPInput *const in, const struct
         }while(found);
         pop.individual[i] = (struct Individual){ .prog = prog, .fitness = fitness->fn(in, &prog, max_clock)};
     }
-    free(progmap.table);
+    aligned_free(progmap.table);
     struct LGPResult res = {.generations = 0, .pop = pop, .evaluations = pop.size};
     return res;
 }

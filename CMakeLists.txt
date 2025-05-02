@@ -15,7 +15,7 @@ file(GLOB SRCFILES "src/*.c")
 # Configurazione flags specifici per compilatore
 if(MSVC)
     # Flags per MSVC
-    add_compile_options(/O2 /W3 /std:c11 /arch:AVX)
+    add_compile_options(/O2 /W3 /std:c11 /arch:AVX /openmp)
 else()
     # Flags per GCC/Clang
     add_compile_options(-O3 -Wall -pedantic -msse2 -mavx)

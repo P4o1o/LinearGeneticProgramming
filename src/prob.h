@@ -33,18 +33,14 @@ typedef uint64_t prob;
 #define STATE_SIZE 624 
 
 struct RandEngine{
-    #if defined(INCLUDE_AVX512F)
-        alignas(64) uint32_t state[STATE_SIZE];
-    #elif defined(INCLUDE_AVX2)
-        alignas(32) uint32_t state[STATE_SIZE];
-    #elif defined(INCLUDE_SSE2)
-        alignas(16) uint32_t state[STATE_SIZE];
+    #if defined(VECT_ALIGNMENT)
+        alignas(VECT_ALIGNMENT) uint32_t state[STATE_SIZE];
     #else
         uint32_t state[STATE_SIZE];
     #endif
     uint64_t index;
 };
 
-extern struct RandEngine rand_engine[MAX_OMP_THREAD];
+extern struct RandEngine rand_engine[NUMBER_OF_OMP_THREADS];
 
 #endif

@@ -3,7 +3,7 @@
 #include "psb2.h"
  
 
-static inline double get_time_sec() {
+static inline double get_time_sec(void) {
 	#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L // >= C11
 		struct timespec ts;
 		if (timespec_get(&ts, TIME_UTC) == TIME_UTC) {
@@ -15,15 +15,15 @@ static inline double get_time_sec() {
 
 int main(int argc, char *argv[]){
 	random_init(7, 0);
-	for(uint64_t i = 0; i < MAX_OMP_THREAD; i++){
+	for(uint64_t i = 0; i < NUMBER_OF_OMP_THREADS; i++){
 		uint32_t seed = random();
 		printf("seed %ld: %0x\n", i, seed);
 		random_init(seed, i);
 	}
 	const struct LGPOptions par = {
 		.fitness = MSE,
-		.selection = elitism,
-		.select_param = (union SelectionParams) {.size = 5000},
+		.selection = tournament,
+		.select_param = (union SelectionParams) {.size = 4},
 		.initialization_func = unique_population,
 		.init_params = (struct InitializationParams) {
 			.pop_size = 10000,
@@ -35,8 +35,8 @@ int main(int argc, char *argv[]){
 		.max_mutation_len = 10,
 		.crossover_prob = 1.0,
 		.max_clock = 2200,
-		.max_individ_len = MAX_PROGRAM_SIZE,
-		.generations = 300,
+		.max_individ_len = 20,
+		.generations = 10000,
 		.verbose = 1
 	};
 	struct Operation opset[9] = {OP_ADD_F, OP_SUB_F, OP_MUL_F, OP_DIV_F, OP_SQRT, OP_LOAD_RAM_F, OP_LOAD_ROM_F, OP_STORE_RAM_F, OP_MOV_F};
@@ -51,6 +51,6 @@ int main(int argc, char *argv[]){
 	printf("Solution:\n");
 	print_program(&(res.pop.individual[res.best_individ].prog));
 	printf("Time: %lf, evaluations: %lu, eval/sec: %lf\n", end - start, res.evaluations, ((double) res.evaluations) / (end - start));
-	free(res.pop.individual);
+	aligned_free(res.pop.individual);
 	return 0;
 }

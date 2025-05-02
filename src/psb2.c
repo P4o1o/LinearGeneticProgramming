@@ -6,7 +6,7 @@ struct LGPInput vector_distance(const struct InstructionSet *const instr_set, co
 	uint64_t rom_size = vector_len * 2;
     uint64_t block_size = rom_size + 1;
 	union Memblock *memory = malloc(input_num * block_size * sizeof(union Memblock));
-#pragma omp parallel for schedule(static,1) num_threads(MAX_OMP_THREAD)
+#pragma omp parallel for schedule(static,1) num_threads(NUMBER_OF_OMP_THREADS)
 	for (uint64_t i = 0; i < input_num; i++) {
         memory[i * block_size + rom_size].f64 = 0.0;
 		for (uint64_t j = 0; j < vector_len; j++) {
