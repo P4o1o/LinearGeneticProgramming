@@ -102,8 +102,12 @@
 
 
 #define INSTRUCTION(name, code, regs, addr, change) I_##name = code,
-enum InstrCode{
-INSTR_MACRO
+enum InstrCode
+#if defined(C2X_SUPPORTED)
+	: uint8_t
+#endif
+{
+	INSTR_MACRO
 };
 #undef INSTRUCTION
 
@@ -124,7 +128,7 @@ INSTR_MACRO
 
 #define REG_NUM 4
 #define FREG_NUM 4
-#define RAM_SIZE 64
+#define RAM_SIZE 1
 
 struct Instruction{
     uint8_t op;
@@ -158,7 +162,6 @@ struct VirtualMachine{
     const struct Instruction *program;
 };
 
-void setup_vm(struct VirtualMachine *vm, struct Instruction *prog, uint64_t ram_size, uint64_t locked_addr);
 uint64_t run_vm(struct VirtualMachine *env, uint64_t clock_limit);
 
 #endif

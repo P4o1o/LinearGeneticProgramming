@@ -13,8 +13,8 @@ static inline double get_time_sec(void) {
 	return (double)clock() / (double)CLOCKS_PER_SEC;    
 }
 
-int main(int argc, char *argv[]){
-	random_init(7, 0);
+int main(UNUSED_ATTRIBUTE int argc, UNUSED_ATTRIBUTE char *argv[]){
+	random_init(0x47afeb91, 0);
 	for(uint64_t i = 0; i < NUMBER_OF_OMP_THREADS; i++){
 		uint32_t seed = random();
 		printf("seed %ld: %0x\n", i, seed);
@@ -23,25 +23,25 @@ int main(int argc, char *argv[]){
 	const struct LGPOptions par = {
 		.fitness = MSE,
 		.selection = tournament,
-		.select_param = (union SelectionParams) {.size = 4},
+		.select_param = (union SelectionParams) {.size = 7},
 		.initialization_func = unique_population,
 		.init_params = (struct InitializationParams) {
-			.pop_size = 10000,
-			.minsize = 5,
-			.maxsize = 20
+			.pop_size = 1000,
+			.minsize = 2,
+			.maxsize = 5
 		},
 		.target = 1e-27,
-		.mutation_prob = 1.0,
-		.max_mutation_len = 10,
-		.crossover_prob = 1.0,
-		.max_clock = 2200,
-		.max_individ_len = 20,
+		.mutation_prob = 3.5,
+		.max_mutation_len = 5,
+		.crossover_prob = 1.4,
+		.max_clock = 5000,
+		.max_individ_len = 50,
 		.generations = 10000,
 		.verbose = 1
 	};
-	struct Operation opset[9] = {OP_ADD_F, OP_SUB_F, OP_MUL_F, OP_DIV_F, OP_SQRT, OP_LOAD_RAM_F, OP_LOAD_ROM_F, OP_STORE_RAM_F, OP_MOV_F};
+	struct Operation opset[8] = {OP_ADD_F, OP_SUB_F, OP_MUL_F, OP_DIV_F, OP_SQRT, OP_LOAD_ROM_F, OP_STORE_RAM_F, OP_MOV_F};
 	struct InstructionSet instr_set = (struct InstructionSet) {
-		.size = 9, .op = opset,
+		.size = 8, .op = opset,
 	};
 	struct LGPInput in = vector_distance(&instr_set, 2, 100);
 	double start = get_time_sec();

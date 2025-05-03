@@ -70,29 +70,19 @@
         #define NORETURN_ATTRIBUTE __declspec(noreturn)
         #define alignas(n) __declspec(align(n))
         #define unreachable() (__assume(0))
+        #define UNUSED_ATTRIBUTE
         #include <malloc.h>
         #define aligned_alloc(alignment, size) _aligned_malloc((size), (alignment))
-        #define aligned_realloc(ptr, old_size, new_size, alignment) _aligned_realloc((ptr), (new_size), (alignment))
         #define aligned_free(ptr) _aligned_free(ptr)
     #elif defined(__GNUC__) || defined(__clang__)
         #define NORETURN_ATTRIBUTE __attribute__((noreturn))
         #define alignas(n) __attribute__((aligned(n)))
         #define unreachable() (__builtin_unreachable())
+        #define UNUSED_ATTRIBUTE __attribute__((unused)) 
         #include <stdlib.h>
-        #include <string.h>
         static inline void *aligned_alloc(size_t alignment, size_t size) {
             void *p;
             return posix_memalign(&p, alignment, size) == 0 ? p : NULL;
-        }
-        static inline void *aligned_realloc(void *ptr, size_t old_size, size_t new_size, size_t alignment) {
-            ASSERT(ptr != NULL);
-            void *newp;
-            if (posix_memalign(&newp, alignment, new_size) != 0)
-                return NULL;
-            size_t to_copy = old_size < new_size ? old_size : new_size;
-            memcpy(newp, ptr, to_copy);
-            free(ptr);
-            return newp;
         }
         #define aligned_free(ptr) free(ptr)
     #else
@@ -104,30 +94,23 @@
     #define NORETURN_ATTRIBUTE _Noreturn
     #if defined(_MSC_VER)
         #define unreachable() (__assume(0))
+        #define UNUSED_ATTRIBUTE 
     #elif defined(__GNUC__) || defined(__clang__)
         #define unreachable() (__builtin_unreachable())
+        #define UNUSED_ATTRIBUTE __attribute__((unused))
     #else
         NORETURN_ATTRIBUTE inline void unreachable_impl() {}
         #define unreachable() (unreachable_impl())
+        #define UNUSED_ATTRIBUTE(x) 
     #endif
     #include <stdlib.h>
-    #include <string.h>
-    static inline void *aligned_realloc(void *ptr, size_t old_size, size_t new_size, size_t alignment) {
-        ASSERT(ptr != NULL);
-        void *__new = aligned_alloc((alignment),(new_size));
-        if (__new) {
-            size_t to_copy = old_size < new_size ? old_size : new_size;
-            memcpy(__new, (ptr), (to_copy));
-            free(ptr);
-        }
-        return __new;
-    }
     #define aligned_free(ptr) free(ptr)
 // C2X, C23
 #else
+    #define C2X_SUPPORTED
     #define NORETURN_ATTRIBUTE [[noreturn]]
+    #define UNUSED_ATTRIBUTE [[maybe_unused]]
     #include <stdlib.h>
-    #define aligned_realloc(ptr, old_size, new_size, alignment) reallocaligned((ptr),(size),(alignment))
     #define aligned_free(ptr) free(ptr)
 #endif
 

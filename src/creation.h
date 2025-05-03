@@ -17,18 +17,13 @@ struct LGPResult rand_population(const struct LGPInput *const in, const struct I
 
 // used in unique_population
 
-union InstrToU64{
-	const struct Instruction instr;
-	const uint64_t u64;
-};
-
 struct ProgramSetNode{
 	struct Program prog;
 	uint64_t hash;
 };
 
 struct ProgramSet{
-	struct ProgramSetNode *table;
+	struct ProgramSetNode *restrict table;
 	uint64_t size;
 	const uint64_t capacity;
 };

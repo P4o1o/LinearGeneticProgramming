@@ -9,7 +9,7 @@
 
 uint32_t random(void);
 
-void random_init(const uint32_t seed, uint64_t thread_num);
+void random_init(const uint32_t seed, const uint64_t thread_num);
 
 #define RANDOM_MAX 0xFFFFFFFF
 
