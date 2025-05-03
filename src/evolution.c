@@ -178,10 +178,13 @@ struct LGPResult evolve(const struct LGPInput *const in, const struct LGPOptions
         uint64_t oldsize = pop.size;
         uint64_t max_pop_size = oldsize * (mut_times + 1 + 2 * (cross_times + 1) + 1);
         if(buffer_size < max_pop_size){
-            pop.individual = (struct Individual *) aligned_realloc(pop.individual, sizeof(struct Individual) * buffer_size, sizeof(struct Individual) * max_pop_size, VECT_ALIGNMENT);
-            if (pop.individual == NULL){
+            struct Individual *tmp  = (struct Individual *) aligned_alloc(VECT_ALIGNMENT, sizeof(struct Individual) * max_pop_size);
+            if (tmp == NULL){
                 MALLOC_FAIL;
             }
+            memcpy(tmp, pop.individual, pop.size * sizeof(struct Individual));
+            free(pop.individual);
+            pop.individual = tmp;
             buffer_size = max_pop_size;
         }
         uint64_t last_program = pop.size - 1;

@@ -16,6 +16,6 @@ NORETURN_ATTRIBUTE inline void log_error_exit(const char* error_message, const c
 NORETURN_ATTRIBUTE void log_error_exit_ts(const char* error_message, const char* file, const size_t line){
 #pragma omp critical
         {
-            log_error_exit((error_message), __FILE__, __LINE__);
+            log_error_exit((error_message), file, line);
         }
 }

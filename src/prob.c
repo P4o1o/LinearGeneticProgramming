@@ -85,7 +85,7 @@ uint32_t random(void){
     return res;
 }
 
-void random_init(const uint32_t seed, uint64_t thread_num) {
+void random_init(const uint32_t seed, const uint64_t thread_num) {
     rand_engine[thread_num].state[0] = seed;
     for(uint64_t i = 1; i < STATE_SIZE; i++){
         rand_engine[thread_num].state[i] = F * (rand_engine[thread_num].state[i - 1] ^ (rand_engine[thread_num].state[i - 1] >> (W - 2))) + i;

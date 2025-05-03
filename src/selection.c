@@ -357,7 +357,7 @@ static inline struct DoubleCouple get_info_roulette_MINIMIZE(struct Population *
 }
 
 #define DECLARE_roulette(TYPE) \
-void roulette_##TYPE(struct Population * initial, const union SelectionParams* params){ \
+void roulette_##TYPE(struct Population * initial, UNUSED_ATTRIBUTE const union SelectionParams* params){ \
     struct Population res; \
 	res.individual = (struct Individual*) aligned_alloc(VECT_ALIGNMENT, initial->size * sizeof(struct Individual)); \
     if(res.individual == NULL){ \

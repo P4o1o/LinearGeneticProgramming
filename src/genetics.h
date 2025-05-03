@@ -10,6 +10,11 @@
 #include <string.h>
 #include <omp.h>
 
+union InstrToU64{
+	const struct Instruction instr;
+	const uint64_t u64;
+};
+
 #define MAX_PROGRAM_SIZE 254
 
 struct Program{
@@ -39,8 +44,8 @@ struct LGPInput{
 	const uint64_t input_num;
 	const uint64_t rom_size;
 	const uint64_t res_size;
-	struct InstructionSet instr_set;
-	union Memblock *memory; //problem1, solution1, problem2, solution2, problem3, ...
+	const struct InstructionSet instr_set;
+	union Memblock *restrict memory; //problem1, solution1, problem2, solution2, problem3, ...
 };
 
 struct LGPResult{
@@ -50,44 +55,11 @@ struct LGPResult{
 	const uint64_t best_individ; // index of the best individual in the Population
 };
 
-inline struct Instruction rand_instruction(const struct LGPInput *const in, const uint64_t prog_size){
-    ASSERT(prog_size > 0);
-    ASSERT(prog_size <= MAX_PROGRAM_SIZE);
-    ASSERT(in->rom_size > 0);
-    const struct Operation op = in->instr_set.op[RAND_UPTO(in->instr_set.size - 1)];
-    const uint8_t opcode = op.code;
-    union Memblock tmp;
-    uint32_t addr;
-    switch(op.addr){
-        case 1:
-            addr = random();
-        break;
-        case 2:
-            addr = RAND_UPTO(RAM_SIZE - 1);
-        break;
-        case 3:
-            addr = RAND_UPTO(prog_size + 1);
-        break;
-        case 4:
-            addr = RAND_UPTO(in->rom_size - 1);
-        break;
-        case 5:
-            tmp.f64 = RAND_DOUBLE();
-            addr = tmp.i64;
-        break;
-        case 0:
-            addr = 0;
-        break;
-        default:
-            ASSERT(0);
-        break;
-    }
-    uint8_t regs[3] = {0, 0, 0};
-    for (uint64_t j = 0; j < op.regs; j++){
-        regs[j] = RAND_UPTO(REG_NUM - 1);
-    }
-    const struct Instruction res = { .op = opcode, .reg = {regs[0], regs[1], regs[2]}, .addr = addr};
-    return res;
-}
+struct Instruction rand_instruction(const struct LGPInput *const in, const uint64_t prog_size);
+
+#define HASH_SEED 0ULL
+
+unsigned int equal_program(const struct Program *const prog1, const struct Program *const prog2);
+uint64_t xxhash_program(const struct Program *const prog);
 
 #endif

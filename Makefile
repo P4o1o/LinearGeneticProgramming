@@ -10,9 +10,13 @@ SRCFILES = $(wildcard $(SRCDIR)/*.c)
 OBJFILES = $(patsubst $(SRCDIR)/%.c,$(BINDIR)/%.o,$(SRCFILES))
 ASMFILES = $(patsubst $(SRCDIR)/%.c,$(ASMDIR)/%.s,$(SRCFILES))
 
-.PHONY: all gcc clang asm clean
+.PHONY: all gcc clang asm fast clean
 
 all: lgp
+
+fast: CC = gcc
+fast: DFLAGS=
+fast: lgp
 
 gcc: CC = gcc
 gcc: lgp

@@ -12,7 +12,9 @@ const struct Operation INSTRSET[] = {
 #undef INSTRUCTION
 
 uint64_t run_vm(struct VirtualMachine *env, const uint64_t clock_limit){
-    for(uint64_t i = 0; i < clock_limit; i++){
+    ASSERT(clock_limit > 0);
+    uint64_t i;
+    for(i = 0; i < clock_limit; i++){
 
         struct Instruction bytecode = env->program[env->core.prcount];
         env->core.prcount += 1;
@@ -311,5 +313,5 @@ uint64_t run_vm(struct VirtualMachine *env, const uint64_t clock_limit){
             break;
         }
     }
-    return clock_limit;
+    return i;
 }
