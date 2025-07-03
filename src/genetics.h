@@ -15,13 +15,11 @@ union InstrToU64{
 	const uint64_t u64;
 };
 
-#define MAX_PROGRAM_SIZE 254
-
 struct Program{
     #if defined(VECT_ALIGNMENT)
         alignas(VECT_ALIGNMENT)
     #endif
-    struct Instruction content[MAX_PROGRAM_SIZE + 1];
+    struct Instruction *content;
     uint64_t size;
 };
 

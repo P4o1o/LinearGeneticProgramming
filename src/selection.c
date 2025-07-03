@@ -203,6 +203,9 @@ void elitism_##TYPE(struct Population * initial, const union SelectionParams* pa
     if(initial->size <= params->size) \
 		return; \
     merge_sort_##TYPE(initial); \
+    for(uint64_t i = params->size; i < initial->size; i++){ \
+        free(initial->individual[i].prog.content); \
+    } \
     initial->size = params->size; \
 } /* END MACRO */
 
@@ -211,6 +214,9 @@ void percentual_elitism_##TYPE(struct Population * initial, const union Selectio
     uint64_t final_size = (uint64_t)(params->val * ((double) initial->size)); \
     if(final_size == 0) \
 		return; \
+    for(uint64_t i = final_size; i < initial->size; i++){ \
+        free(initial->individual[i].prog.content); \
+    } \
     merge_sort_##TYPE(initial); \
     initial->size = final_size; \
 } /* END MACRO */
@@ -222,6 +228,9 @@ void fitness_sharing_elitism_##TYPE(struct Population * initial, const union Sel
     double *fitness_sharing  = fitness_sharing_##TYPE(initial, params); \
     fitness_sharing_merge_sort_##TYPE(initial, fitness_sharing); \
     free(fitness_sharing); \
+    for(uint64_t i =  params->fs_params.select_factor.size; i < initial->size; i++){ \
+        free(initial->individual[i].prog.content); \
+    } \
     initial->size = params->fs_params.select_factor.size; \
 } /* END MACRO */
 
@@ -233,6 +242,9 @@ void fitness_sharing_percentual_elitism_##TYPE(struct Population * initial, cons
     double *fitness_sharing  = fitness_sharing_##TYPE(initial, params); \
     fitness_sharing_merge_sort_##TYPE(initial, fitness_sharing); \
     free(fitness_sharing); \
+    for(uint64_t i = final_size; i < initial->size; i++){ \
+        free(initial->individual[i].prog.content); \
+    } \
     initial->size = final_size; \
 } /* END MACRO */
 
@@ -261,7 +273,10 @@ void tournament_##TYPE(struct Population * initial, const union SelectionParams*
         uint64_t winner = 0; \
         for (uint64_t j = 1; j < params->size; j++) { \
             if (cmp_tournament_##TYPE(initial->individual[i * params->size + winner].fitness, initial->individual[i * params->size + j].fitness)) { \
+                free(initial->individual[i * params->size + winner].prog.content); \
                 winner = j; \
+            }else{ \
+                free(initial->individual[i * params->size + j].prog.content); \
             } \
         } \
         res.individual[i] = initial->individual[i * params->size + winner]; \
@@ -270,7 +285,10 @@ void tournament_##TYPE(struct Population * initial, const union SelectionParams*
         uint64_t winner = 1; /* initial->size - 1 */ \
         for (uint64_t i = 2; i <= small_tourn; i++) { \
             if (cmp_tournament_##TYPE(initial->individual[initial->size - winner].fitness, initial->individual[initial->size - i].fitness)) { \
+                free(initial->individual[initial->size - winner].prog.content); \
                 winner = i; \
+            }else{ \
+                free(initial->individual[initial->size - i].prog.content); \
             } \
         } \
         res.individual[res.size - 1] = initial->individual[initial->size - winner]; \
@@ -298,7 +316,10 @@ void fitness_sharing_tournament_##TYPE(struct Population * initial, const union 
         uint64_t winner = 0; \
         for (uint64_t j = 1; j < params->fs_params.select_factor.size; j++) { \
             if (cmp_tournament_##TYPE(fs[i * params->fs_params.select_factor.size + winner], fs[i * params->fs_params.select_factor.size + j])) { \
+                free(initial->individual[i * params->fs_params.select_factor.size + winner].prog.content); \
                 winner = j; \
+            }else{ \
+                free(initial->individual[i * params->fs_params.select_factor.size + j].prog.content); \
             } \
         } \
         res.individual[i] = initial->individual[i * params->fs_params.select_factor.size + winner]; \
@@ -307,7 +328,10 @@ void fitness_sharing_tournament_##TYPE(struct Population * initial, const union 
         uint64_t winner = 1; /* initial->size - 1 */ \
         for (uint64_t i = 2; i <= small_tourn; i++) { \
             if (cmp_tournament_##TYPE(fs[initial->size - winner], fs[initial->size - i])) { \
+                free(initial->individual[initial->size - winner].prog.content); \
                 winner = i; \
+            }else{ \
+                free(initial->individual[initial->size - i].prog.content); \
             } \
         } \
         res.individual[res.size - 1] = initial->individual[initial->size - winner]; \
@@ -375,6 +399,8 @@ void roulette_##TYPE(struct Population * initial, UNUSED_ATTRIBUTE const union S
                 _Pragma("omp atomic capture") \
                     index = ++last_elem; \
                 res.individual[index] = initial->individual[i]; \
+            }else{ \
+                free(initial->individual[i].prog.content); \
             } \
         } \
         res.size = last_elem + 1; \
@@ -389,6 +415,8 @@ void roulette_##TYPE(struct Population * initial, UNUSED_ATTRIBUTE const union S
                 _Pragma("omp atomic capture") \
                     index = ++last_elem; \
                 res.individual[index] = initial->individual[i]; \
+            }else{ \
+                free(initial->individual[i].prog.content); \
             } \
         } \
         res.size = last_elem + 1; \
@@ -444,6 +472,8 @@ void fitness_sharing_roulette_##TYPE(struct Population * initial, const union Se
                 _Pragma("omp atomic capture") \
                     index = ++last_elem; \
                 res.individual[index] = initial->individual[i]; \
+            }else{ \
+                free(initial->individual[i].prog.content); \
             } \
         } \
         res.size = last_elem + 1; \
@@ -458,6 +488,8 @@ void fitness_sharing_roulette_##TYPE(struct Population * initial, const union Se
                 _Pragma("omp atomic capture") \
                     index = ++last_elem; \
                 res.individual[index] = initial->individual[i]; \
+            }else{ \
+                free(initial->individual[i].prog.content); \
             } \
         } \
         free(fs); \

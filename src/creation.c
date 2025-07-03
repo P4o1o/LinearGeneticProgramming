@@ -3,15 +3,19 @@
 static inline struct Program rand_program(const struct LGPInput *const in, const uint64_t minsize, const uint64_t maxsize) {
     ASSERT(minsize > 0);
     ASSERT(minsize <= maxsize);
-    ASSERT(maxsize <= MAX_PROGRAM_SIZE);
     ASSERT(in->rom_size > 0);
-	struct Program res = { .size = RAND_BOUNDS(minsize, maxsize) };
+    uint64_t size = RAND_BOUNDS(minsize, maxsize);
+	struct Program res = { .size = size};
+    size++;
+    res.content = malloc(sizeof(struct Instruction) * (size + (4 - (size & 3))));
     ASSERT(minsize <= res.size);
     ASSERT(res.size <= maxsize);
 	for (uint64_t i = 0; i < res.size; i++) {
         res.content[i] = rand_instruction(in, res.size);
 	}
-    res.content[res.size + 1] = (struct Instruction) {.op = I_EXIT, .reg = {0, 0, 0}, .addr = 0};
+    for(uint64_t i = res.size; i < size; i++){
+        res.content[i] = (struct Instruction) {.op = I_EXIT, .reg = {0, 0, 0}, .addr = 0};
+    }
 	return res;
 }
 
@@ -19,7 +23,6 @@ struct LGPResult rand_population(const struct LGPInput *const in, const struct I
     ASSERT(params->pop_size > 0);
     ASSERT(0 < params->minsize);
     ASSERT(params->minsize <= params->maxsize);
-    ASSERT(params->maxsize <= MAX_PROGRAM_SIZE);
 	struct Population pop = {.size = params->pop_size};
 	pop.individual = (struct Individual *) aligned_alloc(VECT_ALIGNMENT, sizeof(struct Individual) * pop.size);
 	if (pop.individual == NULL) {
@@ -47,7 +50,6 @@ struct LGPResult unique_population(const struct LGPInput *const in, const struct
     ASSERT(params->pop_size > 0);
     ASSERT(0 < params->minsize);
     ASSERT(params->minsize <= params->maxsize);
-    ASSERT(params->maxsize <= MAX_PROGRAM_SIZE);
 	struct Population pop = {.size = params->pop_size};
     pop.individual = (struct Individual *) aligned_alloc(VECT_ALIGNMENT, sizeof(struct Individual) * pop.size);
 	if (pop.individual == NULL) {
@@ -63,7 +65,7 @@ struct LGPResult unique_population(const struct LGPInput *const in, const struct
 #pragma omp parallel for schedule(dynamic,1) num_threads(NUMBER_OF_OMP_THREADS)
     for (uint64_t i = 0; i < pop.size; i++) {
         struct Program prog;
-        uint64_t found;
+        uint64_t not_found;
         do{
             prog = rand_program(in, params->minsize, params->maxsize);
             ASSERT(params->minsize <= prog.size);
@@ -82,15 +84,16 @@ struct LGPResult unique_population(const struct LGPInput *const in, const struct
                     }
                 }
                 if(added){
-                    found = 0;
+                    not_found = 0;
                     break;
                 }else if(progmap.table[index].hash == hash && equal_program(&(progmap.table[index].prog), &prog)){
-                    found = 1;
+                    not_found = 1;
+                    free(prog.content);
                     break;
                 }
                 index = (index + 1) & mask;
             }
-        }while(found);
+        }while(not_found);
         pop.individual[i] = (struct Individual){ .prog = prog, .fitness = fitness->fn(in, &prog, max_clock)};
     }
     aligned_free(progmap.table);

@@ -2,7 +2,6 @@
 
 double mse(const struct LGPInput *const in, const struct Program *const prog, const uint64_t max_clock){
     ASSERT(prog->size > 0);
-    ASSERT(prog->size <= MAX_PROGRAM_SIZE);
     struct VirtualMachine vm;
     vm.program = prog->content;
     double mse = 0.0;

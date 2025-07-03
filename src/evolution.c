@@ -33,7 +33,6 @@ static inline uint64_t best_individ(const struct Population *const pop, const en
 static inline struct Program mutation(const struct LGPInput *const in, const struct Program *const parent, const uint64_t max_mut_len, const uint64_t max_individ_len) {
     ASSERT(parent->size > 0);
     ASSERT(parent->size <= max_individ_len);
-    ASSERT(max_individ_len <= MAX_PROGRAM_SIZE);
 	uint64_t start = RAND_UPTO(parent->size);
 	uint64_t last_piece = parent->size - start;
 	uint64_t substitution = RAND_UPTO(last_piece);
@@ -62,6 +61,9 @@ static inline struct Program mutation(const struct LGPInput *const in, const str
     struct Program mutated = { .size = from_parent + mutation_len};
     ASSERT(mutated.size > 0);
     ASSERT(mutated.size <= max_individ_len);
+    uint64_t size = mutated.size + 1;
+    size = (size + (4 - (size & 3)));
+    mutated.content = malloc(sizeof(struct Instruction) * size);
     if(start)
         memcpy(mutated.content, parent->content, sizeof(struct Instruction) * start);
     const uint64_t end_mutation = start + mutation_len;
@@ -72,16 +74,15 @@ static inline struct Program mutation(const struct LGPInput *const in, const str
     last_piece -= substitution;
     if(last_piece)
         memcpy(mutated.content + end_mutation, parent->content + restart, sizeof(struct Instruction) * last_piece);
-    mutated.content[mutated.size] = (struct Instruction) {.op = I_EXIT, .reg = {0, 0, 0}, .addr = 0};
+    for(uint64_t i = mutated.size; i < size; i++){
+        mutated.content[i] = (struct Instruction) {.op = I_EXIT, .reg = {0, 0, 0}, .addr = 0};
+    }
     return mutated;
 }
 
 static inline struct ProgramCouple crossover(const struct Program *const father, const struct Program *const mother, const uint64_t max_individ_len) {
     ASSERT(father->size > 0);
-    ASSERT(father->size <= MAX_PROGRAM_SIZE);
     ASSERT(mother->size > 0);
-    ASSERT(mother->size <= MAX_PROGRAM_SIZE);
-    ASSERT(max_individ_len <= MAX_PROGRAM_SIZE);
     const uint64_t start_f = RAND_UPTO(father->size - 1);
 	uint64_t end_f = RAND_BOUNDS(start_f + 1, father->size);
 	const uint64_t start_m = RAND_UPTO(mother->size - 1);
@@ -106,28 +107,39 @@ static inline struct ProgramCouple crossover(const struct Program *const father,
     struct Program first = {.size = first_f_slice_m + last_of_f};
     ASSERT(first.size > 0);
     ASSERT(first.size <= max_individ_len);
+    uint64_t size_first = first.size + 1;
+    size_first = (size_first + (4 - (size_first & 3)));
+    first.content = malloc(sizeof(struct Instruction) * size_first);
     if(start_f)
         memcpy(first.content, father->content, sizeof(struct Instruction) * start_f);
     memcpy(first.content + start_f, mother->content + start_m, sizeof(struct Instruction) * slice_m_size);
     if(last_of_f)
         memcpy(first.content +first_f_slice_m, father->content + end_f, sizeof(struct Instruction) * last_of_f);
+    for(uint64_t i = first.size; i < size_first; i++){
+        first.content[i] = (struct Instruction) {.op = I_EXIT, .reg = {0, 0, 0}, .addr = 0};
+    }
     // SECOND CROSSOVER
     const uint64_t first_m_slice_f = start_m + slice_f_size;
 	const uint64_t last_of_m = mother->size - end_m;
     struct Program second = {.size = first_m_slice_f + last_of_m};
     ASSERT(second.size > 0);
     ASSERT(second.size <= max_individ_len);
+    uint64_t size_second = second.size + 1;
+    size_second = (size_second + (4 - (size_second & 3)));
+    second.content = malloc(sizeof(struct Instruction) * size_second);
     if(start_m)
         memcpy(second.content, mother->content, sizeof(struct Instruction) * start_m);
     memcpy(second.content + start_m, father->content + start_f, sizeof(struct Instruction) * slice_f_size);
     if(last_of_m)
         memcpy(second.content + first_m_slice_f, mother->content + end_m, sizeof(struct Instruction) * last_of_m); 
+    for(uint64_t i = second.size; i < size_second; i++){
+        second.content[i] = (struct Instruction) {.op = I_EXIT, .reg = {0, 0, 0}, .addr = 0};
+    }
     struct ProgramCouple res ={.prog = {first, second}};
     return res;
 }
 
 struct LGPResult evolve(const struct LGPInput *const in, const struct LGPOptions *const args){
-    ASSERT(args->max_individ_len <= MAX_PROGRAM_SIZE);
     ASSERT(args->init_params.minsize > 0);
     ASSERT(args->init_params.minsize <= args->init_params.maxsize);
     ASSERT(args->init_params.maxsize <= args->max_individ_len);

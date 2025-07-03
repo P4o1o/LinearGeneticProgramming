@@ -2,7 +2,6 @@
 
 struct Instruction rand_instruction(const struct LGPInput *const in, const uint64_t prog_size){
     ASSERT(prog_size > 0);
-    ASSERT(prog_size <= MAX_PROGRAM_SIZE);
     ASSERT(in->rom_size > 0);
     const struct Operation op = in->instr_set.op[RAND_UPTO(in->instr_set.size - 1)];
     const uint8_t opcode = op.code;
