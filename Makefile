@@ -1,7 +1,8 @@
 CC = gcc
 CLANG = clang
-CFLAGS = -O3 -Wall -Wextra -pedantic -std=c2x -msse2 -mavx2
-DFLAGS = -ggdb3 -fsanitize=undefined -fsanitize=signed-integer-overflow -pg
+THREADS ?= 16
+CFLAGS = -O3 -Wall -Wextra -pedantic -std=c2x -DOMP_NUM_THREADS=$(THREADS) -msse2 -mavx2
+DFLAGS = -ggdb3 -fsanitize=undefined -fsanitize=signed-integer-overflow -pg -g
 LIBFLAGS = -lm -fopenmp
 SRCDIR = src
 BINDIR = bin

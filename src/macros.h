@@ -4,6 +4,7 @@
 #ifdef _OPENMP
     #include <omp.h>
     #define INCLUDE_OMP
+    #define NUMBER_OF_OMP_THREADS OMP_NUM_THREADS
 #else
     #define NUMBER_OF_OMP_THREADS 1
 #endif

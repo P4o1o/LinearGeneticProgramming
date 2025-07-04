@@ -1,35 +1,49 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
-function evaluate {
-	local name="$1"
-	echo ">>> EVALUATING ${name}..."
+set -euo pipefail
 
-	perf record -F 99 -g ./lgp
-	perf script > "report-perf-${name}.perf"
-
-	./lgp
-	gprof ./lgp gmon.out > "report-gperf-${name}.txt"
-	rm -f gmon.out
+function perf_profile {
+  local name="$1"
+  echo ">>> PERF + KCachegrind for ${name}..."
+  perf record -F 99 -g -- ./lgp
+  perf stat -d -- ./lgp || true
+  perf script -s perf2calltree.py > report-perf-${name}.calltree
 }
 
-set -e
+function gprof_profile {
+  local name="$1"
+  echo ">>> GPROF for ${name}..."
+  ./lgp
+  gprof ./lgp gmon.out > report-gprof-${name}.txt
+  rm -f gmon.out
+}
 
-make clean
-make avx512
-evaluate "avx512"
+function callgrind_profile {
+  local name="$1"
+  valgrind --tool=callgrind --dump-instr=yes --simulate-cache=yes ./lgp
+  callgrind_annotate --auto=yes callgrind.out.* > report-callgrind-${name}.txt
+  rm callgrind.out.*
+}
 
-make clean
-make avx2
-evaluate "avx2"
+function causal_profile {
+  local name="$1"
+  echo ">>> Coz Causal Profiler for ${name}"
+  coz record -o coz-${name}.coz -- ./lgp
+  coz report --html report-coz-${name}.html
+}
 
-make clean
-make sse2
-evaluate "sse2"
+function evaluate {
+  local name="$1"
+  make clean
+  make "$name"
+  perf_profile "$name"
+  gprof_profile "$name"
+  callgrind_profile "$name"
+  causal_profile "$name" || echo "Coz non installato"
+}
 
-make clean
-make single
-evaluate "single"
-valgrind --tool=callgrind ./lgp
-callgrind_annotate callgrind.out.* > report-cachegrind-single.txt
-rm -f callgrind.out.*
-make clean
+evaluate avx512
+evaluate avx2
+evaluate sse2
+evaluate single
