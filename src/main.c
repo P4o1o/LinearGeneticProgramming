@@ -23,7 +23,7 @@ int main(UNUSED_ATTRIBUTE int argc, UNUSED_ATTRIBUTE char *argv[]){
 	const struct LGPOptions par = {
 		.fitness = MSE,
 		.selection = tournament,
-		.select_param = (union SelectionParams) {.size = 7},
+		.select_param = (union SelectionParams) {.size = 3},
 		.initialization_func = unique_population,
 		.init_params = (struct InitializationParams) {
 			.pop_size = 1000,
@@ -31,15 +31,15 @@ int main(UNUSED_ATTRIBUTE int argc, UNUSED_ATTRIBUTE char *argv[]){
 			.maxsize = 5
 		},
 		.target = 1e-27,
-		.mutation_prob = 3.5,
+		.mutation_prob = 0.76,
 		.max_mutation_len = 5,
-		.crossover_prob = 1.4,
+		.crossover_prob = 0.95,
 		.max_clock = 5000,
 		.max_individ_len = 50,
-		.generations = 10000,
+		.generations = 40,
 		.verbose = 1
 	};
-	struct Operation opset[8] = {OP_ADD_F, OP_SUB_F, OP_MUL_F, OP_DIV_F, OP_SQRT, OP_LOAD_ROM_F, OP_STORE_RAM_F, OP_MOV_F};
+	struct Operation opset[8] = {OP_ADD_F, OP_SUB_F, OP_MUL_F, OP_DIV_F, OP_POW, OP_LOAD_ROM_F, OP_STORE_RAM_F, OP_MOV_F};
 	struct InstructionSet instr_set = (struct InstructionSet) {
 		.size = 8, .op = opset,
 	};
