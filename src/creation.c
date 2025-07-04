@@ -7,8 +7,16 @@ static inline struct Program rand_program(const struct LGPInput *const in, const
     uint64_t size = RAND_BOUNDS(minsize, maxsize);
 	struct Program res = { .size = size};
     size++;
-    uint64_t align = VECT_ALIGNMENT / 8;
-    res.content = aligned_alloc(VECT_ALIGNMENT, sizeof(struct Instruction) * (size + (align - (size & (align - 1)))));
+    #if VECT_ALIGNMENT != 0
+        uint64_t align = VECT_ALIGNMENT / 8;
+        size = (size + (align - (size & (align - 1))));
+        ASSERT(size % align == 0);
+    #endif
+    ASSERT(size > res.size);
+    res.content = aligned_alloc(VECT_ALIGNMENT, sizeof(struct Instruction) * size);
+    if (res.content == NULL) {
+        MALLOC_FAIL;
+    }
     ASSERT(minsize <= res.size);
     ASSERT(res.size <= maxsize);
 	for (uint64_t i = 0; i < res.size; i++) {

@@ -1,7 +1,12 @@
 #ifndef MACROS_H_INCLUDED
 #define MACROS_H_INCLUDED
 
-#define NUMBER_OF_OMP_THREADS 16
+#ifdef _OPENMP
+    #include <omp.h>
+    #define INCLUDE_OMP
+#else
+    #define NUMBER_OF_OMP_THREADS 1
+#endif
 
 #if defined(__AVX512DQ__)
     #define INCLUDE_AVX512DQ
@@ -58,12 +63,6 @@
     #define VECT_ALIGNMENT 16
 #endif
 
-#define ASSERT(x) \
-	do \
-		if(!(x)) unreachable(); \
-	while(0)
-
-
 // C89, C90, C99
 #if !defined(__STDC_VERSION__) || __STDC_VERSION__ < 201112L
     #if defined(_MSC_VER)
@@ -86,7 +85,13 @@
         }
         #define aligned_free(ptr) free(ptr)
     #else
-        #error "No alignment support, compile this program with GCC, clang, MSVC or a compiler with support >= C11"
+        #warning "No alignment support, compile this program with GCC, clang, MSVC or a compiler with support >= C11 for better performance."
+        #define NORETURN_ATTRIBUTE 
+        inline void unreachable_impl() {
+            while(1){}
+        }
+        #define unreachable() (unreachable_impl())
+        #define UNUSED_ATTRIBUTE 
     #endif
 // C11, C17
 #elif __STDC_VERSION__ <= 201710L
@@ -101,7 +106,7 @@
     #else
         NORETURN_ATTRIBUTE inline void unreachable_impl() {}
         #define unreachable() (unreachable_impl())
-        #define UNUSED_ATTRIBUTE(x) 
+        #define UNUSED_ATTRIBUTE 
     #endif
     #include <stdlib.h>
     #define aligned_free(ptr) free(ptr)
@@ -113,5 +118,17 @@
     #include <stdlib.h>
     #define aligned_free(ptr) free(ptr)
 #endif
+
+#ifndef VECT_ALIGNMENT
+    #define VECT_ALIGNMENT 0
+    #define alignas(n) 
+    #define aligned_alloc(alignment, size) malloc(size)
+    #define aligned_free(ptr) free(ptr)
+#endif
+
+#define ASSERT(x) \
+	do \
+		if(!(x)) unreachable(); \
+	while(0)
 
 #endif

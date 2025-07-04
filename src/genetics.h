@@ -8,7 +8,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <omp.h>
 
 union InstrToU64{
 	const struct Instruction instr;

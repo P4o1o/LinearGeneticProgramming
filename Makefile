@@ -1,7 +1,7 @@
 CC = gcc
 CLANG = clang
-CFLAGS = -O3 -Wall -Wextra -pedantic -std=c2x -msse2 -mavx2 -mavx512f -mavx512dq -mavx512vl
-DFLAGS = -ggdb3 -fsanitize=undefined -fsanitize=signed-integer-overflow
+CFLAGS = -O3 -Wall -Wextra -pedantic -std=c2x -msse2 -mavx2
+DFLAGS = -ggdb3 -fsanitize=undefined -fsanitize=signed-integer-overflow -pg
 LIBFLAGS = -lm -fopenmp
 SRCDIR = src
 BINDIR = bin
@@ -14,15 +14,26 @@ ASMFILES = $(patsubst $(SRCDIR)/%.c,$(ASMDIR)/%.s,$(SRCFILES))
 
 all: lgp
 
-fast: CC = gcc
+fast: CC=gcc
 fast: DFLAGS=
 fast: lgp
 
-gcc: CC = gcc
+gcc: CC=gcc
 gcc: lgp
 
-clang: CC = clang
+clang: CC=clang
 clang: lgp
+
+single: CFLAGS=-O3 -Wall -Wextra -pedantic -std=c2x
+single: lgp
+
+sse2: CFLAGS=-O3 -Wall -Wextra -pedantic -std=c2x -msse2
+sse2: lgp
+
+avx2: CFLAGS=-O3 -Wall -Wextra -pedantic -std=c2x -msse2 -mavx2
+avx2: lgp
+
+avx512: lgp
 
 asm: $(ASMFILES)
 

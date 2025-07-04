@@ -6,10 +6,19 @@
 #include <float.h>
 #include <omp.h>
 #include "macros.h"
+#include "mt19937.h"
 
-uint32_t random(void);
+#ifdef INCLUDE_OMP
+    #define RANDOM_ENGINE_INDEX omp_get_thread_num()
+#else
+    #define RANDOM_ENGINE_INDEX 0
+#endif
 
-void random_init(const uint32_t seed, const uint64_t thread_num);
+extern struct MT19937 random_engines[NUMBER_OF_OMP_THREADS];
+
+#define random() get_MT19937(&random_engines[RANDOM_ENGINE_INDEX])
+
+#define random_init(seed, thread_num) init_MT19937(seed, &random_engines[thread_num])
 
 #define RANDOM_MAX 0xFFFFFFFF
 
@@ -29,18 +38,5 @@ typedef uint64_t prob;
 // RANDOM DOUBLE
 #define RAND_DOUBLE() (DBL_MIN + ((double)random() / RANDOM_MAX) * (DBL_MAX - DBL_MIN))
 #define RAND_DBL_BOUNDS(min, max) (min + ((double)random() / RANDOM_MAX) * (max - min))
-
-#define STATE_SIZE 624 
-
-struct RandEngine{
-    #if defined(VECT_ALIGNMENT)
-        alignas(VECT_ALIGNMENT) uint32_t state[STATE_SIZE];
-    #else
-        uint32_t state[STATE_SIZE];
-    #endif
-    uint64_t index;
-};
-
-extern struct RandEngine rand_engine[NUMBER_OF_OMP_THREADS];
 
 #endif

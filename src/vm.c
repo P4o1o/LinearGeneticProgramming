@@ -1,5 +1,7 @@
 #include "vm.h"
 
+struct MT19937 random_engines[NUMBER_OF_OMP_THREADS];
+
 #define INSTRUCTION(name, code, regs, addr, change) \
 const struct Operation OP_##name = {#name, regs, addr, change, code};
 INSTR_MACRO

@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+
+function evaluate {
+	local name="$1"
+	echo ">>> EVALUATING ${name}..."
+
+	perf record -F 99 -g ./lgp
+	perf script > "report-perf-${name}.perf"
+
+	./lgp
+	gprof ./lgp gmon.out > "report-gperf-${name}.txt"
+	rm -f gmon.out
+}
+
+set -e
+
+make clean
+make avx512
+evaluate "avx512"
+
+make clean
+make avx2
+evaluate "avx2"
+
+make clean
+make sse2
+evaluate "sse2"
+
+make clean
+make single
+evaluate "single"
+valgrind --tool=callgrind ./lgp
+callgrind_annotate callgrind.out.* > report-cachegrind-single.txt
+rm -f callgrind.out.*
+make clean

@@ -62,9 +62,16 @@ static inline struct Program mutation(const struct LGPInput *const in, const str
     ASSERT(mutated.size > 0);
     ASSERT(mutated.size <= max_individ_len);
     uint64_t size = mutated.size + 1;
-    uint64_t align = VECT_ALIGNMENT / 8;
-    size = (size + (align - (size & (align - 1))));
+    #if VECT_ALIGNMENT != 0
+        uint64_t align = VECT_ALIGNMENT / 8;
+        size = (size + (align - (size & (align - 1))));
+        ASSERT(size % align == 0);
+    #endif
+    ASSERT(size > mutated.size);
     mutated.content = aligned_alloc(VECT_ALIGNMENT, sizeof(struct Instruction) * size);
+    if (mutated.content == NULL) {
+        MALLOC_FAIL;
+    }
     if(start)
         memcpy(mutated.content, parent->content, sizeof(struct Instruction) * start);
     const uint64_t end_mutation = start + mutation_len;
@@ -109,9 +116,16 @@ static inline struct ProgramCouple crossover(const struct Program *const father,
     ASSERT(first.size > 0);
     ASSERT(first.size <= max_individ_len);
     uint64_t size_first = first.size + 1;
-    uint64_t align = VECT_ALIGNMENT / 8;
-    size_first = (size_first + (align - (size_first & (align - 1))));
+    #if VECT_ALIGNMENT != 0
+        uint64_t align = VECT_ALIGNMENT / 8;
+        size_first = (size_first + (align - (size_first & (align - 1))));
+        ASSERT(size_first % align == 0);
+    #endif
+    ASSERT(size_first > first.size);
     first.content = aligned_alloc(VECT_ALIGNMENT, sizeof(struct Instruction) * size_first);
+    if(first.content == NULL) {
+        MALLOC_FAIL;
+    }
     if(start_f)
         memcpy(first.content, father->content, sizeof(struct Instruction) * start_f);
     memcpy(first.content + start_f, mother->content + start_m, sizeof(struct Instruction) * slice_m_size);
@@ -127,8 +141,15 @@ static inline struct ProgramCouple crossover(const struct Program *const father,
     ASSERT(second.size > 0);
     ASSERT(second.size <= max_individ_len);
     uint64_t size_second = second.size + 1;
-    size_second = (size_second + (align - (size_second & (align - 1))));
+    #if VECT_ALIGNMENT != 0
+        size_second = (size_second + (align - (size_second & (align - 1))));
+        ASSERT(size_second % align == 0);
+    #endif
+    ASSERT(size_second > second.size);
     second.content = aligned_alloc(VECT_ALIGNMENT, sizeof(struct Instruction) * size_second);
+    if(second.content == NULL) {
+        MALLOC_FAIL;
+    }
     if(start_m)
         memcpy(second.content, mother->content, sizeof(struct Instruction) * start_m);
     memcpy(second.content + start_m, father->content + start_f, sizeof(struct Instruction) * slice_f_size);
