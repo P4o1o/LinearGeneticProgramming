@@ -20,7 +20,7 @@ union SelectionParams{
     const struct FitnessSharingParams fs_params; // fitness_sharing_tournament, fitness_sharing_roulette
 };
 
-typedef void (*selection_fn)(struct Population*, const union SelectionParams*);
+typedef void (*selection_fn)(struct Population*, const union SelectionParams *const);
 
 #define SELECTION_NUM 4
 
@@ -35,8 +35,8 @@ typedef void (*selection_fn)(struct Population*, const union SelectionParams*);
     SELECTION(fitness_sharing_roulette)
 
 #define SELECTION(NAME) \
-    void NAME##_MINIMIZE(struct Population* initial, const union SelectionParams* params); \
-    void NAME##_MAXIMIZE(struct Population* initial, const union SelectionParams* params);
+    void NAME##_MINIMIZE(struct Population* initial, const union SelectionParams *const params); \
+    void NAME##_MAXIMIZE(struct Population* initial, const union SelectionParams *const params);
 SELECTION_MACRO
 #undef SELECTION
 

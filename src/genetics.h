@@ -9,16 +9,8 @@
 #include <stdio.h>
 #include <string.h>
 
-union InstrToU64{
-	const struct Instruction instr;
-	const uint64_t u64;
-};
-
 struct Program{
-    #if defined(VECT_ALIGNMENT)
-        alignas(VECT_ALIGNMENT)
-    #endif
-    struct Instruction *content;
+	alignas(VECT_ALIGNMENT) struct Instruction *content;
     uint64_t size;
 };
 

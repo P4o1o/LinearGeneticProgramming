@@ -28,7 +28,7 @@ static inline struct Program rand_program(const struct LGPInput *const in, const
 	return res;
 }
 
-struct LGPResult rand_population(const struct LGPInput *const in, const struct InitializationParams *const params, const struct FitnessAssesment *const fitness, const uint64_t max_clock) {
+struct LGPResult rand_population(const struct LGPInput *const in, const struct InitializationParams *const params, const struct FitnessAssesment *const fitness, const uint64_t max_clock, const union FitnessParams *const fitness_param) {
     ASSERT(params->pop_size > 0);
     ASSERT(0 < params->minsize);
     ASSERT(params->minsize <= params->maxsize);
@@ -42,7 +42,7 @@ struct LGPResult rand_population(const struct LGPInput *const in, const struct I
         struct Program prog = rand_program(in, params->minsize, params->maxsize);
         ASSERT(params->minsize <= prog.size);
         ASSERT(prog.size <= params->maxsize);
-		pop.individual[i] = (struct Individual){ .prog = prog, .fitness = fitness->fn(in, &prog, max_clock)};
+		pop.individual[i] = (struct Individual){ .prog = prog, .fitness = fitness->fn(in, &prog, max_clock, fitness_param)};
 	}
     struct LGPResult res = {.generations = 0, .pop = pop, .evaluations = pop.size};
 	return res;
@@ -55,7 +55,7 @@ static inline uint64_t next_power_of_two(uint64_t x) {
     return x + 1;
 }
 
-struct LGPResult unique_population(const struct LGPInput *const in, const struct InitializationParams *const params, const struct FitnessAssesment *const fitness, const uint64_t max_clock){
+struct LGPResult unique_population(const struct LGPInput *const in, const struct InitializationParams *const params, const struct FitnessAssesment *const fitness, const uint64_t max_clock, const union FitnessParams *const fitness_param){
     ASSERT(params->pop_size > 0);
     ASSERT(0 < params->minsize);
     ASSERT(params->minsize <= params->maxsize);
@@ -103,7 +103,7 @@ struct LGPResult unique_population(const struct LGPInput *const in, const struct
                 index = (index + 1) & mask;
             }
         }while(not_found);
-        pop.individual[i] = (struct Individual){ .prog = prog, .fitness = fitness->fn(in, &prog, max_clock)};
+        pop.individual[i] = (struct Individual){ .prog = prog, .fitness = fitness->fn(in, &prog, max_clock, fitness_param)};
     }
     aligned_free(progmap.table);
     struct LGPResult res = {.generations = 0, .pop = pop, .evaluations = pop.size};

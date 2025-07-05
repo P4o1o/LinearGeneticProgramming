@@ -39,18 +39,14 @@ struct Instruction rand_instruction(const struct LGPInput *const in, const uint6
     return res;
 }
 
-
-static inline uint64_t instr_to_u64(const struct Instruction inst){
-    const union InstrToU64 res = { .instr = inst};
-    return res.u64;
-}
-
 unsigned int equal_program(const struct Program *const prog1, const struct Program *const prog2){
 	if(prog1->size != prog2->size){
 		return 0;
 	}
+    uint64_t* program1 = (uint64_t*) prog1->content;
+    uint64_t* program2 = (uint64_t*) prog2->content;
 	for(uint64_t i = 0; i < prog1->size; i++){
-		if(instr_to_u64(prog1->content[i]) != instr_to_u64(prog2->content[i])){
+		if(program1[i] != program2[i]){
             return 0;
         }
 	}

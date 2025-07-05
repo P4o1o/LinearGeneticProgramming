@@ -199,7 +199,7 @@ DECLARE_FITNESS_SHARING_MERGE_SORT(MINIMIZE, <=)
 DECLARE_FITNESS_SHARING_MERGE_SORT(MAXIMIZE, >=)
 
 #define DECLARE_elitism(TYPE) \
-void elitism_##TYPE(struct Population * initial, const union SelectionParams* params){ \
+void elitism_##TYPE(struct Population * initial, const union SelectionParams *const params){ \
     if(initial->size <= params->size) \
 		return; \
     merge_sort_##TYPE(initial); \
@@ -210,7 +210,7 @@ void elitism_##TYPE(struct Population * initial, const union SelectionParams* pa
 } /* END MACRO */
 
 #define DECLARE_percentual_elitism(TYPE) \
-void percentual_elitism_##TYPE(struct Population * initial, const union SelectionParams* params){ \
+void percentual_elitism_##TYPE(struct Population * initial, const union SelectionParams *const params){ \
     uint64_t final_size = (uint64_t)(params->val * ((double) initial->size)); \
     if(final_size == 0) \
 		return; \
@@ -222,7 +222,7 @@ void percentual_elitism_##TYPE(struct Population * initial, const union Selectio
 } /* END MACRO */
 
 #define DECLARE_fitness_sharing_elitism(TYPE) \
-void fitness_sharing_elitism_##TYPE(struct Population * initial, const union SelectionParams* params){ \
+void fitness_sharing_elitism_##TYPE(struct Population * initial, const union SelectionParams *const params){ \
     if(initial->size <= params->fs_params.select_factor.size) \
 		return; \
     double *fitness_sharing  = fitness_sharing_##TYPE(initial, params); \
@@ -235,7 +235,7 @@ void fitness_sharing_elitism_##TYPE(struct Population * initial, const union Sel
 } /* END MACRO */
 
 #define DECLARE_fitness_sharing_percentual_elitism(TYPE) \
-void fitness_sharing_percentual_elitism_##TYPE(struct Population * initial, const union SelectionParams* params){ \
+void fitness_sharing_percentual_elitism_##TYPE(struct Population * initial, const union SelectionParams *const params){ \
     uint64_t final_size = (uint64_t)(params->fs_params.select_factor.val * ((double) initial->size)); \
     if(final_size == 0) \
 		return; \
@@ -257,7 +257,7 @@ static inline uint64_t cmp_tournament_MAXIMIZE(const double one, const double tw
 }
 
 #define DECLARE_tournament(TYPE) \
-void tournament_##TYPE(struct Population * initial, const union SelectionParams* params){ \
+void tournament_##TYPE(struct Population * initial, const union SelectionParams *const params){ \
     ASSERT(initial->size > 0); \
     shuffle_population(initial); \
     uint64_t tournaments = initial->size / params->size; \
@@ -299,7 +299,7 @@ void tournament_##TYPE(struct Population * initial, const union SelectionParams*
 } /* END MACRO */
 
 #define DECLARE_fitness_sharing_tournament(TYPE) \
-void fitness_sharing_tournament_##TYPE(struct Population * initial, const union SelectionParams* params){ \
+void fitness_sharing_tournament_##TYPE(struct Population * initial, const union SelectionParams *const params){ \
     ASSERT(initial->size > 0); \
     shuffle_population(initial); \
     uint64_t tournaments = initial->size / params->fs_params.select_factor.size; \
@@ -381,7 +381,7 @@ static inline struct DoubleCouple get_info_roulette_MINIMIZE(struct Population *
 }
 
 #define DECLARE_roulette(TYPE) \
-void roulette_##TYPE(struct Population * initial, UNUSED_ATTRIBUTE const union SelectionParams* params){ \
+void roulette_##TYPE(struct Population * initial, UNUSED_ATTRIBUTE const union SelectionParams *const params){ \
     struct Population res; \
 	res.individual = (struct Individual*) aligned_alloc(VECT_ALIGNMENT, initial->size * sizeof(struct Individual)); \
     if(res.individual == NULL){ \
@@ -452,7 +452,7 @@ static inline struct DoubleCouple get_info_fitness_sharing_roulette_MINIMIZE(dou
 }
 
 #define DECLARE_fitness_sharing_roulette(TYPE) \
-void fitness_sharing_roulette_##TYPE(struct Population * initial, const union SelectionParams* params){ \
+void fitness_sharing_roulette_##TYPE(struct Population * initial, const union SelectionParams *const params){ \
     struct Population res; \
 	res.individual = (struct Individual*) aligned_alloc(VECT_ALIGNMENT, initial->size * sizeof(struct Individual)); \
     if(res.individual == NULL){ \
@@ -517,7 +517,7 @@ static inline double * slot_sizes_roulette_MINIMIZE(const struct Population *con
 }
 
 #define DECLARE_roulette_reseample(TYPE) \
-void roulette_##TYPE(struct Population * initial, const union SelectionParams* params){ \
+void roulette_##TYPE(struct Population * initial, const union SelectionParams *const params){ \
     struct Population res; \
 	res.size = new_size->size; \
 	res.individual = (struct Individual*) aligned_alloc(VECT_ALIGNMENT, new_size->size * sizeof(struct Individual)); \

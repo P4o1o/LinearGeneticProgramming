@@ -245,8 +245,12 @@ uint64_t run_vm(struct VirtualMachine *env, const uint64_t clock_limit){
             break;
 
             case I_CAST: // CAST
-                if(env->core.freg[reg2] > ((double) 0xFFFFFFFFFFFFFFFFUL))
+                if(env->core.freg[reg2] < ((double) 0xFFFFFFFFFFFFFFFFUL))
                     env->core.reg[reg1] = (uint64_t) env->core.freg[reg2];
+            break;
+            case I_ROUND: // CAST
+                if(env->core.freg[reg2] < ((double) 0xFFFFFFFFFFFFFFFFUL))
+                    env->core.reg[reg1] = (uint64_t) (env->core.freg[reg2] + 0.5);
             break;
             case I_CAST_F: // CASTF
                 env->core.freg[reg1] = (double) env->core.reg[reg2];

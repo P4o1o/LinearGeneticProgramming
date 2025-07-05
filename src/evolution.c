@@ -182,7 +182,7 @@ struct LGPResult evolve(const struct LGPInput *const in, const struct LGPOptions
     // POPULATION INITIALIZATION
     struct Population pop;
     if(args->initialization_func != NULL){
-        struct LGPResult res = args->initialization_func(in, &(args->init_params), &(args->fitness), args->max_clock);
+        struct LGPResult res = args->initialization_func(in, &(args->init_params), &(args->fitness), args->max_clock, &(args->fitness_param));
         evaluations = res.evaluations;
         pop = res.pop;
     }else{
@@ -205,9 +205,10 @@ struct LGPResult evolve(const struct LGPInput *const in, const struct LGPOptions
     // GENERATIONS LOOP
     uint64_t buffer_size = pop.size;
     uint64_t gen;
+    const selection_fn selection = args->selection.type[args->fitness.type];
     for(gen = 1; gen <= args->generations; gen++){
         // SELECTION
-        args->selection.type[args->fitness.type](&pop, &(args->select_param));
+        selection(&pop, &(args->select_param));
         ASSERT(pop.size > 0);
         // EVOLUTION
         uint64_t oldsize = pop.size;
@@ -230,7 +231,7 @@ struct LGPResult evolve(const struct LGPInput *const in, const struct LGPOptions
             for(uint64_t j = 0; j < mut_times; j++){
                 const struct Program child = mutation(in, &(pop.individual[i].prog), args->max_mutation_len, args->max_individ_len);
                 ASSERT(child.size > 0);
-                const struct Individual mutated = {.prog = child, .fitness = args->fitness.fn(in, &child, args->max_clock)};
+                const struct Individual mutated = {.prog = child, .fitness = args->fitness.fn(in, &child, args->max_clock, &(args->fitness_param))};
                 uint64_t index;
 #pragma omp atomic capture
                     index = ++last_program;
@@ -241,7 +242,7 @@ struct LGPResult evolve(const struct LGPInput *const in, const struct LGPOptions
             if (WILL_HAPPEN(mut_prob)){
                 const struct Program child = mutation(in, &(pop.individual[i].prog), args->max_mutation_len, args->max_individ_len);
                 ASSERT(child.size > 0);
-                const struct Individual mutated = {.prog = child, .fitness = args->fitness.fn(in, &child, args->max_clock)};
+                const struct Individual mutated = {.prog = child, .fitness = args->fitness.fn(in, &child, args->max_clock, &(args->fitness_param))};
                 uint64_t index;
 #pragma omp atomic capture
                     index = ++last_program;
@@ -254,8 +255,8 @@ struct LGPResult evolve(const struct LGPInput *const in, const struct LGPOptions
                 const struct ProgramCouple children = crossover(&(pop.individual[i].prog), &(pop.individual[mate].prog), args->max_individ_len);
                 ASSERT(children.prog[0].size > 0);
                 ASSERT(children.prog[1].size > 0);
-                const struct Individual child1 = {.prog = children.prog[0], .fitness = args->fitness.fn(in, &children.prog[0], args->max_clock)};
-                const struct Individual child2 = {.prog = children.prog[1], .fitness = args->fitness.fn(in, &children.prog[1], args->max_clock)};
+                const struct Individual child1 = {.prog = children.prog[0], .fitness = args->fitness.fn(in, &children.prog[0], args->max_clock, &(args->fitness_param))};
+                const struct Individual child2 = {.prog = children.prog[1], .fitness = args->fitness.fn(in, &children.prog[1], args->max_clock, &(args->fitness_param))};
                 uint64_t index;
 #pragma omp atomic capture
                     index = ++last_program;
@@ -270,8 +271,8 @@ struct LGPResult evolve(const struct LGPInput *const in, const struct LGPOptions
                 const struct ProgramCouple children = crossover(&(pop.individual[i].prog), &(pop.individual[mate].prog), args->max_individ_len);
                 ASSERT(children.prog[0].size > 0);
                 ASSERT(children.prog[1].size > 0);
-                const struct Individual child1 = {.prog = children.prog[0], .fitness = args->fitness.fn(in, &children.prog[0], args->max_clock)};
-                const struct Individual child2 = {.prog = children.prog[1], .fitness = args->fitness.fn(in, &children.prog[1], args->max_clock)};
+                const struct Individual child1 = {.prog = children.prog[0], .fitness = args->fitness.fn(in, &children.prog[0], args->max_clock, &(args->fitness_param))};
+                const struct Individual child2 = {.prog = children.prog[1], .fitness = args->fitness.fn(in, &children.prog[1], args->max_clock, &(args->fitness_param))};
                 uint64_t index;
 #pragma omp atomic capture
                     index = ++last_program;
@@ -285,7 +286,7 @@ struct LGPResult evolve(const struct LGPInput *const in, const struct LGPOptions
         evaluations += (pop.size - oldsize);
         winner = best_individ(&pop, args->fitness.type);
         if(args->verbose)
-            printf("Generation %ld, best_mse %lf, population_size %ld, evaluations %ld\n", gen, pop.individual[winner].fitness, pop.size, evaluations);
+            printf("Generation %ld, Best Individual (%s): %lf, Population Size %ld, Evaluations %ld\n", gen, args->fitness.name, pop.individual[winner].fitness, pop.size, evaluations);
         if(args->fitness.type == MINIMIZE){
             if(pop.individual[winner].fitness <= args->target){
                 const struct LGPResult res = {.evaluations = evaluations, .pop = pop, .generations = gen, .best_individ = winner};

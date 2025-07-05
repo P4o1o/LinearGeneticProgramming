@@ -7,9 +7,10 @@
 
 struct LGPOptions {
 	const struct FitnessAssesment fitness;	// fitness function for program evaluation
+	const union FitnessParams fitness_param; // parameters for the fitness function
 	const struct Selection selection; // selection function to be used
-	const initialization_fn initialization_func; // function for create an initial Population
 	const union SelectionParams select_param; // parameters for the selection function
+	const initialization_fn initialization_func; // function for create an initial Population
 	const struct InitializationParams init_params; // parameters for the initialization function
 	const struct Population initial_pop; // if initialization_func == NULL then start with initial_pop
 	const double target; // the evolution stops if tollerance > mse of the best individual

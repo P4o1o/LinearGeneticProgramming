@@ -4,6 +4,9 @@ lgp
 graphs
 venv
 assembly
-perf.data*
+perf*
 report-*
-callgrind.out.*
+gmon.out
+callgrind*
+venv
+

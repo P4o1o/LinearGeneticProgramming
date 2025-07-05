@@ -1,7 +1,7 @@
 CC = gcc
 CLANG = clang
 THREADS ?= 16
-CFLAGS = -O3 -Wall -Wextra -pedantic -std=c2x -DOMP_NUM_THREADS=$(THREADS) -msse2 -mavx2
+CFLAGS = -O3 -Wall -Wextra -pedantic -std=c2x -DOMP_NUM_THREADS=$(THREADS) -msse2 -mavx2 -mavx512f -mavx512vl -mavx512bw -mavx512dq # -mavx512ifma -mavx512vbmi2 -mavx512vnni -mavx512bitalg -mavx512vpopcntdq
 DFLAGS = -ggdb3 -fsanitize=undefined -fsanitize=signed-integer-overflow -pg -g
 LIBFLAGS = -lm -fopenmp
 SRCDIR = src

@@ -10,7 +10,7 @@
 
 #include "prob.h"
 
-#define INSTR_NUM 86
+#define INSTR_NUM 87
 
 #define INSTR_MACRO \
 	INSTRUCTION(EXIT,  			0, 		0,	0,	1) \
@@ -98,7 +98,8 @@
 	INSTRUCTION(ASINH,  		82,		2,	0,	0) \
 	INSTRUCTION(ATANH,  		83,		2,	0,	0) \
 	INSTRUCTION(CAST_F,  		84,		2,	0,	0) \
-	INSTRUCTION(RAND,   		85,		1,	0,	0)
+	INSTRUCTION(RAND,   		85,		1,	0,	0) \
+	INSTRUCTION(ROUND,   		86,		2,	0,	0) 
 
 
 #define INSTRUCTION(name, code, regs, addr, change) I_##name = code,
