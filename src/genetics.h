@@ -31,8 +31,9 @@ struct InstructionSet{
 
 struct LGPInput{
 	const uint64_t input_num;
-	const uint64_t rom_size;
-	const uint64_t res_size;
+	const uint64_t rom_size; // size of the problem data in each input
+	const uint64_t res_size; // size of the solution in each input
+	const uint64_t ram_size; // size of the RAM, must be >= res_size
 	const struct InstructionSet instr_set;
 	union Memblock *restrict memory; //problem1, solution1, problem2, solution2, problem3, ...
 };

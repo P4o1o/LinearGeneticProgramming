@@ -17,6 +17,6 @@ struct LGPInput vector_distance(const struct InstructionSet *const instr_set, co
 		}
 		memory[i * block_size + rom_size].f64 = sqrt(memory[i * block_size + rom_size].f64);
 	}
-    struct LGPInput res ={.memory = memory, .rom_size = rom_size, .input_num = input_num, .res_size = 1, .instr_set = *instr_set};
+    struct LGPInput res ={.memory = memory, .rom_size = rom_size, .input_num = input_num, .res_size = 1, .instr_set = *instr_set, .ram_size = 1};
 	return res;
 }

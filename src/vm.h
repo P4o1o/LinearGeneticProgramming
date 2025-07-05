@@ -5,9 +5,7 @@
 #include <string.h>
 #include <math.h>
 #include <stddef.h>
-
 #include "macros.h"
-
 #include "prob.h"
 
 #define INSTR_NUM 87
@@ -129,7 +127,6 @@ INSTR_MACRO
 
 #define REG_NUM 4
 #define FREG_NUM 4
-#define RAM_SIZE 1
 
 struct Instruction{
     uint8_t op;
@@ -158,7 +155,7 @@ struct Core {
 
 struct VirtualMachine{
     struct Core core;
-    union Memblock ram[RAM_SIZE];
+    union Memblock *ram;
     const union Memblock *rom;
     const struct Instruction *program;
 };

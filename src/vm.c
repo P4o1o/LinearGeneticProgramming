@@ -36,16 +36,16 @@ uint64_t run_vm(struct VirtualMachine *env, const uint64_t clock_limit){
             break;
             case I_CMP: // CMP
                 imm = env->core.reg[reg1] - env->core.reg[reg2];
-                env->core.flag.zero = (imm == 0);
+                env->core.flag.zero = (imm == ((uint64_t) 0));
                 env->core.flag.negative = (imm >> ((uint64_t) 63));
-                env->core.flag.odd |= ((uint32_t) (imm & 1));
+                env->core.flag.odd |= (imm & ((uint64_t) 1));
                 env->core.flag.exist = 1;
             break;
             case I_TEST: // TEST
                 imm = env->core.reg[reg1];
-                env->core.flag.zero = (imm == 0);
+                env->core.flag.zero = (imm == ((uint64_t) 0));
                 env->core.flag.negative = (imm >> ((uint64_t) 63));
-                env->core.flag.odd = (imm & 1);
+                env->core.flag.odd = (imm & ((uint64_t) 1));
                 env->core.flag.exist = 1;
             break;
             case I_CMP_F: // CMP_F
@@ -245,12 +245,22 @@ uint64_t run_vm(struct VirtualMachine *env, const uint64_t clock_limit){
             break;
 
             case I_CAST: // CAST
-                if(env->core.freg[reg2] < ((double) 0xFFFFFFFFFFFFFFFFUL))
-                    env->core.reg[reg1] = (uint64_t) env->core.freg[reg2];
+                immf = fabs(env->core.freg[reg2]);
+                if(immf < ((double) 0xFFFFFFFFFFFFFFFFULL / 2ULL)){
+                    env->core.reg[reg1] = (uint64_t) immf;
+                    if(env->core.freg[reg2] < ((uint64_t) 0)){
+                        env->core.reg[reg1] |= (((uint64_t) 1) << ((uint64_t) 63));
+                    }
+                }
             break;
             case I_ROUND: // CAST
-                if(env->core.freg[reg2] < ((double) 0xFFFFFFFFFFFFFFFFUL))
-                    env->core.reg[reg1] = (uint64_t) (env->core.freg[reg2] + 0.5);
+                immf = fabs(env->core.freg[reg2]);
+                if(immf < ((double) 0xFFFFFFFFFFFFFFFFULL / 2ULL)){
+                    env->core.reg[reg1] = (uint64_t) (immf + 0.5);
+                    if(env->core.reg[reg1] && (env->core.freg[reg2] < ((uint64_t) 0))){
+                        env->core.reg[reg1] |= (((uint64_t) 1) << ((uint64_t) 63));
+                    }
+                }
             break;
             case I_CAST_F: // CASTF
                 env->core.freg[reg1] = (double) env->core.reg[reg2];

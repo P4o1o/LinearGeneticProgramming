@@ -12,7 +12,7 @@ struct Instruction rand_instruction(const struct LGPInput *const in, const uint6
             addr = random();
         break;
         case 2:
-            addr = RAND_UPTO(RAM_SIZE - 1);
+            addr = RAND_UPTO(in->ram_size - 1);
         break;
         case 3:
             addr = RAND_UPTO(prog_size + 1);
