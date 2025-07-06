@@ -13,36 +13,44 @@ ASMFILES = $(patsubst $(SRCDIR)/%.c,$(ASMDIR)/%.s,$(SRCFILES))
 
 .PHONY: all gcc clang asm fast clean
 
-all: lgp
+all: LGP
 
 fast: CC=gcc
 fast: DFLAGS=
-fast: lgp
+fast: LGP
 
 gcc: CC=gcc
-gcc: lgp
+gcc: LGP
 
 clang: CC=clang
-clang: lgp
+clang: LGP
 
 single: CFLAGS=-O3 -Wall -Wextra -pedantic -std=c2x
-single: lgp
+single: LGP
 
 sse2: CFLAGS=-O3 -Wall -Wextra -pedantic -std=c2x -msse2
-sse2: lgp
+sse2: LGP
 
 avx2: CFLAGS=-O3 -Wall -Wextra -pedantic -std=c2x -msse2 -mavx2
-avx2: lgp
+avx2: LGP
 
-avx512: lgp
+avx512: LGP
 
 asm: $(ASMFILES)
 
-lgp : $(OBJFILES)
-	$(CC) $(CFLAGS) $(DFLAGS) -o lgp $(OBJFILES) $(LIBFLAGS)
+LGP : $(OBJFILES)
+	$(CC) $(CFLAGS) $(DFLAGS) -o LGP $(OBJFILES) $(LIBFLAGS)
+
+# Python interface shared library
+python: DFLAGS=
+python: CFLAGS += -fPIC
+python: liblgp.so
+
+liblgp.so: $(filter-out $(BINDIR)/main.o,$(OBJFILES))
+	$(CC) $(CFLAGS) -shared -fPIC -o liblgp.so $(filter-out $(BINDIR)/main.o,$(OBJFILES)) $(LIBFLAGS)
 
 $(BINDIR)/%.o: $(SRCDIR)/%.c | $(BINDIR)
-	$(CC) $(CFLAGS) $(DFLAGS) -c $< -o $@ $(LIBFLAGS)
+	$(CC) $(CFLAGS) $(DFLAGS) -fPIC -c $< -o $@ $(LIBFLAGS)
 
 $(ASMDIR)/%.s: $(SRCDIR)/%.c | $(ASMDIR)
 	$(CC) $(CFLAGS) -S -masm=intel $< -o $@ $(LIBFLAGS)
@@ -52,4 +60,4 @@ $(BINDIR) $(ASMDIR):
 
 .PHONY: clean
 clean:
-	rm -rf $(BINDIR)/*.o $(ASMDIR)/*.s lgp
+	rm -rf $(BINDIR)/*.o $(ASMDIR)/*.s LGP

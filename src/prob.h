@@ -39,4 +39,14 @@ typedef uint64_t prob;
 #define RAND_DOUBLE() (DBL_MIN + ((double)random() / RANDOM_MAX) * (DBL_MAX - DBL_MIN))
 #define RAND_DBL_BOUNDS(min, max) (min + ((double)random() / RANDOM_MAX) * (max - min))
 
+// Wrapper functions for Python interface
+
+void random_init_wrapper(uint32_t seed, uint32_t thread_num) {
+    random_init(seed, thread_num);
+}
+ 
+uint32_t random_wrapper(uint32_t thread_num) {
+    return get_MT19937(&random_engines[RANDOM_ENGINE_INDEX]);
+}
+
 #endif

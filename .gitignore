@@ -1,12 +1,14 @@
 doc
 bin
-lgp
 graphs
+LGP
 venv
 assembly
 perf*
 report-*
 gmon.out
 callgrind*
-venv
-
+.venv
+liblgp.so
+__pycache__
+lgp/__pycache__
