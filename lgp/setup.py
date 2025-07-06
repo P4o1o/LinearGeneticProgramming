@@ -3,35 +3,35 @@ Setup module for library function signatures
 """
 
 from .base import POINTER, c_uint32, c_uint64, c_void_p, liblgp
-from .vm import ProgramWrapper
-from .genetics import LGPInputWrapper, InstructionSetWrapper
-from .evolution import LGPOptionsWrapper, LGPResultWrapper
-from .fitness import FitnessAssessmentWrapper, FitnessParamsWrapper
-from .creation import InitializationParamsWrapper
+from .vm import Program
+from .genetics import LGPInput, InstructionSet, LGPResult
+from .evolution import LGPOptions
+from .fitness import FitnessAssessment, FitnessParams
+from .creation import InitializationParams
 
 def setup_library():
     """Setup dei tipi per le funzioni della libreria"""
     
     # Setup evolve function
-    liblgp.evolve.argtypes = [POINTER(LGPInputWrapper), POINTER(LGPOptionsWrapper)]
-    liblgp.evolve.restype = LGPResultWrapper
+    liblgp.evolve.argtypes = [POINTER(LGPInput), POINTER(LGPOptions)]
+    liblgp.evolve.restype = LGPResult
 
     # Setup print_program function
-    liblgp.print_program.argtypes = [POINTER(ProgramWrapper)]
+    liblgp.print_program.argtypes = [POINTER(Program)]
     liblgp.print_program.restype = None
 
     # Setup per vector_distance
-    liblgp.vector_distance.argtypes = [POINTER(InstructionSetWrapper), c_uint64, c_uint64]
-    liblgp.vector_distance.restype = LGPInputWrapper
+    liblgp.vector_distance.argtypes = [POINTER(InstructionSet), c_uint64, c_uint64]
+    liblgp.vector_distance.restype = LGPInput
 
     # Setup per le funzioni di initialization
-    liblgp.unique_population.argtypes = [POINTER(LGPInputWrapper), POINTER(InitializationParamsWrapper), 
-                                        POINTER(FitnessAssessmentWrapper), c_uint64, POINTER(FitnessParamsWrapper)]
-    liblgp.unique_population.restype = LGPResultWrapper
+    liblgp.unique_population.argtypes = [POINTER(LGPInput), POINTER(InitializationParams), 
+                                        POINTER(FitnessAssessment), c_uint64, POINTER(FitnessParams)]
+    liblgp.unique_population.restype = LGPResult
 
-    liblgp.rand_population.argtypes = [POINTER(LGPInputWrapper), POINTER(InitializationParamsWrapper), 
-                                      POINTER(FitnessAssessmentWrapper), c_uint64, POINTER(FitnessParamsWrapper)]
-    liblgp.rand_population.restype = LGPResultWrapper
+    liblgp.rand_population.argtypes = [POINTER(LGPInput), POINTER(InitializationParams), 
+                                      POINTER(FitnessAssessment), c_uint64, POINTER(FitnessParams)]
+    liblgp.rand_population.restype = LGPResult
 
     # Setup per init_MT19937 se disponibile
     try:

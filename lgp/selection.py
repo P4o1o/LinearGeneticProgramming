@@ -4,31 +4,52 @@ Selection structures and classes - corresponds to selection.h
 
 from .base import Structure, Union, POINTER, c_uint64, c_double, c_void_p, ctypes, liblgp
 
-class SelectionParamsWrapper(Union):
+class SelectFactor(Union):
+    """Corrisponde all'union select_factor __all__ = ['SelectFactor', 'FitnessSharingParams', 'SelectionParams', 'Selection', 'Tournament', 'Elitism', 
+           'PercentualElitism', 'Roulette', 'FitnessSharingTournament', 'FitnessSharingElitism', 
+           'FitnessSharingPercentualElitism', 'FitnessSharingRoulette']struct FitnessSharingParams"""
+    _fields_ = [
+        ("size", c_uint64),
+        ("val", c_double)
+    ]
+
+
+class FitnessSharingParams(Structure):
+    """Corrisponde a struct FitnessSharingParams in selection.h"""
+    _fields_ = [
+        ("alpha", c_double),
+        ("beta", c_double),
+        ("sigma", c_double),
+        ("select_factor", SelectFactor)
+    ]
+
+
+class SelectionParams(Union):
     """Corrisponde a union SelectionParams in selection.h"""
     _fields_ = [
         ("size", c_uint64),
         ("val", c_double),
-        # fitness sharing parameters omessi per semplicità
+        ("fs_params", FitnessSharingParams)
     ]
 
 
-class SelectionWrapper(Structure):
-    """Corrisponde a struct Selection in selection.h"""
+class Selection(Structure):
+    """Corrisponde a struct Selection in selection.h - unified wrapper + interface"""
     _fields_ = [
         ("type", c_void_p * 2)  # FITNESS_TYPE_NUM = 2
     ]
-
-
-class Selection:
-    """Classe base per i metodi di selezione"""
     
     def __init__(self, name: str):
+        super().__init__()
         self.name = name
     
     @property
-    def c_wrapper(self) -> SelectionWrapper:
-        """Override in sottoclassi per restituire la struttura C corrispondente"""
+    def c_wrapper(self):
+        """Restituisce se stesso come wrapper C"""
+        return self
+    
+    def get_params(self) -> SelectionParams:
+        """Override in sottoclassi per restituire i parametri appropriati"""
         raise NotImplementedError
 
 
@@ -40,9 +61,14 @@ class Tournament(Selection):
         self.tournament_size = tournament_size
     
     @property
-    def c_wrapper(self) -> SelectionWrapper:
-        tournament_ptr = ctypes.cast(liblgp.tournament, POINTER(SelectionWrapper))
-        return tournament_ptr.contents
+    def c_wrapper(self):
+        return Selection.in_dll(liblgp, "tournament")
+    
+    def get_params(self) -> SelectionParams:
+        """Restituisce i parametri per tournament selection"""
+        params = SelectionParams()
+        params.size = c_uint64(self.tournament_size)
+        return params
 
 
 class Elitism(Selection):
@@ -53,9 +79,14 @@ class Elitism(Selection):
         self.elite_size = elite_size
     
     @property
-    def c_wrapper(self) -> SelectionWrapper:
-        elitism_ptr = ctypes.cast(liblgp.elitism, POINTER(SelectionWrapper))
-        return elitism_ptr.contents
+    def c_wrapper(self) -> Selection:
+        return Selection.in_dll(liblgp, "elitism")
+    
+    def get_params(self) -> SelectionParams:
+        """Restituisce i parametri per elitism selection"""
+        params = SelectionParams()
+        params.size = c_uint64(self.elite_size)
+        return params
 
 
 class PercentualElitism(Selection):
@@ -66,9 +97,15 @@ class PercentualElitism(Selection):
         self.elite_percentage = elite_percentage
     
     @property
-    def c_wrapper(self) -> SelectionWrapper:
-        perc_elit_ptr = ctypes.cast(liblgp.percentual_elitism, POINTER(SelectionWrapper))
+    def c_wrapper(self) -> Selection:
+        perc_elit_ptr = ctypes.cast(liblgp.percentual_elitism, POINTER(Selection))
         return perc_elit_ptr.contents
+    
+    def get_params(self) -> SelectionParams:
+        """Restituisce i parametri per percentual elitism selection"""
+        params = SelectionParams()
+        params.val = c_double(self.elite_percentage)
+        return params
 
 
 class Roulette(Selection):
@@ -79,9 +116,15 @@ class Roulette(Selection):
         self.sampling_size = sampling_size
     
     @property
-    def c_wrapper(self) -> SelectionWrapper:
-        roulette_ptr = ctypes.cast(liblgp.roulette, POINTER(SelectionWrapper))
+    def c_wrapper(self) -> Selection:
+        roulette_ptr = ctypes.cast(liblgp.roulette, POINTER(Selection))
         return roulette_ptr.contents
+    
+    def get_params(self) -> SelectionParams:
+        """Restituisce i parametri per roulette selection"""
+        params = SelectionParams()
+        params.size = c_uint64(self.sampling_size)
+        return params
 
 
 class FitnessSharingTournament(Selection):
@@ -95,9 +138,19 @@ class FitnessSharingTournament(Selection):
         self.sigma = sigma
     
     @property
-    def c_wrapper(self) -> SelectionWrapper:
-        fs_tournament_ptr = ctypes.cast(liblgp.fitness_sharing_tournament, POINTER(SelectionWrapper))
+    def c_wrapper(self) -> Selection:
+        fs_tournament_ptr = ctypes.cast(liblgp.fitness_sharing_tournament, POINTER(Selection))
         return fs_tournament_ptr.contents
+    
+    def get_params(self) -> SelectionParams:
+        """Restituisce i parametri per fitness sharing tournament selection"""
+        params = SelectionParams()
+        params.fs_params = FitnessSharingParams()
+        params.fs_params.alpha = c_double(self.alpha)
+        params.fs_params.beta = c_double(self.beta)
+        params.fs_params.sigma = c_double(self.sigma)
+        params.fs_params.select_factor.size = c_uint64(self.tournament_size)
+        return params
 
 
 class FitnessSharingElitism(Selection):
@@ -111,9 +164,19 @@ class FitnessSharingElitism(Selection):
         self.sigma = sigma
     
     @property
-    def c_wrapper(self) -> SelectionWrapper:
-        fs_elitism_ptr = ctypes.cast(liblgp.fitness_sharing_elitism, POINTER(SelectionWrapper))
+    def c_wrapper(self) -> Selection:
+        fs_elitism_ptr = ctypes.cast(liblgp.fitness_sharing_elitism, POINTER(Selection))
         return fs_elitism_ptr.contents
+    
+    def get_params(self) -> SelectionParams:
+        """Restituisce i parametri per fitness sharing elitism selection"""
+        params = SelectionParams()
+        params.fs_params = FitnessSharingParams()
+        params.fs_params.alpha = c_double(self.alpha)
+        params.fs_params.beta = c_double(self.beta)
+        params.fs_params.sigma = c_double(self.sigma)
+        params.fs_params.select_factor.size = c_uint64(self.elite_size)
+        return params
 
 
 class FitnessSharingPercentualElitism(Selection):
@@ -127,9 +190,19 @@ class FitnessSharingPercentualElitism(Selection):
         self.sigma = sigma
     
     @property
-    def c_wrapper(self) -> SelectionWrapper:
-        fs_perc_elit_ptr = ctypes.cast(liblgp.fitness_sharing_percentual_elitism, POINTER(SelectionWrapper))
+    def c_wrapper(self) -> Selection:
+        fs_perc_elit_ptr = ctypes.cast(liblgp.fitness_sharing_percentual_elitism, POINTER(Selection))
         return fs_perc_elit_ptr.contents
+    
+    def get_params(self) -> SelectionParams:
+        """Restituisce i parametri per fitness sharing percentual elitism selection"""
+        params = SelectionParams()
+        params.fs_params = FitnessSharingParams()
+        params.fs_params.alpha = c_double(self.alpha)
+        params.fs_params.beta = c_double(self.beta)
+        params.fs_params.sigma = c_double(self.sigma)
+        params.fs_params.select_factor.val = c_double(self.elite_percentage)
+        return params
 
 
 class FitnessSharingRoulette(Selection):
@@ -143,10 +216,20 @@ class FitnessSharingRoulette(Selection):
         self.sigma = sigma
     
     @property
-    def c_wrapper(self) -> SelectionWrapper:
-        fs_roulette_ptr = ctypes.cast(liblgp.fitness_sharing_roulette, POINTER(SelectionWrapper))
+    def c_wrapper(self) -> Selection:
+        fs_roulette_ptr = ctypes.cast(liblgp.fitness_sharing_roulette, POINTER(Selection))
         return fs_roulette_ptr.contents
+    
+    def get_params(self) -> SelectionParams:
+        """Restituisce i parametri per fitness sharing roulette selection"""
+        params = SelectionParams()
+        params.fs_params = FitnessSharingParams()
+        params.fs_params.alpha = c_double(self.alpha)
+        params.fs_params.beta = c_double(self.beta)
+        params.fs_params.sigma = c_double(self.sigma)
+        params.fs_params.select_factor.size = c_uint64(self.sampling_size)
+        return params
 
-__all__ = ['SelectionParamsWrapper', 'SelectionWrapper', 'Selection', 'Tournament', 'Elitism', 
+__all__ = ['SelectFactor', 'FitnessSharingParams', 'SelectionParams', 'Selection', 'Selection', 'Tournament', 'Elitism', 
            'PercentualElitism', 'Roulette', 'FitnessSharingTournament', 'FitnessSharingElitism', 
            'FitnessSharingPercentualElitism', 'FitnessSharingRoulette']

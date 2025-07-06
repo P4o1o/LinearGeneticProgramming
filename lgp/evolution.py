@@ -3,21 +3,24 @@ Evolution structures and functions - corresponds to evolution.h
 """
 
 from .base import Structure, POINTER, c_uint64, c_uint, c_double, c_void_p, Tuple, Optional, ctypes, liblgp
-from .genetics import LGPInput, LGPResultWrapper, Population, PopulationWrapper
-from .fitness import FitnessParamsWrapper, FitnessAssessmentWrapper, FitnessAssessment
-from .selection import SelectionParamsWrapper, Selection, SelectionWrapper
-from .creation import InitializationParamsWrapper, Initialization
+from .genetics import LGPInput, LGPResult, Population
+from .fitness import FitnessParams, FitnessAssessment
+from .selection import SelectionParams, Selection
+from .creation import InitializationParams, Initialization
 
-class LGPOptionsWrapper(Structure):
-    """Corrisponde a struct LGPOptions in evolution.h"""
+# Definizione del tipo initialization_fn come nel C
+initialization_fn = c_void_p
+
+class LGPOptions(Structure):
+    """Corresponds to struct LGPOptions in evolution.h"""
     _fields_ = [
-        ("fitness", FitnessAssessmentWrapper),
-        ("fitness_param", FitnessParamsWrapper),
-        ("selection", SelectionWrapper),
-        ("select_param", SelectionParamsWrapper),
-        ("initialization_func", c_void_p),
-        ("init_params", InitializationParamsWrapper),
-        ("initial_pop", PopulationWrapper),
+        ("fitness", FitnessAssessment),
+        ("fitness_param", FitnessParams),
+        ("selection", Selection),
+        ("select_param", SelectionParams),
+        ("initialization_func", initialization_fn),
+        ("init_params", InitializationParams),
+        ("initial_pop", Population),  # Struct not pointer come nel C
         ("target", c_double),
         ("mutation_prob", c_double),
         ("crossover_prob", c_double),
@@ -31,9 +34,7 @@ class LGPOptionsWrapper(Structure):
 
 def evolve(lgp_input: LGPInput, 
           fitness: FitnessAssessment = None,
-          fitness_param: Optional[float] = None,
           selection: Selection = None,
-          select_param: Optional[float] = None,
           initialization: Initialization = None,
           init_params: Optional[Tuple[int, int, int]] = None,
           initial_pop: Optional[Population] = None,
@@ -46,34 +47,32 @@ def evolve(lgp_input: LGPInput,
           generations: int = 40,
           verbose: int = 1) -> Tuple[Population, int, int, int]:
     """
-    Esegue l'evoluzione del LGP
+    Execute LGP evolution
     
     Args:
-        lgp_input: Input per l'LGP
-        fitness: Funzione di fitness (default: MSE)
-        fitness_param: Parametro per la funzione di fitness
-        selection: Metodo di selezione (default: Tournament)
-        select_param: Parametro per la selezione
-        initialization: Metodo di inizializzazione (default: UniquePopulation)
-        init_params: Parametri di inizializzazione (pop_size, minsize, maxsize)
-        target: Target di fitness per fermare l'evoluzione
-        mutation_prob: Probabilità di mutazione
-        crossover_prob: Probabilità di crossover
-        max_clock: Massimo numero di cicli di clock per programma
-        max_individ_len: Lunghezza massima degli individui
-        max_mutation_len: Lunghezza massima delle mutazioni
-        generations: Numero massimo di generazioni
-        verbose: Livello di verbosità
+        lgp_input: Input for LGP
+        fitness: Fitness function (default: MSE)
+        selection: Selection method (default: Tournament)
+        initialization: Initialization method (default: UniquePopulation)
+        init_params: Initialization parameters (pop_size, minsize, maxsize)
+        target: Fitness target to stop evolution
+        mutation_prob: Mutation probability
+        crossover_prob: Crossover probability
+        max_clock: Maximum number of clock cycles per program
+        max_individ_len: Maximum individual length
+        max_mutation_len: Maximum mutation length
+        generations: Maximum number of generations
+        verbose: Verbosity level
         
     Returns:
-        Tupla contenente (popolazione finale, valutazioni, generazioni, indice miglior individuo)
+        Tuple containing (final population, evaluations, generations, best individual index)
     """
     from .fitness import MSE
     from .selection import Tournament
     from .creation import UniquePopulation as UP
     from .genetics import Population
     
-    # Imposta valori di default
+    # Set default values
     if fitness is None:
         fitness = MSE()
     if selection is None:
@@ -83,33 +82,45 @@ def evolve(lgp_input: LGPInput,
     if init_params is None:
         init_params = (1000, 2, 5)
     
-    # Prepara i parametri
-    fitness_param_union = FitnessParamsWrapper()
-    if fitness_param is not None:
-        fitness_param_union.alpha = fitness_param
+    # Prepare fitness parameters usando get_params() solo se la fitness li richiede
+    try:
+        fitness_param_union = fitness.get_params()
+    except:
+        # Se get_params() fallisce o non è implementato, usa parametri vuoti
+        fitness_param_union = FitnessParams()
     
-    select_param_union = SelectionParamsWrapper()
-    if select_param is not None:
-        if isinstance(select_param, (int, float)) and select_param >= 1:
-            select_param_union.size = int(select_param)
-        else:
-            select_param_union.val = float(select_param)
+    # Prepare selection parameters using get_params()
+    select_param_union = selection.get_params()
     
-    init_params_struct = InitializationParamsWrapper(
+    init_params_struct = InitializationParams(
         pop_size=init_params[0],
         minsize=init_params[1],
         maxsize=init_params[2]
     )
     
-    # Crea la struttura LGPOptionsWrapper
-    options = LGPOptionsWrapper(
+    # Create LGPOptions structure seguendo l'esempio del main.c
+    # Se abbiamo initial_pop, non usiamo initialization_func e viceversa
+    if initial_pop is not None:
+        # Se abbiamo una popolazione iniziale, initialization_func deve essere NULL
+        init_func = c_void_p(0)  # NULL nel C
+        initial_pop_struct = initial_pop
+    else:
+        # Altrimenti usa la funzione di inizializzazione
+        init_func = initialization.c_wrapper
+        # initial_pop deve essere una struttura vuota (azzerata come nel C)
+        # Creiamo una struttura completamente vuota usando ctypes
+        initial_pop_struct = Population()
+        # ctypes inizializza automaticamente i campi a zero/NULL, ma forziamo l'azzeramento
+        ctypes.memset(ctypes.byref(initial_pop_struct), 0, ctypes.sizeof(Population))
+    
+    options = LGPOptions(
         fitness=fitness.c_wrapper,
         fitness_param=fitness_param_union,
         selection=selection.c_wrapper,
         select_param=select_param_union,
-        initialization_func=initialization.c_wrapper,
+        initialization_func=init_func,
         init_params=init_params_struct,
-        initial_pop=initial_pop.c_wrapper if initial_pop else None,
+        initial_pop=initial_pop_struct,
         target=target,
         mutation_prob=mutation_prob,
         crossover_prob=crossover_prob,
@@ -120,14 +131,17 @@ def evolve(lgp_input: LGPInput,
         verbose=verbose
     )
     
-    # Chiama la funzione evolve
-    result = liblgp.evolve(ctypes.byref(lgp_input.c_wrapper), ctypes.byref(options))
+    # Call evolve function - IMPORTANTE: impostare signature prima della chiamata
+    liblgp.evolve.argtypes = [POINTER(LGPInput), POINTER(LGPOptions)]
+    liblgp.evolve.restype = LGPResult
+    
+    result = liblgp.evolve(ctypes.byref(lgp_input), ctypes.byref(options))
     
     return (
-        Population(result.pop),
+        result.pop,
         result.evaluations,
         result.generations,
         result.best_individ
     )
 
-__all__ = ['LGPOptionsWrapper', 'evolve']
+__all__ = ['LGPOptions', 'evolve']

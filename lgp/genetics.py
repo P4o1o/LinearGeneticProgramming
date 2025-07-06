@@ -1,154 +1,149 @@
 """
 Genetics structures and types - corresponds to genetics.h
+Unified wrapper classes that combine C structures with user-friendly interfaces
 """
 
 from .base import Structure, POINTER, c_uint64, c_double, List, Optional, pd, ctypes, liblgp
-from .vm import ProgramWrapper, MemblockWrapper, OperationWrapper
+from .vm import Program, Memblock, OperationStruct
+import numpy as np
 
-class IndividualWrapper(Structure):
-    """Corrisponde a struct Individual in genetics.h"""
+
+class Individual(Structure):
+    """Corresponds to struct Individual in genetics.h with integrated user interface"""
     _fields_ = [
-        ("prog", ProgramWrapper),
+        ("prog", Program),
         ("fitness", c_double)
     ]
-
-
-class PopulationWrapper(Structure):
-    """Corrisponde a struct Population in genetics.h"""
-    _fields_ = [
-        ("individual", POINTER(IndividualWrapper)),
-        ("size", c_uint64)
-    ]
-
-
-class InstructionSetWrapper(Structure):
-    """Corrisponde a struct InstructionSet in genetics.h (wrapper C)"""
-    _fields_ = [
-        ("size", c_uint64),
-        ("op", POINTER(OperationWrapper))
-    ]
-
-
-class InstructionSet:
-    """InstructionSet che prende una lista di Operation nel costruttore"""
     
-    def __init__(self, operations):
-        """
-        Crea un InstructionSet da una lista di Operation
-        
-        Args:
-            operations: Lista di Operation
-        """
-        # Converti in lista se necessario
-        if not isinstance(operations, (list, tuple)):
-            operations = list(operations)
-        
-        # Crea array di OperationWrapper
-        op_array = (OperationWrapper * len(operations))()
-        
-        # Riempi l'array con gli OperationWrapper delle Operation
-        for i, op in enumerate(operations):
-            op_array[i] = op.c_wrapper
-        
-        # Crea InstructionSetWrapper
-        self._wrapper = InstructionSetWrapper(
-            size=len(operations),
-            op=ctypes.cast(op_array, POINTER(OperationWrapper))
-        )
+    def print_program(self) -> None:
+        """Print the program of this individual"""
+        from .utils import print_program
+        print_program(self)
     
     @property
     def size(self) -> int:
-        """Numero di operazioni nell'instruction set"""
-        return self._wrapper.size
+        """Return the program size (number of instructions)"""
+        return self.prog.size
     
     @property
-    def c_wrapper(self) -> InstructionSetWrapper:
-        """Restituisce la struttura C sottostante"""
-        return self._wrapper
+    def c_wrapper(self):
+        """Return itself as C wrapper"""
+        return self
 
 
-class LGPInputWrapper(Structure):
-    """Corrisponde a struct LGPInput in genetics.h"""
+class Population(Structure):
+    """Corresponds to struct Population in genetics.h with integrated user interface"""
+    _fields_ = [
+        ("individual", POINTER(Individual)),
+        ("size", c_uint64)
+    ]
+    
+    @property
+    def c_wrapper(self):
+        """Return itself as C wrapper"""
+        return self
+    
+    def get(self, index: int) -> Individual:
+        """
+        Get an individual from the population by index
+        
+        Args:
+            index: Individual index (0-based)
+            
+        Returns:
+            Individual at the requested index
+        """
+        if index < 0 or index >= self.size:
+            raise IndexError(f"Index {index} out of range for population of size {self.size}")
+        
+        return self.individual[index]
+
+
+class InstructionSet(Structure):
+    """Corresponds to struct InstructionSet in genetics.h with integrated user interface"""
+    _fields_ = [
+        ("size", c_uint64),
+        ("op", POINTER(OperationStruct))
+    ]
+    
+    def __init__(self, operations=None):
+        """
+        Create an InstructionSet from a list of Operations
+        
+        Args:
+            operations: List of Operations (optional for ctypes compatibility)
+        """
+        if operations is not None:
+            # Convert to list if necessary
+            if not isinstance(operations, (list, tuple)):
+                operations = list(operations)
+            
+            # Create array of OperationStruct
+            op_array = (OperationStruct * len(operations))()
+            
+            # Fill array with OperationStruct from Operations
+            for i, op in enumerate(operations):
+                # op.value è l'OperationStruct, non op.c_wrapper
+                op_array[i] = op.value
+            
+            # Initialize structure fields
+            super().__init__(
+                size=len(operations),
+                op=ctypes.cast(op_array, POINTER(OperationStruct))
+            )
+        else:
+            # Empty initialization for ctypes compatibility
+            super().__init__()
+    
+    @property
+    def c_wrapper(self):
+        """Return itself as C wrapper"""
+        return self
+
+
+class LGPInput(Structure):
+    """Corresponds to struct LGPInput in genetics.h with integrated user interface"""
     _fields_ = [
         ("input_num", c_uint64),
         ("rom_size", c_uint64),
         ("res_size", c_uint64),
         ("ram_size", c_uint64),
-        ("instr_set", InstructionSetWrapper),
-        ("memory", POINTER(MemblockWrapper))
+        ("instr_set", InstructionSet),
+        ("memory", POINTER(Memblock))
     ]
-
-
-class LGPResultWrapper(Structure):
-    """Corrisponde a struct LGPResult in genetics.h"""
-    _fields_ = [
-        ("pop", PopulationWrapper),
-        ("evaluations", c_uint64),
-        ("generations", c_uint64),
-        ("best_individ", c_uint64)
-    ]
-
-
-# High-level wrapper classes (previously in wrapper.py)
-
-class LGPInput:
-    """Wrapper per struct LGPInput che mantiene la nomenclatura C"""
-    
-    def __init__(self, c_lgp_input: LGPInputWrapper):
-        self._c_lgp_input = c_lgp_input
     
     @property
-    def input_num(self) -> int:
-        """Numero di input"""
-        return self._c_lgp_input.input_num
-    
-    @property
-    def rom_size(self) -> int:
-        """Dimensione ROM"""
-        return self._c_lgp_input.rom_size
-    
-    @property
-    def res_size(self) -> int:
-        """Dimensione risultato"""
-        return self._c_lgp_input.res_size
-    
-    @property
-    def ram_size(self) -> int:
-        """Dimensione RAM"""
-        return self._c_lgp_input.ram_size
-    
-    @property
-    def c_wrapper(self) -> LGPInputWrapper:
-        """Restituisce la struttura C sottostante"""
-        return self._c_lgp_input
+    def c_wrapper(self):
+        """Return itself as C wrapper"""
+        return self
     
     @classmethod
     def from_df(cls, df, y: List[str], instruction_set: InstructionSet, ram_size: Optional[int] = None):
         """
-        Crea un'istanza LGPInput da un pandas DataFrame
+        Create an LGPInput instance from a pandas DataFrame
         
         Args:
-            df: DataFrame contenente i dati
-            y: Lista delle colonne da considerare come target (y)
-            instruction_set: Set di istruzioni disponibili
-            ram_size: Dimensione RAM (default: res_size)
+            df: DataFrame containing the data
+            y: List of columns to consider as targets (y)
+            instruction_set: Available instruction set
+            ram_size: RAM size (default: res_size)
         """
         if pd is None:
             raise ImportError("pandas is required for from_df method. Install with: pip install pandas")
         
-        # Validazione parametri
+        # Parameter validation
         if len(y) == 0:
             raise ValueError("y list cannot be empty")
         
         if len(df) == 0:
             raise ValueError("DataFrame cannot be empty")
         
-        # Calcola dimensioni
+        # Calculate dimensions
         input_num = len(df)
-        rom_size = len(df.columns) - len(y)
+        rom_size_val = len(df.columns) - len(y)
         res_size = len(y)
         
-        if rom_size <= 0:
+        if rom_size_val <= 0:
             raise ValueError("rom_size must be positive (insufficient input columns)")
         
         if ram_size is None:
@@ -157,198 +152,161 @@ class LGPInput:
         if ram_size < res_size:
             raise ValueError("ram_size cannot be less than res_size")
         
-        # Calcola block_size: rom + ram
-        block_size = rom_size + ram_size
+        # Calculate block_size: rom + ram
+        block_size = rom_size_val + ram_size
         
-        # Alloca memoria per tutti i blocchi
+        # Allocate memory for all blocks
         total_memory_size = input_num * block_size
-        memory = (MemblockWrapper * total_memory_size)()
+        memory = (Memblock * total_memory_size)()
         
-        # Separa feature (X) e target (y) colonne
+        # Separate feature (X) and target (y) columns
         feature_cols = [col for col in df.columns if col not in y]
         target_cols = y
         
-        # Riempi la memoria seguendo il pattern di psb2.c
+        # Fill memory following psb2.c pattern
         for i in range(input_num):
             base_idx = i * block_size
             
-            # Riempi ROM con le feature (X)
+            # Fill ROM with features (X)
             for j, col in enumerate(feature_cols):
                 memory[base_idx + j].f64 = float(df.iloc[i][col])
             
-            # Riempi la parte iniziale di RAM con i target (y)
+            # Fill initial RAM part with targets (y)
             for j, col in enumerate(target_cols):
-                memory[base_idx + rom_size + j].f64 = float(df.iloc[i][col])
+                memory[base_idx + rom_size_val + j].f64 = float(df.iloc[i][col])
             
-            # Inizializza il resto di RAM a 0.0 se ram_size > res_size
+            # Initialize rest of RAM to 0.0 if ram_size > res_size
             for j in range(res_size, ram_size):
-                memory[base_idx + rom_size + j].f64 = 0.0
+                memory[base_idx + rom_size_val + j].f64 = 0.0
         
-        # Crea la struttura LGPInputWrapper
-        lgp_input_wrapper = LGPInputWrapper(
-            input_num=input_num,
-            rom_size=rom_size,
-            res_size=res_size,
-            ram_size=ram_size,
-            instr_set=instruction_set.c_wrapper,
-            memory=ctypes.cast(memory, POINTER(MemblockWrapper))
-        )
+        # Create and return instance
+        instance = cls()
+        instance.input_num = input_num
+        instance.rom_size = rom_size_val
+        instance.res_size = res_size
+        instance.ram_size = ram_size
+        instance.instr_set = instruction_set
+        instance.memory = ctypes.cast(memory, POINTER(Memblock))
         
-        return cls(lgp_input_wrapper)
+        return instance
     
     @classmethod
     def from_numpy(cls, X, y, instruction_set: InstructionSet, ram_size: Optional[int] = None):
         """
-        Crea un'istanza LGPInput da array numpy/liste
+        Create an LGPInput instance from numpy arrays/lists
         
         Args:
-            X: Array/matrice delle feature di input (n_samples, n_features)
-            y: Array/lista dei target - può essere 1D o lista di valori
-            instruction_set: Set di istruzioni disponibili
-            ram_size: Dimensione RAM (default: len(y) se y è 1D, altrimenti numero di colonne target)
+            X: Array/matrix of input features (n_samples, n_features)
+            y: Array/list of targets - can be 1D or list of values
+            instruction_set: Available instruction set
+            ram_size: RAM size (default: len(y) if y is 1D, otherwise number of target columns)
         """
-        import numpy as np
         
-        # Converti X in array numpy se non lo è già
+        # Convert X to numpy array if not already
         X = np.asarray(X)
         if X.ndim == 1:
             X = X.reshape(-1, 1)
         
-        # Converti y in array numpy e gestisci il caso 1D o lista
+        # Convert y to numpy array and handle 1D or list case
         y = np.asarray(y)
         if y.ndim == 1:
             y = y.reshape(-1, 1)
         
-        # Validazione dimensioni
+        # Dimension validation
         if X.shape[0] != y.shape[0]:
-            raise ValueError(f"X e y devono avere lo stesso numero di campioni: {X.shape[0]} vs {y.shape[0]}")
+            raise ValueError(f"X and y must have the same number of samples: {X.shape[0]} vs {y.shape[0]}")
         
-        # Calcola dimensioni
+        # Calculate dimensions
         input_num = X.shape[0]
-        rom_size = X.shape[1]
+        rom_size_val = X.shape[1]
         res_size = y.shape[1]
         
-        if rom_size <= 0:
-            raise ValueError("rom_size deve essere positivo (numero di feature di input)")
+        if rom_size_val <= 0:
+            raise ValueError("rom_size must be positive (number of input features)")
         
         if ram_size is None:
             ram_size = res_size
         
         if ram_size < res_size:
-            raise ValueError("ram_size non può essere minore di res_size")
+            raise ValueError("ram_size cannot be less than res_size")
         
-        # Calcola block_size: rom + ram
-        block_size = rom_size + ram_size
+        # Calculate block_size: rom + ram
+        block_size = rom_size_val + ram_size
         
-        # Alloca memoria per tutti i blocchi
+        # Allocate memory for all blocks
         total_memory_size = input_num * block_size
-        memory = (MemblockWrapper * total_memory_size)()
+        memory = (Memblock * total_memory_size)()
         
-        # Riempi la memoria
+        # Fill memory
         for i in range(input_num):
             base_idx = i * block_size
             
-            # Riempi ROM con le feature (X)
-            for j in range(rom_size):
+            # Fill ROM with features (X)
+            for j in range(rom_size_val):
                 memory[base_idx + j].f64 = float(X[i, j])
             
-            # Riempi la parte iniziale di RAM con i target (y)
+            # Fill initial RAM part with targets (y)
             for j in range(res_size):
-                memory[base_idx + rom_size + j].f64 = float(y[i, j])
+                memory[base_idx + rom_size_val + j].f64 = float(y[i, j])
             
-            # Inizializza il resto di RAM a 0.0 se ram_size > res_size
+            # Initialize rest of RAM to 0.0 if ram_size > res_size
             for j in range(res_size, ram_size):
-                memory[base_idx + rom_size + j].f64 = 0.0
+                memory[base_idx + rom_size_val + j].f64 = 0.0
         
-        # Crea la struttura LGPInputWrapper
-        lgp_input_wrapper = LGPInputWrapper(
-            input_num=input_num,
-            rom_size=rom_size,
-            res_size=res_size,
-            ram_size=ram_size,
-            instr_set=instruction_set.c_wrapper,
-            memory=ctypes.cast(memory, POINTER(MemblockWrapper))
-        )
+        # Create and return instance
+        instance = cls()
+        instance.input_num = input_num
+        instance.rom_size = rom_size_val
+        instance.res_size = res_size
+        instance.ram_size = ram_size
+        instance.instr_set = instruction_set
+        instance.memory = ctypes.cast(memory, POINTER(Memblock))
         
-        return cls(lgp_input_wrapper)
+        return instance
 
 
-class Individual:
-    """Wrapper per struct Individual che mantiene la nomenclatura C"""
-    
-    def __init__(self, c_individual: IndividualWrapper):
-        self._c_individual = c_individual
-    
-    @property
-    def prog(self) -> ProgramWrapper:
-        """Accesso al programma"""
-        return self._c_individual.prog
+class LGPResult(Structure):
+    """Corresponds to struct LGPResult in genetics.h with integrated user interface"""
+    _fields_ = [
+        ("pop", Population),
+        ("evaluations", c_uint64),
+        ("generations", c_uint64),
+        ("best_individ", c_uint64)
+    ]
     
     @property
-    def fitness(self) -> float:
-        """Accesso al fitness"""
-        return self._c_individual.fitness
-    
-    def print_program(self) -> None:
-        """Stampa il programma di questo individuo"""
-        from .utils import print_program
-        print_program(self)
-
-
-class Population:
-    """Wrapper per struct Population che mantiene la nomenclatura C"""
-    
-    def __init__(self, c_population: PopulationWrapper):
-        self._c_population = c_population
-    
-    @property
-    def size(self) -> int:
-        """Dimensione della popolazione"""
-        return self._c_population.size
-    
-    @property
-    def c_wrapper(self) -> PopulationWrapper:
-        """Restituisce la struttura C sottostante"""
-        return self._c_population
-    
-    def get(self, index: int) -> Individual:
-        """
-        Ottiene un individuo dalla popolazione per indice
-        
-        Args:
-            index: Indice dell'individuo (0-based)
-            
-        Returns:
-            Individual dell'individuo richiesto
-        """
-        if index < 0 or index >= self.size:
-            raise IndexError(f"Index {index} out of range for population of size {self.size}")
-        
-        return Individual(self._c_population.individual[index])
+    def c_wrapper(self):
+        """Return itself as C wrapper"""
+        return self
 
 
 class VectorDistance(LGPInput):
-    """Sottoclasse di LGPInput per problemi di distanza vettoriale"""
+    """Subclass of LGPInput for vector distance problems"""
     
     def __init__(self, instruction_set: InstructionSet, vector_len: int, instances: int):
         """
-        Inizializza un problema di distanza vettoriale
+        Initialize a vector distance problem
         
         Args:
-            instruction_set: Set di istruzioni disponibili
-            vector_len: Lunghezza dei vettori
-            instances: Numero di istanze del problema
+            instruction_set: Available instruction set
+            vector_len: Vector length
+            instances: Number of problem instances
         """
-        liblgp.vector_distance.argtypes = [POINTER(InstructionSetWrapper), c_uint64, c_uint64]
-        liblgp.vector_distance.restype = LGPInputWrapper
+        liblgp.vector_distance.argtypes = [POINTER(InstructionSet), c_uint64, c_uint64]
+        liblgp.vector_distance.restype = LGPInput
         
         result = liblgp.vector_distance(
-            ctypes.byref(instruction_set.c_wrapper),
+            ctypes.byref(instruction_set),
             c_uint64(vector_len),
             c_uint64(instances)
         )
         
-        # Inizializza il wrapper con il risultato
-        super().__init__(result)
+        # Copy fields from result
+        self.input_num = result.input_num
+        self.rom_size = result.rom_size
+        self.res_size = result.res_size
+        self.ram_size = result.ram_size
+        self.instr_set = result.instr_set
+        self.memory = result.memory
 
-__all__ = ['IndividualWrapper', 'PopulationWrapper', 'InstructionSetWrapper', 'InstructionSet', 'LGPInputWrapper', 'LGPResultWrapper', 'LGPInput', 'Individual', 'Population', 'VectorDistance']
+__all__ = ['Individual', 'Population', 'InstructionSet', 'LGPInput', 'LGPResult', 'VectorDistance']

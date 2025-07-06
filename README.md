@@ -1,7 +1,7 @@
 # Linear Genetic Programming (LGP) Framework
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Build Status](https://img.shields.io/badge/build-passing-green.svg)](https://github.com/yourusername/lgp)
+[![Build Status](https://img.shields.io/badge/build-passing-green.svg)](#installation-and-build)
 [![Language: C](https://img.shields.io/badge/language-C-blue.svg)](https://en.wikipedia.org/wiki/C_(programming_language))
 [![Python API](https://img.shields.io/badge/Python-API-orange.svg)](lgp/README.md)
 
@@ -19,8 +19,9 @@ A complete, high-performance framework for **Linear Genetic Programming (LGP)** 
 
 ### 🐍 Python Interface
 - **Complete API**: Type-safe Python bindings for the entire C framework
-- **Pandas Integration**: Direct input creation from DataFrames with automatic preprocessing
-- **25+ Fitness Functions**: Regression, classification, robust and penalized metrics
+- **Unified Classes**: Direct ctypes.Structure-based classes eliminating wrapper overhead
+- **NumPy Integration**: Direct input creation from NumPy arrays with automatic preprocessing
+- **25+ Fitness Functions**: Regression, classification, robust and penalized metrics including HuberLoss, PinballLoss, ThresholdAccuracy, FBetaScore, etc.
 - **8+ Selection Methods**: Tournament, Elitism, Fitness Sharing, Roulette with configurable parameters
 - **Zero Overhead**: Direct access to C structures without unnecessary copies or conversions
 - **Complete Documentation**: Detailed guide with practical examples and troubleshooting
@@ -33,11 +34,12 @@ A complete, high-performance framework for **Linear Genetic Programming (LGP)** 
 - **Hybrid Selection** combinable for sophisticated evolutionary strategies
 
 ### 📊 Specialized Fitness Functions
-- **Regression**: MSE, RMSE, MAE, R², Correlation, MAPE
-- **Classification**: Accuracy, F1-Score, Matthews Correlation, Balanced Accuracy
-- **Robust**: Huber Loss, Pinball Loss for outliers and quantiles
-- **Penalized**: Length/Clock penalized for automatic complexity control
-- **Statistical**: Log-likelihood, cross-entropy, adversarial sensitivity
+- **Regression**: MSE, RMSE, MAE, R², Pearson Correlation, MAPE, Symmetric MAPE
+- **Classification**: Accuracy, F1-Score, F-Beta Score, Matthews Correlation, Balanced Accuracy, Cohen's Kappa
+- **Robust**: Huber Loss, Pinball Loss for outliers and quantiles, Worst Case Error
+- **Penalized**: Length/Clock penalized MSE for automatic complexity control
+- **Statistical**: Gaussian Log-likelihood, Binary Cross-entropy, Threshold Accuracy
+- **Advanced**: Adversarial Perturbation Sensitivity, Conditional Value at Risk, Hinge Loss
 
 ## 📖 Documentation
 
@@ -70,9 +72,8 @@ brew install gcc libomp make
 ### Compilation
 
 ```bash
-# Clone and compile
-git clone https://github.com/yourusername/LinearGeneticProgramming.git
-cd LinearGeneticProgramming/sviluppi
+# Clone and compile (if cloning from repository)
+# cd LinearGeneticProgramming/sviluppi
 
 # Complete build with Python interface
 make clean
@@ -94,11 +95,29 @@ CFLAGS="-O3 -march=native" make python
 ### Installation Verification
 
 ```bash
-# Test C library
-./bin/main
+# Test C library (if main.c is compiled)
+./LGP
 
-# Test Python interface
-python3 -c "import lgp; print('✓ LGP Python interface loaded successfully')"
+# Test Python interface and thread support
+python3 -c "
+import lgp
+print('✓ LGP Python interface loaded successfully')
+print(f'✓ OpenMP threads available: {lgp.NUMBER_OF_OMP_THREADS}')
+print('✓ Random number generators initialized automatically on import')
+
+# Test PRNG functionality
+lgp.random_init_all(42)  # Set custom seed
+print('✓ Custom PRNG seeding works')
+
+# Quick evolution test
+import numpy as np
+X = np.array([[1], [2], [3]], dtype=float)
+y = np.array([2, 4, 6], dtype=float)
+instruction_set = lgp.InstructionSet([lgp.Operation.ADD_F, lgp.Operation.MUL_F, lgp.Operation.LOAD_RAM_F])
+lgp_input = lgp.LGPInput.from_numpy(X, y, instruction_set)
+population, _, _, _ = lgp.evolve(lgp_input, generations=1)
+print('✓ Evolution test completed successfully')
+"
 
 # Complete test with evolution
 python3 examples.py
@@ -143,12 +162,13 @@ int main() {
 import lgp
 import numpy as np
 
-# Initialization
-lgp.random_init(42, 1)
-
 # Dataset creation (function x² + 2x + 1)
 X = np.random.uniform(-5, 5, (200, 1))
 y = X[:, 0]**2 + 2*X[:, 0] + 1
+
+# Note: Random number generators are automatically initialized on import
+# No need to call lgp.random_init_all() manually
+print(f"Available OpenMP threads: {lgp.NUMBER_OF_OMP_THREADS}")
 
 # Instruction set
 instruction_set = lgp.InstructionSet([
@@ -175,7 +195,104 @@ print(f"Best fitness: {best.fitness}")
 lgp.print_program(best)
 ```
 
-## 🏗️ System Architecture
+## � Random Number Generation and Seeding
+
+### Automatic Initialization
+The LGP framework automatically initializes all random number generators on import:
+
+```python
+import lgp  # Automatically calls random_init_all(0) for all threads
+```
+
+**Default behavior:**
+- **Seed**: 0 (deterministic but different from system random)
+- **Thread Safety**: Each OpenMP thread gets its own PRNG state
+- **Reproducibility**: Same seed always produces identical results
+
+### Custom Seeding for Reproducibility
+
+```python
+import lgp
+
+# Set a specific seed for reproducible experiments
+lgp.random_init_all(12345)
+
+# Now all subsequent evolution runs will be deterministic
+population, _, _, best_idx = lgp.evolve(...)
+```
+
+### Thread-specific Seeding (Advanced)
+
+```python
+import lgp
+
+# Initialize specific thread (useful for debugging)
+thread_id = 0
+seed = 54321
+lgp.random_init(thread_id, seed)
+
+# Check number of available threads
+print(f"Available OpenMP threads: {lgp.NUMBER_OF_OMP_THREADS}")
+```
+
+### Reproducibility Best Practices
+
+```python
+import lgp
+import numpy as np
+
+# 1. Set LGP seed for evolutionary algorithm
+lgp.random_init_all(42)
+
+# 2. Set NumPy seed for data generation
+np.random.seed(42)
+
+# 3. Generate dataset
+X = np.random.uniform(-5, 5, (200, 1))
+y = X[:, 0]**2 + 2*X[:, 0] + 1
+
+# 4. Run evolution - results will be perfectly reproducible
+population, _, _, best_idx = lgp.evolve(
+    lgp.LGPInput.from_numpy(X, y, instruction_set),
+    fitness=lgp.MSE(),
+    selection=lgp.Tournament(3),
+    init_params=(100, 5, 20),
+    generations=50
+)
+
+# This exact sequence will always produce the same results
+```
+
+### Multi-run Experiments
+
+```python
+import lgp
+import numpy as np
+
+# Run multiple independent experiments
+results = []
+for run in range(10):
+    # Different seed for each run
+    lgp.random_init_all(run + 1000)
+    
+    # Evolution
+    population, _, _, best_idx = lgp.evolve(...)
+    best_fitness = population.get(best_idx).fitness
+    results.append(best_fitness)
+
+# Statistical analysis
+mean_fitness = np.mean(results)
+std_fitness = np.std(results)
+print(f"Mean fitness: {mean_fitness:.6f} ± {std_fitness:.6f}")
+```
+
+### PRNG Notes
+- **Thread Safety**: The framework uses MT19937 generators, one per OpenMP thread
+- **Performance**: PRNG operations are highly optimized and add minimal overhead
+- **Initialization**: Automatic initialization ensures no uninitialized state issues
+- **Compatibility**: Works identically on all supported platforms (Linux, Windows, macOS)
+
+## �🏗️ System Architecture
 
 ### Directory Structure
 ```
@@ -196,10 +313,13 @@ LinearGeneticProgramming/sviluppi/
 │   ├── evolution.py       # Main evolve() function
 │   ├── fitness.py         # Python fitness classes
 │   ├── selection.py       # Python selection classes
+│   ├── creation.py        # Initialization methods
+│   ├── utils.py           # Utility functions
 │   └── README.md          # Python interface documentation
 ├── bin/                   # Compiled object files
 ├── examples.py            # Complete Python usage examples
 ├── Makefile              # Build system
+├── liblgp.so             # Compiled shared library
 └── README.md             # This file
 ```
 
@@ -534,8 +654,40 @@ ls -la liblgp.so
 # Recompile if necessary
 make clean && make python
 
-# Add to LD_LIBRARY_PATH if necessary
+# Add to LD_LIBRARY_PATH if necessary (usually not needed)
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)
+```
+
+**Segmentation faults or infinite loops**:
+These issues have been resolved in the current version through:
+- Automatic PRNG initialization on import (`lgp.random_init_all(0)`)
+- Proper struct initialization matching C zero-initialization
+- Thread-safe random number generation for all OpenMP threads
+
+If you still encounter issues:
+```python
+# Explicitly reinitialize PRNGs
+import lgp
+lgp.random_init_all(42)  # Try with a different seed
+
+# Check thread count
+print(f"Threads: {lgp.NUMBER_OF_OMP_THREADS}")
+
+# Run a minimal test
+lgp_input = lgp.LGPInput.from_numpy(X, y, instruction_set)
+population, _, _, _ = lgp.evolve(lgp_input, generations=1)  # Single generation test
+```
+
+**Non-reproducible results**:
+```python
+# Ensure both LGP and NumPy seeds are set
+import lgp
+import numpy as np
+
+lgp.random_init_all(42)    # LGP evolution
+np.random.seed(42)         # Data generation
+
+# Results should now be perfectly reproducible
 ```
 
 ### Performance Issues
@@ -600,6 +752,7 @@ This project is released under the MIT license. Contributions, bug reports and f
 
 **Authors**: LGP Development Team  
 **Version**: 1.0.0  
-**Documentation updated**: 2025-07-06  
+**Documentation updated**: July 6, 2025  
+**PRNG System**: Automatic initialization with MT19937, thread-safe, seed 0 default
 
-For technical support or questions: [Create an issue](https://github.com/yourusername/LinearGeneticProgramming/issues)
+For technical support or questions: Create an issue in the project repository

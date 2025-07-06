@@ -41,12 +41,12 @@ typedef uint64_t prob;
 
 // Wrapper functions for Python interface
 
-void random_init_wrapper(uint32_t seed, uint32_t thread_num) {
-    random_init(seed, thread_num);
-}
+void random_init_wrapper(uint32_t seed, uint32_t thread_num);
  
-uint32_t random_wrapper(uint32_t thread_num) {
-    return get_MT19937(&random_engines[RANDOM_ENGINE_INDEX]);
-}
+uint32_t random_wrapper();
+
+void random_init_all(uint32_t seed);
+
+extern const uint64_t NUMBER_OF_THREADS;
 
 #endif

@@ -1,6 +1,6 @@
 # Python Interface Documentation - Linear Genetic Programming (LGP)
 
-This Python interface provides a complete and high-performance binding for the LGP C library, designed to maintain the original C project nomenclature while ensuring an idiomatic and type-safe Python API.
+This Python interface provides a complete and high-performance binding for the LGP C library, designed with unified classes that directly inherit from ctypes.Structure, eliminating wrapper overhead while ensuring an idiomatic and type-safe Python API.
 
 ## 📚 Table of Contents
 1. [Architecture and Design](#architecture-and-design)
@@ -16,25 +16,24 @@ This Python interface provides a complete and high-performance binding for the L
 ## Architecture and Design
 
 ### Design Principles
+- **Unified Classes**: All classes directly inherit from ctypes.Structure, eliminating wrapper overhead
 - **1:1 Mapping** with underlying C structures for maximum compatibility
 - **Identical Nomenclature** to all C project structs, unions, and enums
-- **Object-Oriented Structure** with classes for all components except the 3 main functions
 - **Type Safety** with complete type annotations and runtime validation
 - **Zero Overhead** - direct access to C structures without unnecessary copies
 - **Automatic Memory Management** via ctypes with deterministic cleanup
 
 ### Naming Conventions
-- **Wrapper Classes**: All classes wrapping C struct/union end with "Wrapper"
-  - `IndividualWrapper`, `PopulationWrapper`, `OperationWrapper`, etc.
-- **High-Level Classes**: Python classes using wrappers without suffix
-  - `Individual`, `Population`, `LGPInput`, etc.
-- **`c_wrapper` Property**: All classes with C representation expose this property
-- **Enum Operations**: 87 operations VM with identical C names (e.g., `ADD_F`, `SUB_F`, `SQRT`)
+- **Unified Classes**: All classes inherit directly from ctypes.Structure
+  - `Individual`, `Population`, `LGPInput`, `Selection`, `FitnessAssessment`, etc.
+- **C Compatibility**: All classes maintain full C structure compatibility
+- **`c_wrapper` Property**: Available for compatibility but rarely needed (all classes expose it)
+- **Enum Operations**: 87 VM operations with identical C names (e.g., `ADD_F`, `SUB_F`, `SQRT`)
 
 ### Layered Structure
 1. **Base Layer** (`base.py`): C library loading, common types, error handling
-2. **Wrapper Layer**: Direct mapping of C structures with validation
-3. **High-Level Layer**: User-friendly Python API with helper methods
+2. **Direct Structure Layer**: Classes that directly inherit from ctypes.Structure
+3. **High-Level Layer**: User-friendly Python API with helper methods and parameter management
 4. **Public API Layer**: Interface exposed through `__init__.py`
 
 ## Installation and Setup
@@ -43,8 +42,8 @@ This Python interface provides a complete and high-performance binding for the L
 - **Python 3.7+** with ctypes support
 - **GCC 7+** or **Clang 10+** with OpenMP support
 - **Make** for the build system
-- **NumPy** (optional but recommended for performance with large arrays)
-- **Pandas** (optional, required only for `LGPInput.from_df()`)
+- **NumPy** (recommended for performance with large arrays)
+- **Pandas** (optional, used only in `LGPInput.from_df()` method)
 
 ### Compilation
 ```bash
@@ -67,11 +66,13 @@ import numpy as np
 # Test basic functionalities
 print(f"✓ LGP version {lgp.__version__}")
 print(f"✓ {len(lgp.Operation)} VM operations available")
+print(f"✓ Random number generators initialized automatically on import")
+print(f"✓ OpenMP threads available: {lgp.NUMBER_OF_OMP_THREADS}")
 print(f"✓ Test operation: {lgp.Operation.ADD_F.name()} (code: {lgp.Operation.ADD_F.code()})")
 
-# Test c_wrapper access
+# Test c_wrapper access (for compatibility)
 op = lgp.Operation.SQRT
-print(f"✓ c_wrapper test: {op.c_wrapper.regs} registers, addr={op.c_wrapper.addr}")
+print(f"✓ Direct access test: {op.c_wrapper.regs} registers, addr={op.c_wrapper.addr}")
 ```
 
 ## Quick Usage
@@ -80,8 +81,17 @@ print(f"✓ c_wrapper test: {op.c_wrapper.regs} registers, addr={op.c_wrapper.ad
 import lgp
 import numpy as np
 
-# Random number generator initialization
-lgp.random_init(42, 1)
+# Note: Random number generators are automatically initialized on import
+# Default seed: 0 for all OpenMP threads (ensures deterministic behavior)
+# This automatic initialization prevents segmentation faults and infinite loops
+
+# For custom seeds (optional):
+# lgp.random_init(42, 0)  # Initialize specific thread 0 with seed 42
+# Or initialize all threads at once:
+# lgp.random_init_all(42)  # All threads get seed 42
+
+# Check available threads
+print(f"Available OpenMP threads: {lgp.NUMBER_OF_OMP_THREADS}")
 
 # Sample data creation (function x^2 + 2*x + 1)
 X = np.random.uniform(-5, 5, (200, 1))
@@ -141,12 +151,27 @@ Executes the evolution of an LGP population.
 - `int` - Number of generations completed
 - `int` - Index of best individual in final population
 
-#### `random_init(seed: int, threads: int = 1)`
-Initializes the global random number generator.
+#### `random_init(seed: int, thread_num: int = 0)`
+Initializes the random number generator for a specific thread.
 
 **Parameters:**
 - `seed: int` - Seed for random number generator
-- `threads: int = 1` - Number of threads for parallelization
+- `thread_num: int = 0` - Thread number to initialize (default: 0)
+
+#### `random_init_all(seed: int)`
+Initializes the random number generator for all available threads.
+
+**Parameters:**
+- `seed: int` - Seed for all random number generators
+
+#### `get_number_of_threads() -> int`
+Returns the number of available OpenMP threads configured at compile time.
+
+**Returns:**
+- `int` - Number of available threads
+
+#### `NUMBER_OF_OMP_THREADS: int`
+Module-level constant representing the number of OpenMP threads available.
 
 #### `print_program(individual: Individual)`
 Prints the assembly-like representation of an LGP program.
@@ -174,7 +199,6 @@ LGPInput.from_df(df: pd.DataFrame, y: List[str], instruction_set: InstructionSet
 - `rom_size: int` - ROM size (number of input features)
 - `res_size: int` - Result size (number of target variables)
 - `ram_size: int` - RAM size of virtual machine
-- `c_wrapper: LGPInputWrapper` - Underlying C wrapper
 
 #### `Individual`
 Represents a single individual (program) in the population.
@@ -294,10 +318,13 @@ lgp.MSE()                    # Mean Squared Error
 lgp.RMSE()                   # Root Mean Squared Error  
 lgp.MAE()                    # Mean Absolute Error
 lgp.RSquared()               # Coefficient of determination R²
+lgp.MAPE()                   # Mean Absolute Percentage Error
+lgp.SymmetricMAPE()          # Symmetric Mean Absolute Percentage Error
+lgp.LogCosh()                # Log-Cosh Loss
+lgp.WorstCaseError()         # Worst Case Error
 
 # Correlations
 lgp.PearsonCorrelation()     # Pearson correlation
-lgp.SpearmanCorrelation()    # Spearman correlation
 
 # Robust loss functions
 lgp.HuberLoss(delta=1.0)     # Huber loss (robust to outliers)
@@ -306,6 +333,11 @@ lgp.PinballLoss(quantile=0.5) # Pinball loss (quantile regression)
 # Penalized functions
 lgp.LengthPenalizedMSE(alpha=0.01)  # MSE + penalty for program length
 lgp.ClockPenalizedMSE(alpha=0.01)   # MSE + penalty for clock cycles
+
+# Advanced statistical functions
+lgp.GaussianLogLikelihood(sigma=1.0)  # Gaussian Log-likelihood
+lgp.ConditionalValueAtRisk()          # Conditional Value at Risk
+lgp.AdversarialPerturbationSensitivity(perturbation_vector) # Adversarial sensitivity
 ```
 
 #### Classification
@@ -313,16 +345,18 @@ lgp.ClockPenalizedMSE(alpha=0.01)   # MSE + penalty for clock cycles
 # Basic metrics
 lgp.Accuracy()               # Accuracy
 lgp.BalancedAccuracy()       # Balanced accuracy for imbalanced classes
+lgp.ThresholdAccuracy(0.5)   # Accuracy with custom threshold
 
 # F-score metrics
 lgp.F1Score()                # F1-score (harmonic mean of precision/recall)
-lgp.Precision()              # Precision
-lgp.Recall()                 # Recall (sensitivity)
+lgp.FBetaScore(beta=2.0)     # F-Beta score with custom beta
 
 # Advanced metrics
 lgp.MatthewsCorrelation()    # Matthews Correlation Coefficient
 lgp.CohensKappa()            # Cohen's Kappa (inter-rater agreement)
-lgp.LogLoss()                # Logarithmic loss
+lgp.GMean()                  # Geometric Mean
+lgp.BinaryCrossEntropy()     # Binary Cross-entropy Loss
+lgp.HingeLoss()              # Hinge Loss (SVM-like)
 ```
 
 ### Selection Methods (8+ methods)
@@ -374,7 +408,7 @@ x2 = np.random.uniform(-2, 2, n_samples)
 y = x1**2 + 2*x2 + np.random.normal(0, 0.1, n_samples)
 
 # 2. System initialization
-lgp.random_init(seed=42, threadnum=1)
+lgp.random_init_all(seed=42)  # Initialize all threads with same seed
 
 # 3. Optimized instruction set for regression
 operations = [
@@ -444,7 +478,7 @@ X, y = make_classification(
 )
 
 # 2. LGP setup for classification
-lgp.random_init(123)
+lgp.random_init_all(123)  # Initialize all threads
 
 # Instruction set for classification
 classification_ops = [
@@ -482,7 +516,7 @@ lgp.print_program(best)
 import lgp
 
 # Setup for geometric problem
-lgp.random_init(456)
+lgp.random_init_all(456)  # Initialize all threads
 
 # Instruction set optimized for distance calculations
 distance_ops = [
@@ -544,13 +578,35 @@ The interface is thread-safe for read-only operations. For concurrent operations
 ```python
 # Use different seeds for different threads
 import threading
+import lgp
 
 def worker(thread_id):
-    lgp.random_init(seed=42 + thread_id, threadnum=1)
+    # Initialize specific thread with unique seed
+    lgp.random_init(seed=42 + thread_id, thread_num=thread_id)
     # ... evolution ...
 
 # Start multiple threads
-threads = [threading.Thread(target=worker, args=(i,)) for i in range(4)]
+threads = [threading.Thread(target=worker, args=(i,)) for i in range(lgp.NUMBER_OF_OMP_THREADS)]
+
+# Alternative: Initialize all threads at once
+lgp.random_init_all(seed=42)
+```
+
+### Thread Management
+
+```python
+import lgp
+
+# Check available threads
+print(f"Available threads: {lgp.NUMBER_OF_OMP_THREADS}")
+print(f"Detected threads: {lgp.get_number_of_threads()}")
+
+# Initialize different threads with different seeds
+for i in range(lgp.NUMBER_OF_OMP_THREADS):
+    lgp.random_init(seed=100 + i, thread_num=i)
+
+# Or initialize all at once (recommended for most cases)
+lgp.random_init_all(seed=42)
 ```
 
 ## Troubleshooting
@@ -584,6 +640,34 @@ export LD_LIBRARY_PATH=.:$LD_LIBRARY_PATH
 #### `MemoryError: cannot allocate array`
 **Cause**: Parameters too large (population size, max_clock, etc.)
 **Solution**: Reduce parameters or increase available memory
+
+#### Segmentation Faults or Infinite Loops
+**Cause**: Usually related to PRNG initialization issues (fixed in current version)
+**Solution**: 
+```python
+# Automatic initialization should prevent this, but if it occurs:
+import lgp
+lgp.random_init_all(42)  # Reinitialize with different seed
+
+# Verify threads
+print(f"Threads: {lgp.NUMBER_OF_OMP_THREADS}")
+
+# Test minimal evolution
+lgp_input = lgp.LGPInput.from_numpy(X, y, instruction_set)
+population, _, _, _ = lgp.evolve(lgp_input, generations=1)  # Single generation test
+```
+
+#### Non-reproducible Results
+**Cause**: Different seeds between runs
+**Solution**:
+```python
+# Set both LGP and NumPy seeds for full reproducibility
+import lgp
+import numpy as np
+
+lgp.random_init_all(42)    # LGP seed
+np.random.seed(42)         # NumPy seed for data generation
+```
 
 ### Debug and Diagnostics
 

@@ -4,7 +4,7 @@ Fitness structures and classes - corresponds to fitness.h
 
 from .base import Structure, Union, POINTER, c_uint, c_double, c_char_p, c_void_p, IntEnum, ctypes, liblgp
 
-class FitnessParamsWrapper(Union):
+class FitnessParams(Union):
     """Corrisponde a union FitnessParams in fitness.h"""
     _fields_ = [
         ("threshold", c_double),
@@ -18,32 +18,33 @@ class FitnessParamsWrapper(Union):
     ]
 
 
-class FitnessAssessmentWrapper(Structure):
-    """Corrisponde a struct FitnessAssesment in fitness.h"""
-    _fields_ = [
-        ("fn", c_void_p),
-        ("type", c_uint),
-        ("name", c_char_p)
-    ]
-
-
 class FitnessType(IntEnum):
     """Corrisponde a enum FitnessType in fitness.h"""
     MINIMIZE = 0
     MAXIMIZE = 1
 
 
-class FitnessAssessment:
-    """Classe base per le funzioni di fitness"""
+class FitnessAssessment(Structure):
+    """Corrisponde a struct FitnessAssessment in fitness.h - ora corretto il typo"""
+    _fields_ = [
+        ("fn", c_void_p),
+        ("type", c_uint),
+        ("name", c_char_p)
+    ]
     
     def __init__(self, fitness_type: FitnessType, name: str):
+        super().__init__()
         self.fitness_type = fitness_type
-        self.name = name
-    
+        self.name = name.encode('utf-8')  # Converti in bytes per c_char_p
+        
     @property
-    def c_wrapper(self) -> FitnessAssessmentWrapper:
-        """Override in sottoclassi per restituire la struttura C corrispondente"""
-        raise NotImplementedError
+    def c_wrapper(self):
+        """Restituisce se stesso come wrapper C"""
+        return self
+    
+    def get_params(self) -> FitnessParams:
+        """Override in sottoclassi che necessitano parametri. Default: parametri vuoti"""
+        return FitnessParams()  # Parametri vuoti di default
 
 
 class MSE(FitnessAssessment):
@@ -53,10 +54,10 @@ class MSE(FitnessAssessment):
         super().__init__(FitnessType.MINIMIZE, "MSE")
     
     @property
-    def c_wrapper(self) -> FitnessAssessmentWrapper:
-        # MSE è un simbolo globale, non una funzione
-        mse_ptr = ctypes.cast(liblgp.MSE, POINTER(FitnessAssessmentWrapper))
-        return mse_ptr.contents
+    def c_wrapper(self) -> FitnessAssessment:
+        # MSE è una struttura globale, la accediamo direttamente
+        # liblgp.MSE è l'indirizzo della struttura globale
+        return FitnessAssessment.in_dll(liblgp, "MSE")
 
 
 class RMSE(FitnessAssessment):
@@ -66,9 +67,8 @@ class RMSE(FitnessAssessment):
         super().__init__(FitnessType.MINIMIZE, "RMSE")
     
     @property
-    def c_wrapper(self) -> FitnessAssessmentWrapper:
-        rmse_ptr = ctypes.cast(liblgp.RMSE, POINTER(FitnessAssessmentWrapper))
-        return rmse_ptr.contents
+    def c_wrapper(self) -> FitnessAssessment:
+        return FitnessAssessment.in_dll(liblgp, "RMSE")
 
 
 class LengthPenalizedMSE(FitnessAssessment):
@@ -79,9 +79,14 @@ class LengthPenalizedMSE(FitnessAssessment):
         self.alpha = alpha
     
     @property
-    def c_wrapper(self) -> FitnessAssessmentWrapper:
-        lpmse_ptr = ctypes.cast(liblgp.LENGHT_PENALIZED_MSE, POINTER(FitnessAssessmentWrapper))
-        return lpmse_ptr.contents
+    def c_wrapper(self) -> FitnessAssessment:
+        return FitnessAssessment.in_dll(liblgp, "LENGHT_PENALIZED_MSE")
+    
+    def get_params(self) -> FitnessParams:
+        """Returns parameters for Length Penalized MSE"""
+        params = FitnessParams()
+        params.alpha = self.alpha
+        return params
 
 
 class ClockPenalizedMSE(FitnessAssessment):
@@ -92,9 +97,14 @@ class ClockPenalizedMSE(FitnessAssessment):
         self.alpha = alpha
     
     @property
-    def c_wrapper(self) -> FitnessAssessmentWrapper:
-        cpmse_ptr = ctypes.cast(liblgp.CLOCK_PENALIZED_MSE, POINTER(FitnessAssessmentWrapper))
-        return cpmse_ptr.contents
+    def c_wrapper(self) -> FitnessAssessment:
+        return FitnessAssessment.in_dll(liblgp, "CLOCK_PENALIZED_MSE")
+    
+    def get_params(self) -> FitnessParams:
+        """Returns parameters for Clock Penalized MSE"""
+        params = FitnessParams()
+        params.alpha = self.alpha
+        return params
 
 
 class MAE(FitnessAssessment):
@@ -104,9 +114,8 @@ class MAE(FitnessAssessment):
         super().__init__(FitnessType.MINIMIZE, "MAE")
     
     @property
-    def c_wrapper(self) -> FitnessAssessmentWrapper:
-        mae_ptr = ctypes.cast(liblgp.MAE, POINTER(FitnessAssessmentWrapper))
-        return mae_ptr.contents
+    def c_wrapper(self) -> FitnessAssessment:
+        return FitnessAssessment.in_dll(liblgp, "MAE")
 
 
 class Accuracy(FitnessAssessment):
@@ -116,9 +125,8 @@ class Accuracy(FitnessAssessment):
         super().__init__(FitnessType.MAXIMIZE, "Accuracy")
     
     @property
-    def c_wrapper(self) -> FitnessAssessmentWrapper:
-        acc_ptr = ctypes.cast(liblgp.ACCURACY, POINTER(FitnessAssessmentWrapper))
-        return acc_ptr.contents
+    def c_wrapper(self) -> FitnessAssessment:
+        return FitnessAssessment.in_dll(liblgp, "ACCURACY")
 
 
 class F1Score(FitnessAssessment):
@@ -128,8 +136,8 @@ class F1Score(FitnessAssessment):
         super().__init__(FitnessType.MAXIMIZE, "F1 Score")
     
     @property
-    def c_wrapper(self) -> FitnessAssessmentWrapper:
-        f1_ptr = ctypes.cast(liblgp.F1_SCORE, POINTER(FitnessAssessmentWrapper))
+    def c_wrapper(self) -> FitnessAssessment:
+        f1_ptr = ctypes.cast(liblgp.F1_SCORE, POINTER(FitnessAssessment))
         return f1_ptr.contents
 
 
@@ -140,8 +148,8 @@ class MAPE(FitnessAssessment):
         super().__init__(FitnessType.MINIMIZE, "MAPE")
     
     @property
-    def c_wrapper(self) -> FitnessAssessmentWrapper:
-        mape_ptr = ctypes.cast(liblgp.MAPE, POINTER(FitnessAssessmentWrapper))
+    def c_wrapper(self) -> FitnessAssessment:
+        mape_ptr = ctypes.cast(liblgp.MAPE, POINTER(FitnessAssessment))
         return mape_ptr.contents
 
 
@@ -152,8 +160,8 @@ class SymmetricMAPE(FitnessAssessment):
         super().__init__(FitnessType.MINIMIZE, "Symmetric MAPE")
     
     @property
-    def c_wrapper(self) -> FitnessAssessmentWrapper:
-        smape_ptr = ctypes.cast(liblgp.SYMMETRIC_MAPE, POINTER(FitnessAssessmentWrapper))
+    def c_wrapper(self) -> FitnessAssessment:
+        smape_ptr = ctypes.cast(liblgp.SYMMETRIC_MAPE, POINTER(FitnessAssessment))
         return smape_ptr.contents
 
 
@@ -164,8 +172,8 @@ class LogCosh(FitnessAssessment):
         super().__init__(FitnessType.MINIMIZE, "LogCosh")
     
     @property
-    def c_wrapper(self) -> FitnessAssessmentWrapper:
-        logcosh_ptr = ctypes.cast(liblgp.LOGCOSH, POINTER(FitnessAssessmentWrapper))
+    def c_wrapper(self) -> FitnessAssessment:
+        logcosh_ptr = ctypes.cast(liblgp.LOGCOSH, POINTER(FitnessAssessment))
         return logcosh_ptr.contents
 
 
@@ -176,8 +184,8 @@ class WorstCaseError(FitnessAssessment):
         super().__init__(FitnessType.MINIMIZE, "Worst Case Error")
     
     @property
-    def c_wrapper(self) -> FitnessAssessmentWrapper:
-        wce_ptr = ctypes.cast(liblgp.WORST_CASE_ERROR, POINTER(FitnessAssessmentWrapper))
+    def c_wrapper(self) -> FitnessAssessment:
+        wce_ptr = ctypes.cast(liblgp.WORST_CASE_ERROR, POINTER(FitnessAssessment))
         return wce_ptr.contents
 
 
@@ -189,9 +197,15 @@ class HuberLoss(FitnessAssessment):
         self.delta = delta
     
     @property
-    def c_wrapper(self) -> FitnessAssessmentWrapper:
-        huber_ptr = ctypes.cast(liblgp.HUBER_LOSS, POINTER(FitnessAssessmentWrapper))
+    def c_wrapper(self) -> FitnessAssessment:
+        huber_ptr = ctypes.cast(liblgp.HUBER_LOSS, POINTER(FitnessAssessment))
         return huber_ptr.contents
+    
+    def get_params(self) -> FitnessParams:
+        """Returns parameters for Huber Loss"""
+        params = FitnessParams()
+        params.delta = self.delta
+        return params
 
 
 class RSquared(FitnessAssessment):
@@ -201,8 +215,8 @@ class RSquared(FitnessAssessment):
         super().__init__(FitnessType.MAXIMIZE, "R-Squared")
     
     @property
-    def c_wrapper(self) -> FitnessAssessmentWrapper:
-        rsq_ptr = ctypes.cast(liblgp.RSQUARED, POINTER(FitnessAssessmentWrapper))
+    def c_wrapper(self) -> FitnessAssessment:
+        rsq_ptr = ctypes.cast(liblgp.RSQUARED, POINTER(FitnessAssessment))
         return rsq_ptr.contents
 
 
@@ -214,9 +228,15 @@ class PinballLoss(FitnessAssessment):
         self.quantile = quantile
     
     @property
-    def c_wrapper(self) -> FitnessAssessmentWrapper:
-        pinball_ptr = ctypes.cast(liblgp.PINBALL_LOSS, POINTER(FitnessAssessmentWrapper))
+    def c_wrapper(self) -> FitnessAssessment:
+        pinball_ptr = ctypes.cast(liblgp.PINBALL_LOSS, POINTER(FitnessAssessment))
         return pinball_ptr.contents
+    
+    def get_params(self) -> FitnessParams:
+        """Returns parameters for Pinball Loss"""
+        params = FitnessParams()
+        params.quantile = self.quantile
+        return params
 
 
 class PearsonCorrelation(FitnessAssessment):
@@ -226,8 +246,8 @@ class PearsonCorrelation(FitnessAssessment):
         super().__init__(FitnessType.MAXIMIZE, "Pearson Correlation")
     
     @property
-    def c_wrapper(self) -> FitnessAssessmentWrapper:
-        pearson_ptr = ctypes.cast(liblgp.PEARSON_CORRELATION, POINTER(FitnessAssessmentWrapper))
+    def c_wrapper(self) -> FitnessAssessment:
+        pearson_ptr = ctypes.cast(liblgp.PEARSON_CORRELATION, POINTER(FitnessAssessment))
         return pearson_ptr.contents
 
 
@@ -239,9 +259,15 @@ class ThresholdAccuracy(FitnessAssessment):
         self.threshold = threshold
     
     @property
-    def c_wrapper(self) -> FitnessAssessmentWrapper:
-        thresh_acc_ptr = ctypes.cast(liblgp.THRESHOLD_ACCURACY, POINTER(FitnessAssessmentWrapper))
+    def c_wrapper(self) -> FitnessAssessment:
+        thresh_acc_ptr = ctypes.cast(liblgp.THRESHOLD_ACCURACY, POINTER(FitnessAssessment))
         return thresh_acc_ptr.contents
+    
+    def get_params(self) -> FitnessParams:
+        """Returns parameters for Threshold Accuracy"""
+        params = FitnessParams()
+        params.threshold = self.threshold
+        return params
 
 
 class BalancedAccuracy(FitnessAssessment):
@@ -251,8 +277,8 @@ class BalancedAccuracy(FitnessAssessment):
         super().__init__(FitnessType.MAXIMIZE, "Balanced Accuracy")
     
     @property
-    def c_wrapper(self) -> FitnessAssessmentWrapper:
-        bal_acc_ptr = ctypes.cast(liblgp.BALANCED_ACCURACY, POINTER(FitnessAssessmentWrapper))
+    def c_wrapper(self) -> FitnessAssessment:
+        bal_acc_ptr = ctypes.cast(liblgp.BALANCED_ACCURACY, POINTER(FitnessAssessment))
         return bal_acc_ptr.contents
 
 
@@ -263,8 +289,8 @@ class GMean(FitnessAssessment):
         super().__init__(FitnessType.MAXIMIZE, "G-Mean")
     
     @property
-    def c_wrapper(self) -> FitnessAssessmentWrapper:
-        gmean_ptr = ctypes.cast(liblgp.G_MEAN, POINTER(FitnessAssessmentWrapper))
+    def c_wrapper(self) -> FitnessAssessment:
+        gmean_ptr = ctypes.cast(liblgp.G_MEAN, POINTER(FitnessAssessment))
         return gmean_ptr.contents
 
 
@@ -276,9 +302,15 @@ class FBetaScore(FitnessAssessment):
         self.beta = beta
     
     @property
-    def c_wrapper(self) -> FitnessAssessmentWrapper:
-        fbeta_ptr = ctypes.cast(liblgp.F_BETA_SCORE, POINTER(FitnessAssessmentWrapper))
+    def c_wrapper(self) -> FitnessAssessment:
+        fbeta_ptr = ctypes.cast(liblgp.F_BETA_SCORE, POINTER(FitnessAssessment))
         return fbeta_ptr.contents
+    
+    def get_params(self) -> FitnessParams:
+        """Returns parameters for F-Beta Score"""
+        params = FitnessParams()
+        params.beta = self.beta
+        return params
 
 
 class BinaryCrossEntropy(FitnessAssessment):
@@ -289,9 +321,15 @@ class BinaryCrossEntropy(FitnessAssessment):
         self.tolerance = tolerance
     
     @property
-    def c_wrapper(self) -> FitnessAssessmentWrapper:
-        bce_ptr = ctypes.cast(liblgp.BINARY_CROSS_ENTROPY, POINTER(FitnessAssessmentWrapper))
+    def c_wrapper(self) -> FitnessAssessment:
+        bce_ptr = ctypes.cast(liblgp.BINARY_CROSS_ENTROPY, POINTER(FitnessAssessment))
         return bce_ptr.contents
+    
+    def get_params(self) -> FitnessParams:
+        """Returns parameters for Binary Cross Entropy"""
+        params = FitnessParams()
+        params.tolerance = self.tolerance
+        return params
 
 
 class GaussianLogLikelihood(FitnessAssessment):
@@ -302,9 +340,15 @@ class GaussianLogLikelihood(FitnessAssessment):
         self.sigma = sigma
     
     @property
-    def c_wrapper(self) -> FitnessAssessmentWrapper:
-        gll_ptr = ctypes.cast(liblgp.GAUSSIAN_LOG_LIKELIHOOD, POINTER(FitnessAssessmentWrapper))
+    def c_wrapper(self) -> FitnessAssessment:
+        gll_ptr = ctypes.cast(liblgp.GAUSSIAN_LOG_LIKELIHOOD, POINTER(FitnessAssessment))
         return gll_ptr.contents
+    
+    def get_params(self) -> FitnessParams:
+        """Returns parameters for Gaussian Log Likelihood"""
+        params = FitnessParams()
+        params.sigma = self.sigma
+        return params
 
 
 class MatthewsCorrelation(FitnessAssessment):
@@ -314,8 +358,8 @@ class MatthewsCorrelation(FitnessAssessment):
         super().__init__(FitnessType.MAXIMIZE, "Matthews Correlation")
     
     @property
-    def c_wrapper(self) -> FitnessAssessmentWrapper:
-        mcc_ptr = ctypes.cast(liblgp.MATTHEWS_CORRELATION, POINTER(FitnessAssessmentWrapper))
+    def c_wrapper(self) -> FitnessAssessment:
+        mcc_ptr = ctypes.cast(liblgp.MATTHEWS_CORRELATION, POINTER(FitnessAssessment))
         return mcc_ptr.contents
 
 
@@ -326,8 +370,8 @@ class HingeLoss(FitnessAssessment):
         super().__init__(FitnessType.MINIMIZE, "Hinge Loss")
     
     @property
-    def c_wrapper(self) -> FitnessAssessmentWrapper:
-        hinge_ptr = ctypes.cast(liblgp.HINGE_LOSS, POINTER(FitnessAssessmentWrapper))
+    def c_wrapper(self) -> FitnessAssessment:
+        hinge_ptr = ctypes.cast(liblgp.HINGE_LOSS, POINTER(FitnessAssessment))
         return hinge_ptr.contents
 
 
@@ -338,8 +382,8 @@ class CohensKappa(FitnessAssessment):
         super().__init__(FitnessType.MAXIMIZE, "Cohen's Kappa")
     
     @property
-    def c_wrapper(self) -> FitnessAssessmentWrapper:
-        kappa_ptr = ctypes.cast(liblgp.COHENS_KAPPA, POINTER(FitnessAssessmentWrapper))
+    def c_wrapper(self) -> FitnessAssessment:
+        kappa_ptr = ctypes.cast(liblgp.COHENS_KAPPA, POINTER(FitnessAssessment))
         return kappa_ptr.contents
 
 
@@ -351,9 +395,19 @@ class AdversarialPerturbationSensitivity(FitnessAssessment):
         self.perturbation_vector = perturbation_vector
     
     @property
-    def c_wrapper(self) -> FitnessAssessmentWrapper:
-        aps_ptr = ctypes.cast(liblgp.ADVERSARIAL_PERTURBATION_SENSITIVITY, POINTER(FitnessAssessmentWrapper))
+    def c_wrapper(self) -> FitnessAssessment:
+        aps_ptr = ctypes.cast(liblgp.ADVERSARIAL_PERTURBATION_SENSITIVITY, POINTER(FitnessAssessment))
         return aps_ptr.contents
+    
+    def get_params(self) -> FitnessParams:
+        """Returns parameters for Adversarial Perturbation Sensitivity"""
+        params = FitnessParams()
+        if self.perturbation_vector:
+            # Convert list to ctypes array pointer
+            arr_type = c_double * len(self.perturbation_vector)
+            arr = arr_type(*self.perturbation_vector)
+            params.perturbation_vector = ctypes.cast(arr, POINTER(c_double))
+        return params
 
 
 class ConditionalValueAtRisk(FitnessAssessment):
@@ -363,11 +417,11 @@ class ConditionalValueAtRisk(FitnessAssessment):
         super().__init__(FitnessType.MINIMIZE, "Conditional Value at Risk")
     
     @property
-    def c_wrapper(self) -> FitnessAssessmentWrapper:
-        cvar_ptr = ctypes.cast(liblgp.CONDITIONAL_VALUE_AT_RISK, POINTER(FitnessAssessmentWrapper))
+    def c_wrapper(self) -> FitnessAssessment:
+        cvar_ptr = ctypes.cast(liblgp.CONDITIONAL_VALUE_AT_RISK, POINTER(FitnessAssessment))
         return cvar_ptr.contents
 
-__all__ = ['FitnessParamsWrapper', 'FitnessAssessmentWrapper', 'FitnessType', 'FitnessAssessment', 
+__all__ = ['FitnessParams', 'FitnessAssessment', 'FitnessType', 'FitnessAssessment', 
            'MSE', 'RMSE', 'LengthPenalizedMSE', 'ClockPenalizedMSE', 'MAE', 'Accuracy', 'F1Score',
            'MAPE', 'SymmetricMAPE', 'LogCosh', 'WorstCaseError', 'HuberLoss', 'RSquared', 
            'PinballLoss', 'PearsonCorrelation', 'ThresholdAccuracy', 'BalancedAccuracy', 

@@ -6,7 +6,7 @@
 #include "creation.h"
 
 struct LGPOptions {
-	const struct FitnessAssesment fitness;	// fitness function for program evaluation
+	const struct FitnessAssessment fitness;	// fitness function for program evaluation
 	const union FitnessParams fitness_param; // parameters for the fitness function
 	const struct Selection selection; // selection function to be used
 	const union SelectionParams select_param; // parameters for the selection function

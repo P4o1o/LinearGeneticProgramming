@@ -92,21 +92,21 @@ struct Instruction {
 
 #### Operation Categories
 
-**Memory Operations** (12 operations)
-- `LOAD_RAM`, `STORE_RAM`: RAM memory access
-- `LOAD_ROM`: Read-only memory access
+**Memory Operations** (8 operations)
+- `LOAD_RAM`, `LOAD_RAM_F`, `STORE_RAM`, `STORE_RAM_F`: RAM memory access
+- `LOAD_ROM`, `LOAD_ROM_F`: Read-only memory access
 - `MOV`, `MOV_F`: Register-to-register moves
-- Conditional moves: `CMOV_Z`, `CMOV_NZ`, `CMOV_L`, `CMOV_G`, etc.
 
 **Control Flow** (15 operations)
 - Unconditional jump: `JMP`
 - Conditional jumps: `JMP_Z`, `JMP_NZ`, `JMP_L`, `JMP_G`, etc.
+- Conditional moves: `CMOV_Z`, `CMOV_NZ`, `CMOV_L`, `CMOV_G`, etc.
 - Flag operations: `CLC`, `CMP`, `TEST`
 
-**Arithmetic Operations** (18 operations)
+**Arithmetic Operations** (16 operations)
 - Integer: `ADD`, `SUB`, `MUL`, `DIV`, `MOD`, `INC`, `DEC`
-- Float: `ADD_F`, `SUB_F`, `MUL_F`, `DIV_F`
-- Advanced math: `SQRT`, `POW`, `EXP`, `LN`, `LOG`, `LOG10`
+- Float: `ADD_F`, `SUB_F`, `MUL_F`, `DIV_F`, `CMP_F`, `TEST_F`
+- Advanced math: `SQRT`, `POW`, `EXP`, `LN`, `LOG`, `LOG10`, `ROUND`
 
 **Trigonometric Functions** (18 operations)
 - Basic: `SIN`, `COS`, `TAN`, `ASIN`, `ACOS`, `ATAN`
@@ -121,7 +121,7 @@ struct Instruction {
 - `NOP`: No operation
 - `EXIT`: Program termination
 - `RAND`: Random number generation
-- `ROUND`: Floating-point rounding
+- Immediate moves: `MOV_I`, `MOV_I_F`
 
 ### VM Execution
 
