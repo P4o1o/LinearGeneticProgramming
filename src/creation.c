@@ -28,7 +28,7 @@ static inline struct Program rand_program(const struct LGPInput *const in, const
 	return res;
 }
 
-struct LGPResult rand_population(const struct LGPInput *const in, const struct InitializationParams *const params, const struct FitnessAssessment *const fitness, const uint64_t max_clock, const union FitnessParams *const fitness_param) {
+struct LGPResult rand_population(const struct LGPInput *const in, const struct InitializationParams *const params, const struct Fitness *const fitness, const uint64_t max_clock, const union FitnessParams *const fitness_param) {
     ASSERT(params->pop_size > 0);
     ASSERT(0 < params->minsize);
     ASSERT(params->minsize <= params->maxsize);
@@ -55,7 +55,7 @@ static inline uint64_t next_power_of_two(uint64_t x) {
     return x + 1;
 }
 
-struct LGPResult unique_population(const struct LGPInput *const in, const struct InitializationParams *const params, const struct FitnessAssessment *const fitness, const uint64_t max_clock, const union FitnessParams *const fitness_param){
+struct LGPResult unique_population(const struct LGPInput *const in, const struct InitializationParams *const params, const struct Fitness *const fitness, const uint64_t max_clock, const union FitnessParams *const fitness_param){
     ASSERT(params->pop_size > 0);
     ASSERT(0 < params->minsize);
     ASSERT(params->minsize <= params->maxsize);

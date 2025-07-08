@@ -1,6 +1,6 @@
 #include "vm.h"
 
-struct MT19937 random_engines[NUMBER_OF_OMP_THREADS];
+const uint64_t INSTR_NUM_WRAPPER = INSTR_NUM;
 
 #define INSTRUCTION(name, code, regs, addr, change) \
 const struct Operation OP_##name = {#name, regs, addr, change, code};

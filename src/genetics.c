@@ -1,5 +1,7 @@
 #include "genetics.h"
 
+const uint64_t VECT_ALIGNMENT_WRAPPER = VECT_ALIGNMENT;
+
 struct Instruction rand_instruction(const struct LGPInput *const in, const uint64_t prog_size){
     ASSERT(prog_size > 0);
     ASSERT(in->rom_size > 0);

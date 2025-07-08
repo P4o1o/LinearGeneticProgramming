@@ -5,7 +5,6 @@ Utility functions for LGP
 from .base import ctypes, liblgp, c_uint64, c_uint32, Tuple, POINTER
 from .vm import Program
 from .genetics import Individual
-from .evolution import evolve
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -18,12 +17,25 @@ def print_program(individual: Individual) -> None:
     Args:
         individual: The individual whose program to print
     """
-    # Configure the C function
-    liblgp.print_program.argtypes = [POINTER(Program)]
-    liblgp.print_program.restype = None
+    # Safety checks before calling C function
+    if individual.size == 0:
+        print("   [Empty program - no instructions]")
+        return
     
-    # Call the C function with the individual's program
-    liblgp.print_program(ctypes.byref(individual.prog))
+    if individual.size > 100000:  # Sanity check for reasonable program size
+        print(f"   [Program too large to display safely: {individual.size} instructions]")
+        return
+    
+    try:
+        # Configure the C function
+        liblgp.print_program.argtypes = [POINTER(Program)]
+        liblgp.print_program.restype = None
+        
+        # Call the C function with the individual's program
+        liblgp.print_program(ctypes.byref(individual.prog))
+    except Exception as e:
+        print(f"   [Error printing program: {e}]")
+        print(f"   [Program size: {individual.size}, fitness: {individual.fitness}]")
 
 
 def random_init(seed: int, thread_num: int = 0) -> None:
@@ -77,4 +89,4 @@ except:
     # Fallback if the constant is not available
     NUMBER_OF_OMP_THREADS = 1
 
-__all__ = ['evolve', 'print_program', 'random_init', 'random_init_all', 'get_number_of_threads', 'NUMBER_OF_OMP_THREADS']
+__all__ = ['print_program', 'random_init', 'random_init_all', 'get_number_of_threads', 'NUMBER_OF_OMP_THREADS']

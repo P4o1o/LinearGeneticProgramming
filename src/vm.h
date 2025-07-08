@@ -10,6 +10,8 @@
 
 #define INSTR_NUM 87
 
+extern const uint64_t INSTR_NUM_WRAPPER;
+
 #define INSTR_MACRO \
 	INSTRUCTION(EXIT,  			0, 		0,	0,	1) \
 	INSTRUCTION(LOAD_RAM,   	1,		1,	2,	0) \

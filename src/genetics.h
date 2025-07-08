@@ -9,6 +9,8 @@
 #include <stdio.h>
 #include <string.h>
 
+extern const uint64_t VECT_ALIGNMENT_WRAPPER;
+
 struct Program{
 	alignas(VECT_ALIGNMENT) struct Instruction *content;
     uint64_t size;

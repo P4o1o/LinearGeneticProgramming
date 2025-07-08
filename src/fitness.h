@@ -56,37 +56,37 @@ enum FitnessType{
 	FITNESS_TYPE_NUM
 };
 
-struct FitnessAssessment{
+struct Fitness{
 	const fitness_fn fn;
 	const enum FitnessType type;
 	const char *name; // name of the fitness function, used for printing
 };
 
-extern const struct FitnessAssessment MSE;
-extern const struct FitnessAssessment RMSE;
-extern const struct FitnessAssessment LENGHT_PENALIZED_MSE;
-extern const struct FitnessAssessment CLOCK_PENALIZED_MSE;
-extern const struct FitnessAssessment MAE;
-extern const struct FitnessAssessment MAPE;
-extern const struct FitnessAssessment SYMMETRIC_MAPE;
-extern const struct FitnessAssessment LOGCOSH;
-extern const struct FitnessAssessment WORST_CASE_ERROR;
-extern const struct FitnessAssessment HUBER_LOSS;
-extern const struct FitnessAssessment RSQUARED;
-extern const struct FitnessAssessment PINBALL_LOSS;
-extern const struct FitnessAssessment PEARSON_CORRELATION;
-extern const struct FitnessAssessment ACCURACY;
-extern const struct FitnessAssessment THRESHOLD_ACCURACY;
-extern const struct FitnessAssessment BALANCED_ACCURACY;
-extern const struct FitnessAssessment G_MEAN;
-extern const struct FitnessAssessment F1_SCORE;
-extern const struct FitnessAssessment F_BETA_SCORE;
-extern const struct FitnessAssessment BINARY_CROSS_ENTROPY;
-extern const struct FitnessAssessment GAUSSIAN_LOG_LIKELIHOOD;
-extern const struct FitnessAssessment MATTHEWS_CORRELATION;
-extern const struct FitnessAssessment HINGE_LOSS;
-extern const struct FitnessAssessment COHENS_KAPPA;
-extern const struct FitnessAssessment ADVERSARIAL_PERTURBATION_SENSITIVITY;
-extern const struct FitnessAssessment CONDITIONAL_VALUE_AT_RISK;
+extern const struct Fitness MSE;
+extern const struct Fitness RMSE;
+extern const struct Fitness LENGHT_PENALIZED_MSE;
+extern const struct Fitness CLOCK_PENALIZED_MSE;
+extern const struct Fitness MAE;
+extern const struct Fitness MAPE;
+extern const struct Fitness SYMMETRIC_MAPE;
+extern const struct Fitness LOGCOSH;
+extern const struct Fitness WORST_CASE_ERROR;
+extern const struct Fitness HUBER_LOSS;
+extern const struct Fitness RSQUARED;
+extern const struct Fitness PINBALL_LOSS;
+extern const struct Fitness PEARSON_CORRELATION;
+extern const struct Fitness ACCURACY;
+extern const struct Fitness THRESHOLD_ACCURACY;
+extern const struct Fitness BALANCED_ACCURACY;
+extern const struct Fitness G_MEAN;
+extern const struct Fitness F1_SCORE;
+extern const struct Fitness F_BETA_SCORE;
+extern const struct Fitness BINARY_CROSS_ENTROPY;
+extern const struct Fitness GAUSSIAN_LOG_LIKELIHOOD;
+extern const struct Fitness MATTHEWS_CORRELATION;
+extern const struct Fitness HINGE_LOSS;
+extern const struct Fitness COHENS_KAPPA;
+extern const struct Fitness ADVERSARIAL_PERTURBATION_SENSITIVITY;
+extern const struct Fitness CONDITIONAL_VALUE_AT_RISK;
 
 #endif

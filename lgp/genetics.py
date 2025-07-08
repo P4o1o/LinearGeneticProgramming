@@ -3,9 +3,27 @@ Genetics structures and types - corresponds to genetics.h
 Unified wrapper classes that combine C structures with user-friendly interfaces
 """
 
-from .base import Structure, POINTER, c_uint64, c_double, List, Optional, pd, ctypes, liblgp
-from .vm import Program, Memblock, OperationStruct
+from .base import Structure, POINTER, c_uint64, c_double, List, Optional, pd, ctypes, liblgp, VECT_ALIGNMENT
+from .vm import Program, Memblock, OperationStruct, Instruction
 import numpy as np
+
+
+# Redefine Program with correct alignment if needed
+if VECT_ALIGNMENT > 1:
+    class Program(Structure):
+        """Program with correct alignment from C"""
+        _fields_ = [
+            ("content", POINTER(Instruction)),
+            ("size", c_uint64)
+        ]
+        _pack_ = VECT_ALIGNMENT
+else:
+    class Program(Structure):
+        """Standard Program structure without special alignment"""
+        _fields_ = [
+            ("content", POINTER(Instruction)),
+            ("size", c_uint64)
+        ]
 
 
 class Individual(Structure):
@@ -48,6 +66,9 @@ class Population(Structure):
         Get an individual from the population by index
         
         Args:
+    # get_INSTRSET function
+    liblgp.get_INSTRSET.argtypes = [c_uint32]
+    liblgp.get_INSTRSET.restype = POINTER(OperationStruct)
             index: Individual index (0-based)
             
         Returns:
@@ -95,10 +116,9 @@ class InstructionSet(Structure):
             # Empty initialization for ctypes compatibility
             super().__init__()
     
-    @property
-    def c_wrapper(self):
-        """Return itself as C wrapper"""
-        return self
+    @staticmethod
+    def complete():
+        return InstructionSet.in_dll(liblgp, "INSTRSET")
 
 
 class LGPInput(Structure):
@@ -199,16 +219,16 @@ class LGPInput(Structure):
             X: Array/matrix of input features (n_samples, n_features)
             y: Array/list of targets - can be 1D or list of values
             instruction_set: Available instruction set
-            ram_size: RAM size (default: len(y) if y is 1D, otherwise number of target columns)
+            ram_size: RAM size (default: max(1, y.shape[1]) if y is 2D, otherwise 1)
         """
         
         # Convert X to numpy array if not already
-        X = np.asarray(X)
+        X = np.asarray(X, dtype=np.float64)
         if X.ndim == 1:
             X = X.reshape(-1, 1)
         
         # Convert y to numpy array and handle 1D or list case
-        y = np.asarray(y)
+        y = np.asarray(y, dtype=np.float64)
         if y.ndim == 1:
             y = y.reshape(-1, 1)
         
@@ -225,27 +245,28 @@ class LGPInput(Structure):
             raise ValueError("rom_size must be positive (number of input features)")
         
         if ram_size is None:
-            ram_size = res_size
+            ram_size = max(1, res_size)
         
         if ram_size < res_size:
             raise ValueError("ram_size cannot be less than res_size")
         
-        # Calculate block_size: rom + ram
+        # Calculate block_size: rom + ram (following C code pattern)
         block_size = rom_size_val + ram_size
         
-        # Allocate memory for all blocks
+        # Allocate memory for all blocks - ensure proper alignment
         total_memory_size = input_num * block_size
         memory = (Memblock * total_memory_size)()
         
-        # Fill memory
+        # Fill memory following the pattern from psb2.c
         for i in range(input_num):
             base_idx = i * block_size
             
-            # Fill ROM with features (X)
+            # Fill ROM with features (X) - this corresponds to the problem data
             for j in range(rom_size_val):
                 memory[base_idx + j].f64 = float(X[i, j])
             
-            # Fill initial RAM part with targets (y)
+            # Fill RAM with targets (y) at the beginning of RAM section
+            # This follows the pattern where solutions are stored at rom_size offset
             for j in range(res_size):
                 memory[base_idx + rom_size_val + j].f64 = float(y[i, j])
             
@@ -253,7 +274,7 @@ class LGPInput(Structure):
             for j in range(res_size, ram_size):
                 memory[base_idx + rom_size_val + j].f64 = 0.0
         
-        # Create and return instance
+        # Create and return instance - all fields should match C struct exactly
         instance = cls()
         instance.input_num = input_num
         instance.rom_size = rom_size_val
@@ -261,6 +282,9 @@ class LGPInput(Structure):
         instance.ram_size = ram_size
         instance.instr_set = instruction_set
         instance.memory = ctypes.cast(memory, POINTER(Memblock))
+        
+        # Store a reference to the memory array to prevent garbage collection
+        instance._memory_array = memory
         
         return instance
 

@@ -93,13 +93,12 @@ def example_polynomial_regression():
             lgp_input,
             fitness=lgp.MSE(),
             selection=lgp.Tournament(4),
-            initialization=lgp.UniquePopulation(),
-            init_params=(150, 8, 30),  # pop_size, min_len, max_len
+            initialization=lgp.UniquePopulation(150, 8, 30),  # pop_size, min_len, max_len
             target=0.05,  # Terminate if MSE < 0.05
             mutation_prob=0.8,
             crossover_prob=0.95,
             max_clock=8000,
-            max_individ_len=40,
+            max_individ_len=20,
             generations=80,
             verbose=1
         )
@@ -225,8 +224,7 @@ def example_simple_regression():
             lgp_input,
             fitness=lgp.MSE(),
             selection=lgp.Tournament(3),
-            initialization=lgp.UniquePopulation(),
-            init_params=(80, 4, 20),
+            initialization=lgp.UniquePopulation(80, 4, 20),
             target=0.01,
             mutation_prob=0.8,
             crossover_prob=0.9,
@@ -240,6 +238,7 @@ def example_simple_regression():
         print(f"   MSE: {best_individual.fitness:.8f}")
         print(f"   RMSE: {np.sqrt(best_individual.fitness):.8f}")
         print(f"\n📝 Evolved program:")
+        print(f"   Program size: {best_individual.size} instructions")
         lgp.print_program(best_individual)
         
     except Exception as e:
@@ -279,10 +278,6 @@ def example_fitness_assessment():
     print(f"   ✓ Length Penalized MSE (α=0.01): {type(length_pen).__name__}")
     print(f"   ✓ Clock Penalized MSE (α=0.005): {type(clock_pen).__name__}")
     
-    # Check parameters
-    print(f"   ✓ Length penalty params: {length_pen.get_params()}")
-    print(f"   ✓ Clock penalty params: {clock_pen.get_params()}")
-    
     # Fitness for classification
     print("\n🎯 Classification fitness functions:")
     accuracy = lgp.Accuracy()
@@ -313,12 +308,6 @@ def example_selection_methods():
     print(f"   ✓ Percentual Elitism (10%): {type(percentual).__name__}")
     print(f"   ✓ Roulette (sampling=50): {type(roulette).__name__}")
     
-    # Check parameters
-    print(f"   ✓ Tournament params: {tournament.get_params()}")
-    print(f"   ✓ Elitism params: {elitism.get_params()}")
-    print(f"   ✓ Percentual params: {percentual.get_params()}")
-    print(f"   ✓ Roulette params: {roulette.get_params()}")
-    
     # Fitness sharing
     print("\n🔄 Fitness Sharing methods:")
     fs_tournament = lgp.FitnessSharingTournament(
@@ -330,8 +319,6 @@ def example_selection_methods():
     
     print(f"   ✓ FS Tournament: {type(fs_tournament).__name__}")
     print(f"   ✓ FS Elitism: {type(fs_elitism).__name__}")
-    print(f"   ✓ FS Tournament params: {fs_tournament.get_params()}")
-    print(f"   ✓ FS Elitism params: {fs_elitism.get_params()}")
     print()
 
 
@@ -342,8 +329,8 @@ def example_initialization():
     print("=" * 60)
     
     # Available methods
-    unique = lgp.UniquePopulation()
-    random = lgp.RandPopulation()
+    unique = lgp.UniquePopulation(100, 5, 25)  # pop_size, min_size, max_size
+    random = lgp.RandPopulation(100, 5, 25)    # pop_size, min_size, max_size
     
     print("📋 Initialization methods:")
     print(f"   ✓ Unique Population: {type(unique).__name__} (recommended)")
@@ -351,6 +338,7 @@ def example_initialization():
     print()
     print("💡 UniquePopulation ensures all individuals are different")
     print("💡 RandPopulation allows duplicate individuals")
+    print(f"💡 Both configured for population size: 100, program length: 5-25")
     print()
 
 
@@ -441,8 +429,7 @@ def example_complete_evolution():
             lgp_input=lgp_input,
             fitness=lgp.MSE(),
             selection=lgp.Tournament(tournament_size=3),
-            initialization=lgp.UniquePopulation(),
-            init_params=(50, 3, 15),  # pop_size=50, min_len=3, max_len=15
+            initialization=lgp.UniquePopulation(50, 3, 15),  # pop_size=50, min_len=3, max_len=15
             target=1e-4,              # Terminate if MSE < 0.0001
             mutation_prob=0.8,
             crossover_prob=0.9,
@@ -550,8 +537,7 @@ def example_classification_evolution():
             lgp_input=lgp_input,
             fitness=lgp.Accuracy(),  # Maximize accuracy
             selection=lgp.Tournament(tournament_size=4),
-            initialization=lgp.UniquePopulation(),
-            init_params=(40, 4, 20),  # Smaller population for classification
+            initialization=lgp.UniquePopulation(40, 4, 20),  # Smaller population for classification
             target=0.95,              # Terminate if accuracy > 95%
             mutation_prob=0.75,
             crossover_prob=0.85,
@@ -646,8 +632,7 @@ def example_advanced_math_evolution():
             lgp_input=lgp_input,
             fitness=lgp.RMSE(),  # Root Mean Square Error
             selection=lgp.Elitism(elite_size=8),  # Preserve the best
-            initialization=lgp.UniquePopulation(),
-            init_params=(60, 5, 25),
+            initialization=lgp.UniquePopulation(60, 5, 25),
             target=0.1,   # RMSE target
             mutation_prob=0.85,
             crossover_prob=0.9,

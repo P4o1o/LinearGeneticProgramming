@@ -12,7 +12,7 @@ from .genetics import LGPInput, Individual, Population, VectorDistance, Instruct
 
 # Fitness assessment
 from .fitness import (
-    FitnessAssessment, FitnessType,
+    Fitness, FitnessType,
     MSE, RMSE, LengthPenalizedMSE, ClockPenalizedMSE, MAE, Accuracy, F1Score,
     MAPE, SymmetricMAPE, LogCosh, WorstCaseError, HuberLoss, RSquared,
     PinballLoss, PearsonCorrelation, ThresholdAccuracy, BalancedAccuracy,
@@ -48,7 +48,7 @@ __all__ = [
     'LGPInput', 'Individual', 'Population', 'VectorDistance', 'InstructionSet', 'LGPResult',
     
     # Fitness
-    'FitnessAssessment', 'FitnessType',
+    'Fitness', 'FitnessType',
     'MSE', 'RMSE', 'LengthPenalizedMSE', 'ClockPenalizedMSE', 'MAE', 'Accuracy', 'F1Score',
     'MAPE', 'SymmetricMAPE', 'LogCosh', 'WorstCaseError', 'HuberLoss', 'RSquared',
     'PinballLoss', 'PearsonCorrelation', 'ThresholdAccuracy', 'BalancedAccuracy',

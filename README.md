@@ -5,49 +5,247 @@
 [![Language: C](https://img.shields.io/badge/language-C-blue.svg)](https://en.wikipedia.org/wiki/C_(programming_language))
 [![Python API](https://img.shields.io/badge/Python-API-orange.svg)](lgp/README.md)
 
-A complete, high-performance framework for **Linear Genetic Programming (LGP)** implemented in C with a comprehensive Python interface. This system enables automatic program synthesis through evolutionary computation, representing programs as linear sequences of instructions operating on virtual registers.
+A high-performance framework for **Linear Genetic Programming (LGP)** implemented in C with a comprehensive Python interface. This system enables automatic program synthesis through evolutionary computation, representing programs as linear sequences of instructions operating on virtual registers.
 
-## 🎯 Key Features
+## 🎯 Overview
 
-### 🚀 Core Engine (C)
-- **High Performance**: Optimized C implementation with OpenMP parallelization
-- **Cross-Platform**: Works on Linux, Windows, and macOS (Linux is the primary target)
-- **Modular Architecture**: Easily extensible with new operations and methods
-- **Complete Virtual Machine**: 87 complete operations (arithmetic, trigonometry, control flow)
-- **Code Bloat Control**: Automatic removal of ineffective instructions and length control
-- **Advanced Memory Management**: Optimized dynamic allocation and garbage collection
+Linear Genetic Programming evolves computer programs represented as sequences of machine-like instructions. Unlike tree-based genetic programming, LGP operates on linear structures similar to assembly code, making it faster to execute and manipulate.
 
-### 🐍 Python Interface
-- **Complete API**: Type-safe Python bindings for the entire C framework
-- **Unified Classes**: Direct ctypes.Structure-based classes eliminating wrapper overhead
-- **NumPy Integration**: Direct input creation from NumPy arrays with automatic preprocessing
-- **25+ Fitness Functions**: Regression, classification, robust and penalized metrics including HuberLoss, PinballLoss, ThresholdAccuracy, FBetaScore, etc.
-- **8+ Selection Methods**: Tournament, Elitism, Fitness Sharing, Roulette with configurable parameters
-- **Zero Overhead**: Direct access to C structures without unnecessary copies or conversions
-- **Complete Documentation**: Detailed guide with practical examples and troubleshooting
+This framework provides:
 
-### 🧬 Advanced Selection Methods
-- **Tournament Selection** with fitness sharing for genetic diversity
-- **Elitism** (fixed and percentage) to preserve the best solutions
-- **Roulette Wheel Selection** with optimized sampling
-- **Fitness Sharing** to maintain diversity and avoid premature convergence
-- **Hybrid Selection** combinable for sophisticated evolutionary strategies
+- **High-Performance C Core**: Optimized implementation with OpenMP parallelization
+- **Complete Python Interface**: Type-safe Python bindings with parameter validation
+- **Cross-Platform Support**: Works on Linux, Windows, and macOS
+- **Comprehensive Virtual Machine**: 87 operations including arithmetic, trigonometry, control flow
+- **Rich Fitness Functions**: 25+ fitness functions for regression, classification, and robust optimization
+- **Multiple Selection Methods**: 8+ selection algorithms including fitness sharing variants
 
-### 📊 Specialized Fitness Functions
-- **Regression**: MSE, RMSE, MAE, R², Pearson Correlation, MAPE, Symmetric MAPE
-- **Classification**: Accuracy, F1-Score, F-Beta Score, Matthews Correlation, Balanced Accuracy, Cohen's Kappa
-- **Robust**: Huber Loss, Pinball Loss for outliers and quantiles, Worst Case Error
-- **Penalized**: Length/Clock penalized MSE for automatic complexity control
-- **Statistical**: Gaussian Log-likelihood, Binary Cross-entropy, Threshold Accuracy
-- **Advanced**: Adversarial Perturbation Sensitivity, Conditional Value at Risk, Hinge Loss
+## 🏗️ Architecture
+
+### Dual Interface Design
+
+The framework provides two interfaces with different design philosophies:
+
+#### C Interface (High Performance)
+- **Zero Parameter Validation**: No runtime checks for maximum performance
+- **Direct Memory Access**: Minimal overhead for fitness evaluations and evolution
+- **OpenMP Parallelization**: Multi-threaded population evaluation
+- **Manual Memory Management**: User responsible for proper resource management
+
+#### Python Interface (Safety + Convenience)
+- **Parameter Validation**: All inputs are validated before passing to C code
+- **Automatic Memory Management**: ctypes handles resource cleanup
+- **Type Safety**: Full type annotations and runtime type checking
+- **NumPy Integration**: Direct array conversion and preprocessing
+- **Unified Classes**: Direct inheritance from ctypes.Structure for zero-overhead C access
+
+### Performance Philosophy
+
+**C Interface**: Prioritizes raw speed over safety. No parameter validation or bounds checking is performed to maintain maximum performance during intensive evolutionary computations.
+
+**Python Interface**: Provides a safety layer that validates all parameters, converts data types, and ensures proper formatting before delegation to the C core.
+
+## 🚀 Key Features
+
+### Core Engine (C)
+- **87 Virtual Machine Operations**: Complete instruction set including arithmetic, trigonometry, logic, control flow
+- **Modular Fitness System**: 25+ fitness functions with configurable parameters
+- **Advanced Selection Methods**: Tournament, elitism, roulette wheel, and fitness sharing variants
+- **Memory-Efficient Design**: Optimized data structures with SIMD alignment
+- **OpenMP Parallelization**: Multi-threaded evolution with configurable thread count
+
+### Python Interface
+- **Unified Architecture**: Classes inherit directly from ctypes.Structure
+- **Complete Type Safety**: Parameter validation and type checking
+- **NumPy Integration**: Seamless array processing and conversion
+- **Zero-Copy Operations**: Direct memory access to C structures
+- **Comprehensive Documentation**: Complete API reference with examples
+
+### Fitness Functions (25+)
+- **Regression**: MSE, RMSE, MAE, R², Pearson Correlation, MAPE
+- **Classification**: Accuracy, F1-Score, Matthews Correlation, Cohen's Kappa
+- **Robust Metrics**: Huber Loss, Pinball Loss, Worst Case Error
+- **Penalized Functions**: Length/Clock penalized MSE for complexity control
+- **Statistical**: Gaussian Log-Likelihood, Binary Cross-Entropy
+- **Advanced**: Adversarial Perturbation Sensitivity, Conditional Value at Risk
+
+### Selection Methods (8+)
+- **Tournament Selection**: Standard and fitness sharing variants
+- **Elitism**: Fixed size and percentage-based
+- **Roulette Wheel**: Proportional selection with sampling
+- **Fitness Sharing**: Diversity preservation mechanisms
 
 ## 📖 Documentation
 
-- **[Python Interface README](lgp/README.md)**: Complete Python interface documentation
-- **[Examples](examples.py)**: Practical examples of regression, classification, and optimization
-- **[C Source](src/)**: Core C implementation with documented headers
+- **[C Interface Documentation](src/README.md)**: Complete C API reference and implementation details
+- **[Python Interface Documentation](lgp/README.md)**: Python API guide with examples and best practices
+- **[Examples](examples.py)**: Practical examples of regression, classification, and optimization problems
 
 ## 🛠️ Installation and Build
+
+### Prerequisites
+
+```bash
+# Ubuntu/Debian
+sudo apt update
+sudo apt install build-essential gcc make libomp-dev python3-dev
+
+# CentOS/RHEL/Fedora  
+sudo yum install gcc make libomp-devel python3-devel
+
+# macOS with Homebrew
+brew install gcc libomp make
+```
+
+### Compilation
+
+```bash
+# Build both C library and Python interface
+make clean
+make python
+
+# C library only
+make clean
+make all
+
+# Debug build with sanitizers
+make clean
+make DEBUG=1 python
+
+# Optimized release build
+make clean
+CFLAGS="-O3 -march=native" make python
+```
+
+### Verification
+
+```bash
+# Test Python interface
+python3 -c "
+import lgp
+print('✓ LGP Python interface loaded successfully')
+print(f'✓ OpenMP threads available: {lgp.NUMBER_OF_OMP_THREADS}')
+
+# Quick evolution test
+import numpy as np
+X = np.array([[1], [2], [3]], dtype=float)
+y = np.array([2, 4, 6], dtype=float)
+instruction_set = lgp.InstructionSet([lgp.Operation.ADD_F, lgp.Operation.MUL_F])
+lgp_input = lgp.LGPInput.from_numpy(X, y, instruction_set)
+population, _, _, _ = lgp.evolve(lgp_input, generations=1)
+print('✓ Evolution test completed successfully')
+"
+
+# Run complete examples
+python3 examples.py
+```
+
+## 🚀 Quick Start
+
+### Python Usage (Recommended)
+
+```python
+import lgp
+import numpy as np
+
+# Generate dataset: f(x) = x² + 2x + 1
+X = np.random.uniform(-5, 5, (200, 1))
+y = X[:, 0]**2 + 2*X[:, 0] + 1
+
+# Define instruction set
+instruction_set = lgp.InstructionSet([
+    lgp.Operation.ADD_F, lgp.Operation.SUB_F, lgp.Operation.MUL_F,
+    lgp.Operation.LOAD_RAM_F, lgp.Operation.MOV_F
+])
+
+# Create LGP input (with parameter validation)
+lgp_input = lgp.LGPInput.from_numpy(X, y, instruction_set, ram_size=10)
+
+# Run evolution
+population, evals, gens, best_idx = lgp.evolve(
+    lgp_input,
+    fitness=lgp.MSE(),                    # Mean Squared Error
+    selection=lgp.Tournament(3),          # Tournament selection
+    init_params=(100, 5, 20),            # (pop_size, min_len, max_len)
+    generations=50,
+    verbose=1
+)
+
+# Results
+best = population.get(best_idx)
+print(f"Best fitness: {best.fitness}")
+lgp.print_program(best)
+```
+
+### C Usage (Advanced)
+
+```c
+#include "evolution.h"
+#include "genetics.h"
+#include "fitness.h"
+
+int main() {
+    // Note: No parameter validation in C interface
+    LGPInput input = create_lgp_input(data, rows, cols, instruction_set);
+    
+    LGPOptions opts = {
+        .fitness = &MSE,
+        .selection = &tournament,
+        .generations = 100,
+        .mutation_prob = 0.8,
+        .crossover_prob = 0.95
+    };
+    
+    LGPResult result = evolve(&input, &opts);
+    
+    printf("Best fitness: %f\n", result.best_fitness);
+    print_program(&result.best_individual);
+    
+    return 0;
+}
+```
+
+## 🔧 Configuration
+
+### Build Options
+
+- `THREADS=N`: Set OpenMP thread count (default: 16)
+- `DEBUG=1`: Enable debug build with sanitizers
+- `CFLAGS="-O3 -march=native"`: Custom optimization flags
+
+### Runtime Configuration
+
+- **Python**: Automatic parameter validation and type conversion
+- **C**: Manual parameter management for maximum performance
+- **OpenMP**: Configurable thread count via `THREADS` environment variable
+
+## 📊 Performance Characteristics
+
+### C Interface
+- **No Runtime Checks**: Maximum execution speed
+- **Manual Memory Management**: User responsible for cleanup
+- **Direct Structure Access**: Zero-overhead operations
+
+### Python Interface  
+- **Parameter Validation**: Input checking before C delegation
+- **Automatic Memory Management**: ctypes handles cleanup
+- **Type Conversion**: NumPy arrays automatically converted to C format
+
+## 🤝 Contributing
+
+The framework is designed for extensibility:
+
+1. **New Fitness Functions**: Add to `src/fitness.c` and corresponding Python wrapper
+2. **New Operations**: Extend VM in `src/vm.c` and update Python enums
+3. **New Selection Methods**: Implement in `src/selection.c` with Python interface
+
+## 📝 License
+
+MIT License - see LICENSE file for details.
+
+## � References
+
+Linear Genetic Programming: A comprehensive framework for evolving computer programs as linear sequences of instructions, combining the advantages of genetic programming with the efficiency of linear representations.
 
 ### Prerequisites
 - **GCC 7+** or **Clang 10+** with OpenMP support

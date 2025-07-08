@@ -29,20 +29,20 @@ inline double mse(const struct LGPInput *const in, const struct Program *const p
         return DBL_MAX;
 }
 
-const struct FitnessAssessment MSE = {.fn = mse, .type = MINIMIZE, .name = "MSE"};
+const struct Fitness MSE = {.fn = mse, .type = MINIMIZE, .name = "MSE"};
 
 double rmse(const struct LGPInput *const in, const struct Program *const prog, const uint64_t max_clock, UNUSED_ATTRIBUTE const union FitnessParams *const params) {
     double mse_val = mse(in, prog, max_clock, params);
     return isfinite(mse_val) ? sqrt(mse_val) : DBL_MAX;
 }
-const struct FitnessAssessment RMSE = {.fn = rmse, .type = MINIMIZE, .name = "RMSE"};
+const struct Fitness RMSE = {.fn = rmse, .type = MINIMIZE, .name = "RMSE"};
 
 double lenght_penalized_mse(const struct LGPInput *const in, const struct Program *const prog, const uint64_t max_clock, const union FitnessParams *const params) {
     double base = mse(in, prog, max_clock, params);
     if (!isfinite(base)) return DBL_MAX;
     return base + params->alpha * (double)prog->size;
 }
-const struct FitnessAssessment LENGHT_PENALIZED_MSE = {.fn   = lenght_penalized_mse, .type = MINIMIZE, .name = "Lenght Penalized MSE"};
+const struct Fitness LENGHT_PENALIZED_MSE = {.fn   = lenght_penalized_mse, .type = MINIMIZE, .name = "Lenght Penalized MSE"};
 
 double clock_penalized_mse(const struct LGPInput *const in, const struct Program *const prog, const uint64_t max_clock, const union FitnessParams *const params) {
     ASSERT(prog->size > 0);
@@ -74,7 +74,7 @@ double clock_penalized_mse(const struct LGPInput *const in, const struct Program
     else
         return DBL_MAX;
 }
-const struct FitnessAssessment CLOCK_PENALIZED_MSE = {.fn   = clock_penalized_mse, .type = MINIMIZE, .name = "Clock Penalized MSE"};
+const struct Fitness CLOCK_PENALIZED_MSE = {.fn   = clock_penalized_mse, .type = MINIMIZE, .name = "Clock Penalized MSE"};
 
 double mae(const struct LGPInput *const in, const struct Program *const prog, const uint64_t max_clock, UNUSED_ATTRIBUTE const union FitnessParams *const params){
     ASSERT(prog->size > 0);
@@ -105,7 +105,7 @@ double mae(const struct LGPInput *const in, const struct Program *const prog, co
         return DBL_MAX;
 }
 
-const struct FitnessAssessment MAE = {.fn = mae, .type = MINIMIZE, .name = "MAE"};
+const struct Fitness MAE = {.fn = mae, .type = MINIMIZE, .name = "MAE"};
 
 double mape(const struct LGPInput *const in, const struct Program *const prog, const uint64_t max_clock, UNUSED_ATTRIBUTE const union FitnessParams *const params){
     ASSERT(prog->size > 0);
@@ -139,7 +139,7 @@ double mape(const struct LGPInput *const in, const struct Program *const prog, c
         return DBL_MAX;
 }
 
-const struct FitnessAssessment MAPE = {.fn = mape, .type = MINIMIZE, .name = "MAPE"};
+const struct Fitness MAPE = {.fn = mape, .type = MINIMIZE, .name = "MAPE"};
 
 
 double symmetric_mape(const struct LGPInput *const in, const struct Program *const prog, const uint64_t max_clock, UNUSED_ATTRIBUTE const union FitnessParams *const params){
@@ -173,7 +173,7 @@ double symmetric_mape(const struct LGPInput *const in, const struct Program *con
         return DBL_MAX;
 }
 
-const struct FitnessAssessment SYMMETRIC_MAPE = {.fn = symmetric_mape, .type = MINIMIZE, .name = "MAPE"};
+const struct Fitness SYMMETRIC_MAPE = {.fn = symmetric_mape, .type = MINIMIZE, .name = "MAPE"};
 
 double logcosh(const struct LGPInput *const in, const struct Program *const prog, const uint64_t max_clock, UNUSED_ATTRIBUTE const union FitnessParams *const params){
     ASSERT(prog->size > 0);
@@ -203,7 +203,7 @@ double logcosh(const struct LGPInput *const in, const struct Program *const prog
     else
         return DBL_MAX;
 }
-const struct FitnessAssessment LOGCOSH = {.fn = logcosh, .type = MINIMIZE, .name = "LogCosh"};
+const struct Fitness LOGCOSH = {.fn = logcosh, .type = MINIMIZE, .name = "LogCosh"};
 
 double huber_loss(const struct LGPInput *const in, const struct Program *const prog, const uint64_t max_clock, const union FitnessParams *const params){
     ASSERT(prog->size > 0);
@@ -237,7 +237,7 @@ double huber_loss(const struct LGPInput *const in, const struct Program *const p
     else
         return DBL_MAX;
 }
-const struct FitnessAssessment HUBER_LOSS = {.fn = huber_loss, .type = MINIMIZE, .name = "Huber Loss"};
+const struct Fitness HUBER_LOSS = {.fn = huber_loss, .type = MINIMIZE, .name = "Huber Loss"};
 
 double r_squared(const struct LGPInput *const in, const struct Program *const prog, const uint64_t max_clock, UNUSED_ATTRIBUTE const union FitnessParams *const params){
     ASSERT(prog->size > 0);
@@ -276,7 +276,7 @@ double r_squared(const struct LGPInput *const in, const struct Program *const pr
     return 1.0 - (ss_res / ss_tot);
 }
 
-const struct FitnessAssessment RSQUARED = {.fn = r_squared, .type = MAXIMIZE, .name = "R^2"};
+const struct Fitness RSQUARED = {.fn = r_squared, .type = MAXIMIZE, .name = "R^2"};
 
 double worst_case_error(const struct LGPInput *const in, const struct Program *const prog, const uint64_t max_clock, UNUSED_ATTRIBUTE const union FitnessParams *const params){
     ASSERT(prog->size > 0);
@@ -308,7 +308,7 @@ double worst_case_error(const struct LGPInput *const in, const struct Program *c
         return DBL_MAX;
 }
 
-const struct FitnessAssessment WORST_CASE_ERROR = {.fn = worst_case_error, .type = MINIMIZE, .name = "Worst Case Error"};
+const struct Fitness WORST_CASE_ERROR = {.fn = worst_case_error, .type = MINIMIZE, .name = "Worst Case Error"};
 
 double pinball_loss(const struct LGPInput *const in, const struct Program *const prog, const uint64_t max_clock, const union FitnessParams *const params){
     ASSERT(prog->size > 0);
@@ -343,7 +343,7 @@ double pinball_loss(const struct LGPInput *const in, const struct Program *const
         return DBL_MAX;
 }
 
-const struct FitnessAssessment PINBALL_LOSS = {.fn = pinball_loss, .type = MINIMIZE, .name = "Pinball Loss"};
+const struct Fitness PINBALL_LOSS = {.fn = pinball_loss, .type = MINIMIZE, .name = "Pinball Loss"};
 
 double accuracy(const struct LGPInput *const in, const struct Program *const prog, const uint64_t max_clock, UNUSED_ATTRIBUTE const union FitnessParams *const params){
     ASSERT(prog->size > 0);
@@ -403,9 +403,9 @@ double pearson_correlation(const struct LGPInput *const in, const struct Program
     return numerator / denominator;
 }
 
-const struct FitnessAssessment PEARSON_CORRELATION = {.fn = pearson_correlation, .type = MAXIMIZE, .name = "Pearson Correlation"};
+const struct Fitness PEARSON_CORRELATION = {.fn = pearson_correlation, .type = MAXIMIZE, .name = "Pearson Correlation"};
 
-const struct FitnessAssessment ACCURACY = {.fn = accuracy, .type = MAXIMIZE, .name = "Accuracy"};
+const struct Fitness ACCURACY = {.fn = accuracy, .type = MAXIMIZE, .name = "Accuracy"};
 
 double threshold_accuracy(const struct LGPInput *const in, const struct Program *const prog, const uint64_t max_clock, const union FitnessParams *const params){
     ASSERT(prog->size > 0);
@@ -430,7 +430,7 @@ double threshold_accuracy(const struct LGPInput *const in, const struct Program 
     return (double)correct / (double)in->input_num;
 }
 
-const struct FitnessAssessment THRESHOLD_ACCURACY = {.fn = threshold_accuracy, .type = MAXIMIZE, .name = "Threshold Accuracy"};
+const struct Fitness THRESHOLD_ACCURACY = {.fn = threshold_accuracy, .type = MAXIMIZE, .name = "Threshold Accuracy"};
 
 double f1_score(const struct LGPInput *const in, const struct Program *const prog, const uint64_t max_clock, UNUSED_ATTRIBUTE const union FitnessParams *const params){
     ASSERT(prog->size > 0);
@@ -468,7 +468,7 @@ double f1_score(const struct LGPInput *const in, const struct Program *const pro
     return 2.0 * precision * recall / (precision + recall);
 }
 
-const struct FitnessAssessment F1_SCORE = {.fn = f1_score, .type = MAXIMIZE, .name = "F1 Score"};
+const struct Fitness F1_SCORE = {.fn = f1_score, .type = MAXIMIZE, .name = "F1 Score"};
 
 double f_beta_score(const struct LGPInput *const in, const struct Program *const prog, const uint64_t max_clock, UNUSED_ATTRIBUTE const union FitnessParams *const params){
     ASSERT(prog->size > 0);
@@ -506,7 +506,7 @@ double f_beta_score(const struct LGPInput *const in, const struct Program *const
     return (1.0 + beta2) * precision * recall / (beta2 * precision + recall);
 }
 
-const struct FitnessAssessment F_BETA_SCORE = {.fn = f_beta_score, .type = MAXIMIZE, .name = "F-Beta Score"};
+const struct Fitness F_BETA_SCORE = {.fn = f_beta_score, .type = MAXIMIZE, .name = "F-Beta Score"};
 
 double binary_cross_entropy(const struct LGPInput *const in, const struct Program *const prog, const uint64_t max_clock, const union FitnessParams *const params){
     ASSERT(prog->size > 0);
@@ -538,7 +538,7 @@ double binary_cross_entropy(const struct LGPInput *const in, const struct Progra
         return DBL_MAX;
 }
 
-const struct FitnessAssessment BINARY_CROSS_ENTROPY = {.fn = binary_cross_entropy, .type = MINIMIZE, .name = "Binary Cross Entropy"};
+const struct Fitness BINARY_CROSS_ENTROPY = {.fn = binary_cross_entropy, .type = MINIMIZE, .name = "Binary Cross Entropy"};
 
 double gaussian_log_likelihood(const struct LGPInput *const in, const struct Program *const prog, const uint64_t max_clock, const union FitnessParams *const params) {
     ASSERT(prog->size > 0);
@@ -571,7 +571,7 @@ double gaussian_log_likelihood(const struct LGPInput *const in, const struct Pro
         return 0;
 }
 
-const struct FitnessAssessment GAUSSIAN_LOG_LIKELIHOOD = {.fn = gaussian_log_likelihood, .type = MAXIMIZE, .name = "Gaussian Log Likelihood"};
+const struct Fitness GAUSSIAN_LOG_LIKELIHOOD = {.fn = gaussian_log_likelihood, .type = MAXIMIZE, .name = "Gaussian Log Likelihood"};
 
 double brier_score(const struct LGPInput *const in, const struct Program *const prog, const uint64_t max_clock, UNUSED_ATTRIBUTE const union FitnessParams *const params){
     ASSERT(prog->size > 0);
@@ -603,7 +603,7 @@ double brier_score(const struct LGPInput *const in, const struct Program *const 
         return DBL_MAX;
 }
 
-const struct FitnessAssessment BRIER_SCORE = {.fn = brier_score, .type = MINIMIZE, .name = "Brier Score"};
+const struct Fitness BRIER_SCORE = {.fn = brier_score, .type = MINIMIZE, .name = "Brier Score"};
 
 
 double hinge_loss(const struct LGPInput *const in, const struct Program *const prog, const uint64_t max_clock, UNUSED_ATTRIBUTE const union FitnessParams *const params){
@@ -631,7 +631,7 @@ double hinge_loss(const struct LGPInput *const in, const struct Program *const p
         return DBL_MAX;
 }
 
-const struct FitnessAssessment HINGE_LOSS = {.fn = hinge_loss, .type = MINIMIZE, .name = "Hinge Loss"};
+const struct Fitness HINGE_LOSS = {.fn = hinge_loss, .type = MINIMIZE, .name = "Hinge Loss"};
 
 double matthews_correlation(const struct LGPInput *const in, const struct Program *const prog, const uint64_t max_clock, UNUSED_ATTRIBUTE const union FitnessParams *const params) {
     ASSERT(prog->size > 0);
@@ -672,7 +672,7 @@ double matthews_correlation(const struct LGPInput *const in, const struct Progra
     return numerator / denominator;
 }
 
-const struct FitnessAssessment MATTHEWS_CORRELATION = {.fn   = matthews_correlation, .type = MAXIMIZE, .name = "Matthews Correation"};
+const struct Fitness MATTHEWS_CORRELATION = {.fn   = matthews_correlation, .type = MAXIMIZE, .name = "Matthews Correation"};
 
 double balanced_accuracy(const struct LGPInput *const in, const struct Program *const prog, const uint64_t max_clock, UNUSED_ATTRIBUTE const union FitnessParams *const params) {
     ASSERT(prog->size > 0);
@@ -705,7 +705,7 @@ double balanced_accuracy(const struct LGPInput *const in, const struct Program *
     return 0.5 * (sensitivity + specificity);
 }
 
-const struct FitnessAssessment BALANCED_ACCURACY = {.fn = balanced_accuracy, .type = MAXIMIZE, .name = "Balanced Accuracy"};
+const struct Fitness BALANCED_ACCURACY = {.fn = balanced_accuracy, .type = MAXIMIZE, .name = "Balanced Accuracy"};
 
 
 double g_mean(const struct LGPInput *const in, const struct Program *const prog, const uint64_t max_clock, UNUSED_ATTRIBUTE const union FitnessParams *const params) {
@@ -739,7 +739,7 @@ double g_mean(const struct LGPInput *const in, const struct Program *const prog,
     return sqrt(sensitivity * specificity);
 }
 
-const struct FitnessAssessment G_MEAN = {.fn = g_mean, .type = MAXIMIZE, .name = "G-mean"};
+const struct Fitness G_MEAN = {.fn = g_mean, .type = MAXIMIZE, .name = "G-mean"};
 
 double cohens_kappa(const struct LGPInput *const in, const struct Program *const prog, const uint64_t max_clock, UNUSED_ATTRIBUTE const union FitnessParams *const params) {
     ASSERT(prog->size > 0);
@@ -776,7 +776,7 @@ double cohens_kappa(const struct LGPInput *const in, const struct Program *const
     return (observed_agreement - expected_agreement) / (1.0 - expected_agreement);
 }
 
-const struct FitnessAssessment COHENS_KAPPA = {.fn = cohens_kappa, .type = MAXIMIZE, .name = "Cohen's Kappa"};
+const struct Fitness COHENS_KAPPA = {.fn = cohens_kappa, .type = MAXIMIZE, .name = "Cohen's Kappa"};
 
 double adversarial_perturbation_sensibility(const struct LGPInput *const in, const struct Program *const prog, const uint64_t max_clock, const union FitnessParams *const params) {
     ASSERT(prog->size > 0);
@@ -838,7 +838,7 @@ double adversarial_perturbation_sensibility(const struct LGPInput *const in, con
         return DBL_MAX;
 }
 
-const struct FitnessAssessment ADVERSARIAL_PERTURBATION_SENSIBILITY = {.fn = adversarial_perturbation_sensibility, .type = MINIMIZE, .name = "Adversarial Perturbation Sensibility"};
+const struct Fitness ADVERSARIAL_PERTURBATION_SENSIBILITY = {.fn = adversarial_perturbation_sensibility, .type = MINIMIZE, .name = "Adversarial Perturbation Sensibility"};
 
 static inline int compare_doubles(const void *a, const void *b) {
     double diff = (*(double *)a - *(double *)b);
@@ -886,4 +886,4 @@ double conditional_value_at_risk(const struct LGPInput *const in, const struct P
     return error / count;
 }
 
-const struct FitnessAssessment CONDITIONAL_VALUE_AT_RISK = {.fn = conditional_value_at_risk, .type = MINIMIZE, .name = "Conditional Value at Risk"};
+const struct Fitness CONDITIONAL_VALUE_AT_RISK = {.fn = conditional_value_at_risk, .type = MINIMIZE, .name = "Conditional Value at Risk"};

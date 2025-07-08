@@ -2,7 +2,7 @@
 Fitness structures and classes - corresponds to fitness.h
 """
 
-from .base import Structure, Union, POINTER, c_uint, c_double, c_char_p, c_void_p, IntEnum, ctypes, liblgp
+from .base import Structure, Union, POINTER, c_uint, c_double, c_char_p, c_void_p, IntEnum, ctypes, liblgp, np
 
 class FitnessParams(Union):
     """Corrisponde a union FitnessParams in fitness.h"""
@@ -17,411 +17,386 @@ class FitnessParams(Union):
         ("perturbation_vector", POINTER(c_double))
     ]
 
+    def __init__(self):
+        super().__init__()
+
+    @staticmethod
+    def new_threshold(threshold: float = 0.5) -> "FitnessParams":
+        if threshold < 0.0 or threshold > 1.0:
+            raise ValueError("Invalid threshold for FitnessParams")
+        res = FitnessParams()
+        res.threshold = c_double(threshold)
+        return res
+    
+    @staticmethod
+    def new_alpha(alpha: float = 0.01) -> "FitnessParams":
+        if alpha < 0.0:
+            raise ValueError("Invalid alpha for FitnessParams")
+        res = FitnessParams()
+        res.alpha = c_double(alpha)
+        return res
+    
+    @staticmethod
+    def new_beta(beta: float = 1.0) -> "FitnessParams":
+        if beta < 0.0:
+            raise ValueError("Invalid beta for FitnessParams")
+        res = FitnessParams()
+        res.beta = c_double(beta)
+        return res
+    
+    @staticmethod
+    def new_delta(delta: float = 1.0) -> "FitnessParams":
+        if delta < 0.0:
+            raise ValueError("Invalid delta for FitnessParams")
+        res = FitnessParams()
+        res.delta = c_double(delta)
+        return res
+    
+    @staticmethod
+    def new_quantile(quantile: float = 0.5) -> "FitnessParams":
+        if quantile < 0.0 or quantile > 1.0:
+            raise ValueError("Invalid quantile for FitnessParams")
+        res = FitnessParams()
+        res.quantile = c_double(quantile)
+        return res
+    
+    @staticmethod
+    def new_tolerance(tolerance: float = 1e-15) -> "FitnessParams":
+        if tolerance < 0.0:
+            raise ValueError("Invalid tolerance for FitnessParams")
+        res = FitnessParams()
+        res.tolerance = c_double(tolerance)
+        return res
+    
+    @staticmethod
+    def new_sigma(sigma: float = 1.0) -> "FitnessParams":
+        if sigma <= 0.0:
+            raise ValueError("Invalid sigma for FitnessParams")
+        res = FitnessParams()
+        res.sigma = c_double(sigma)
+        return res
+    
+    @staticmethod
+    def new_perturbation_vector(vector: np.array) -> "FitnessParams":
+        if vector.size == 0:
+            raise ValueError("perturbation_vector cannot be empty")
+        res = FitnessParams()
+        arr_type = c_double * vector.size
+        arr = arr_type(*vector)
+        res.perturbation_vector = ctypes.cast(arr, POINTER(c_double))
+        return res
 
 class FitnessType(IntEnum):
     """Corrisponde a enum FitnessType in fitness.h"""
     MINIMIZE = 0
     MAXIMIZE = 1
 
-
-class FitnessAssessment(Structure):
-    """Corrisponde a struct FitnessAssessment in fitness.h - ora corretto il typo"""
+class FitnessFunction(Structure):
+    """Corrisponde a struct Fitness in fitness.h"""
     _fields_ = [
         ("fn", c_void_p),
         ("type", c_uint),
         ("name", c_char_p)
     ]
-    
-    def __init__(self, fitness_type: FitnessType, name: str):
-        super().__init__()
-        self.fitness_type = fitness_type
-        self.name = name.encode('utf-8')  # Converti in bytes per c_char_p
-        
+
+class Fitness():
+    def __init__(self, params: FitnessParams):
+        self.params = params
+  
     @property
-    def c_wrapper(self):
-        """Restituisce se stesso come wrapper C"""
-        return self
-    
-    def get_params(self) -> FitnessParams:
-        """Override in sottoclassi che necessitano parametri. Default: parametri vuoti"""
-        return FitnessParams()  # Parametri vuoti di default
+    def function(self) -> FitnessFunction:
+        """Restituisce la struttura Fitness dal codice C"""
+        raise NotImplementedError
+
+    @property
+    def parameters(self) -> FitnessParams:
+        return self.params
 
 
-class MSE(FitnessAssessment):
+class MSE(Fitness):
     """Mean Squared Error fitness"""
     
     def __init__(self):
-        super().__init__(FitnessType.MINIMIZE, "MSE")
-    
+        super().__init__(FitnessParams())
+
     @property
-    def c_wrapper(self) -> FitnessAssessment:
-        # MSE è una struttura globale, la accediamo direttamente
-        # liblgp.MSE è l'indirizzo della struttura globale
-        return FitnessAssessment.in_dll(liblgp, "MSE")
+    def function(self) -> FitnessFunction:
+        return FitnessFunction.in_dll(liblgp, "MSE")
 
 
-class RMSE(FitnessAssessment):
+class RMSE(Fitness):
     """Root Mean Squared Error fitness"""
     
     def __init__(self):
-        super().__init__(FitnessType.MINIMIZE, "RMSE")
-    
+        super().__init__(FitnessParams())
+
     @property
-    def c_wrapper(self) -> FitnessAssessment:
-        return FitnessAssessment.in_dll(liblgp, "RMSE")
+    def function(self) -> FitnessFunction:
+        return FitnessFunction.in_dll(liblgp, "RMSE")
 
 
-class LengthPenalizedMSE(FitnessAssessment):
+class LengthPenalizedMSE(Fitness):
     """Length Penalized MSE fitness"""
     
     def __init__(self, alpha: float = 0.01):
-        super().__init__(FitnessType.MINIMIZE, "Length Penalized MSE")
-        self.alpha = alpha
+        super().__init__(FitnessParams.new_alpha(alpha))
     
     @property
-    def c_wrapper(self) -> FitnessAssessment:
-        return FitnessAssessment.in_dll(liblgp, "LENGHT_PENALIZED_MSE")
-    
-    def get_params(self) -> FitnessParams:
-        """Returns parameters for Length Penalized MSE"""
-        params = FitnessParams()
-        params.alpha = self.alpha
-        return params
+    def function(self) -> FitnessFunction:
+        return FitnessFunction.in_dll(liblgp, "LENGTH_PENALIZED_MSE")
 
 
-class ClockPenalizedMSE(FitnessAssessment):
+class ClockPenalizedMSE(Fitness):
     """Clock Penalized MSE fitness"""
     
     def __init__(self, alpha: float = 0.01):
-        super().__init__(FitnessType.MINIMIZE, "Clock Penalized MSE")
-        self.alpha = alpha
+        super().__init__(FitnessParams.new_alpha(alpha))
     
     @property
-    def c_wrapper(self) -> FitnessAssessment:
-        return FitnessAssessment.in_dll(liblgp, "CLOCK_PENALIZED_MSE")
-    
-    def get_params(self) -> FitnessParams:
-        """Returns parameters for Clock Penalized MSE"""
-        params = FitnessParams()
-        params.alpha = self.alpha
-        return params
+    def function(self) -> FitnessFunction:
+        return FitnessFunction.in_dll(liblgp, "CLOCK_PENALIZED_MSE")
 
 
-class MAE(FitnessAssessment):
+class MAE(Fitness):
     """Mean Absolute Error fitness"""
     
     def __init__(self):
-        super().__init__(FitnessType.MINIMIZE, "MAE")
-    
+        super().__init__(FitnessParams())
+
     @property
-    def c_wrapper(self) -> FitnessAssessment:
-        return FitnessAssessment.in_dll(liblgp, "MAE")
+    def function(self) -> FitnessFunction:
+        return FitnessFunction.in_dll(liblgp, "MAE")
 
 
-class Accuracy(FitnessAssessment):
+class Accuracy(Fitness):
     """Accuracy fitness"""
     
     def __init__(self):
-        super().__init__(FitnessType.MAXIMIZE, "Accuracy")
+        super().__init__(FitnessParams())
     
     @property
-    def c_wrapper(self) -> FitnessAssessment:
-        return FitnessAssessment.in_dll(liblgp, "ACCURACY")
+    def function(self) -> FitnessFunction:
+        return FitnessFunction.in_dll(liblgp, "ACCURACY")
 
 
-class F1Score(FitnessAssessment):
+class F1Score(Fitness):
     """F1 Score fitness"""
     
     def __init__(self):
-        super().__init__(FitnessType.MAXIMIZE, "F1 Score")
-    
+        super().__init__(FitnessParams())
+
     @property
-    def c_wrapper(self) -> FitnessAssessment:
-        f1_ptr = ctypes.cast(liblgp.F1_SCORE, POINTER(FitnessAssessment))
-        return f1_ptr.contents
+    def function(self) -> FitnessFunction:
+        return FitnessFunction.in_dll(liblgp, "F1_SCORE")
 
 
-class MAPE(FitnessAssessment):
+class MAPE(Fitness):
     """Mean Absolute Percentage Error fitness"""
     
     def __init__(self):
-        super().__init__(FitnessType.MINIMIZE, "MAPE")
-    
+        super().__init__(FitnessParams())
+
     @property
-    def c_wrapper(self) -> FitnessAssessment:
-        mape_ptr = ctypes.cast(liblgp.MAPE, POINTER(FitnessAssessment))
-        return mape_ptr.contents
+    def function(self) -> FitnessFunction:
+        return FitnessFunction.in_dll(liblgp, "MAPE")
 
 
-class SymmetricMAPE(FitnessAssessment):
+class SymmetricMAPE(Fitness):
     """Symmetric Mean Absolute Percentage Error fitness"""
     
     def __init__(self):
-        super().__init__(FitnessType.MINIMIZE, "Symmetric MAPE")
-    
+        super().__init__(FitnessParams())
+
     @property
-    def c_wrapper(self) -> FitnessAssessment:
-        smape_ptr = ctypes.cast(liblgp.SYMMETRIC_MAPE, POINTER(FitnessAssessment))
-        return smape_ptr.contents
+    def function(self) -> FitnessFunction:
+        return FitnessFunction.in_dll(liblgp, "SYMMETRIC_MAPE")
 
 
-class LogCosh(FitnessAssessment):
+class LogCosh(Fitness):
     """LogCosh fitness"""
     
     def __init__(self):
-        super().__init__(FitnessType.MINIMIZE, "LogCosh")
-    
+        super().__init__(FitnessParams())
+
     @property
-    def c_wrapper(self) -> FitnessAssessment:
-        logcosh_ptr = ctypes.cast(liblgp.LOGCOSH, POINTER(FitnessAssessment))
-        return logcosh_ptr.contents
+    def function(self) -> FitnessFunction:
+        return FitnessFunction.in_dll(liblgp, "LOGCOSH")
 
 
-class WorstCaseError(FitnessAssessment):
+class WorstCaseError(Fitness):
     """Worst Case Error fitness"""
     
     def __init__(self):
-        super().__init__(FitnessType.MINIMIZE, "Worst Case Error")
-    
+        super().__init__(FitnessParams())
+
     @property
-    def c_wrapper(self) -> FitnessAssessment:
-        wce_ptr = ctypes.cast(liblgp.WORST_CASE_ERROR, POINTER(FitnessAssessment))
-        return wce_ptr.contents
+    def function(self) -> FitnessFunction:
+        return FitnessFunction.in_dll(liblgp, "WORST_CASE_ERROR")
 
 
-class HuberLoss(FitnessAssessment):
+class HuberLoss(Fitness):
     """Huber Loss fitness"""
     
     def __init__(self, delta: float = 1.0):
-        super().__init__(FitnessType.MINIMIZE, "Huber Loss")
-        self.delta = delta
-    
+        super().__init__(FitnessParams.new_delta(delta))
+
     @property
-    def c_wrapper(self) -> FitnessAssessment:
-        huber_ptr = ctypes.cast(liblgp.HUBER_LOSS, POINTER(FitnessAssessment))
-        return huber_ptr.contents
-    
-    def get_params(self) -> FitnessParams:
-        """Returns parameters for Huber Loss"""
-        params = FitnessParams()
-        params.delta = self.delta
-        return params
+    def function(self) -> FitnessFunction:
+        return FitnessFunction.in_dll(liblgp, "HUBER_LOSS")
 
 
-class RSquared(FitnessAssessment):
+class RSquared(Fitness):
     """R-Squared fitness"""
     
     def __init__(self):
-        super().__init__(FitnessType.MAXIMIZE, "R-Squared")
+        super().__init__(FitnessParams())
     
     @property
-    def c_wrapper(self) -> FitnessAssessment:
-        rsq_ptr = ctypes.cast(liblgp.RSQUARED, POINTER(FitnessAssessment))
-        return rsq_ptr.contents
+    def function(self) -> FitnessFunction:
+        return FitnessFunction.in_dll(liblgp, "R_SQUARED")
 
 
-class PinballLoss(FitnessAssessment):
+class PinballLoss(Fitness):
     """Pinball Loss fitness"""
     
     def __init__(self, quantile: float = 0.5):
-        super().__init__(FitnessType.MINIMIZE, "Pinball Loss")
-        self.quantile = quantile
+        super().__init__(FitnessParams.new_quantile(quantile))
     
     @property
-    def c_wrapper(self) -> FitnessAssessment:
-        pinball_ptr = ctypes.cast(liblgp.PINBALL_LOSS, POINTER(FitnessAssessment))
-        return pinball_ptr.contents
-    
-    def get_params(self) -> FitnessParams:
-        """Returns parameters for Pinball Loss"""
-        params = FitnessParams()
-        params.quantile = self.quantile
-        return params
+    def function(self) -> FitnessFunction:
+        return FitnessFunction.in_dll(liblgp, "PINBALL_LOSS")
 
 
-class PearsonCorrelation(FitnessAssessment):
+class PearsonCorrelation(Fitness):
     """Pearson Correlation fitness"""
     
     def __init__(self):
-        super().__init__(FitnessType.MAXIMIZE, "Pearson Correlation")
+        super().__init__(FitnessParams())
     
     @property
-    def c_wrapper(self) -> FitnessAssessment:
-        pearson_ptr = ctypes.cast(liblgp.PEARSON_CORRELATION, POINTER(FitnessAssessment))
-        return pearson_ptr.contents
+    def function(self) -> FitnessFunction:
+        return FitnessFunction.in_dll(liblgp, "PEARSON_CORRELATION")
 
 
-class ThresholdAccuracy(FitnessAssessment):
+class ThresholdAccuracy(Fitness):
     """Threshold Accuracy fitness"""
     
     def __init__(self, threshold: float = 0.5):
-        super().__init__(FitnessType.MAXIMIZE, "Threshold Accuracy")
-        self.threshold = threshold
-    
+        super().__init__(FitnessParams.new_threshold(threshold))
+
     @property
-    def c_wrapper(self) -> FitnessAssessment:
-        thresh_acc_ptr = ctypes.cast(liblgp.THRESHOLD_ACCURACY, POINTER(FitnessAssessment))
-        return thresh_acc_ptr.contents
-    
-    def get_params(self) -> FitnessParams:
-        """Returns parameters for Threshold Accuracy"""
-        params = FitnessParams()
-        params.threshold = self.threshold
-        return params
+    def function(self) -> FitnessFunction:
+        return FitnessFunction.in_dll(liblgp, "THRESHOLD_ACCURACY")
 
 
-class BalancedAccuracy(FitnessAssessment):
+class BalancedAccuracy(Fitness):
     """Balanced Accuracy fitness"""
     
     def __init__(self):
-        super().__init__(FitnessType.MAXIMIZE, "Balanced Accuracy")
-    
+        super().__init__(FitnessParams())
+
     @property
-    def c_wrapper(self) -> FitnessAssessment:
-        bal_acc_ptr = ctypes.cast(liblgp.BALANCED_ACCURACY, POINTER(FitnessAssessment))
-        return bal_acc_ptr.contents
+    def function(self) -> FitnessFunction:
+        return FitnessFunction.in_dll(liblgp, "BALANCED_ACCURACY")
 
 
-class GMean(FitnessAssessment):
+class GMean(Fitness):
     """Geometric Mean fitness"""
     
     def __init__(self):
-        super().__init__(FitnessType.MAXIMIZE, "G-Mean")
-    
+        super().__init__(FitnessParams())
+
     @property
-    def c_wrapper(self) -> FitnessAssessment:
-        gmean_ptr = ctypes.cast(liblgp.G_MEAN, POINTER(FitnessAssessment))
-        return gmean_ptr.contents
+    def function(self) -> FitnessFunction:
+        return FitnessFunction.in_dll(liblgp, "G_MEAN")
 
 
-class FBetaScore(FitnessAssessment):
+class FBetaScore(Fitness):
     """F-Beta Score fitness"""
     
     def __init__(self, beta: float = 1.0):
-        super().__init__(FitnessType.MAXIMIZE, "F-Beta Score")
-        self.beta = beta
-    
+        super().__init__(FitnessParams.new_beta(beta))
+
     @property
-    def c_wrapper(self) -> FitnessAssessment:
-        fbeta_ptr = ctypes.cast(liblgp.F_BETA_SCORE, POINTER(FitnessAssessment))
-        return fbeta_ptr.contents
-    
-    def get_params(self) -> FitnessParams:
-        """Returns parameters for F-Beta Score"""
-        params = FitnessParams()
-        params.beta = self.beta
-        return params
+    def function(self) -> FitnessFunction:
+        return FitnessFunction.in_dll(liblgp, "F_BETA_SCORE")
 
-
-class BinaryCrossEntropy(FitnessAssessment):
+class BinaryCrossEntropy(Fitness):
     """Binary Cross Entropy fitness"""
     
     def __init__(self, tolerance: float = 1e-15):
-        super().__init__(FitnessType.MINIMIZE, "Binary Cross Entropy")
-        self.tolerance = tolerance
-    
+        super().__init__(FitnessParams.new_tolerance(tolerance))
+
     @property
-    def c_wrapper(self) -> FitnessAssessment:
-        bce_ptr = ctypes.cast(liblgp.BINARY_CROSS_ENTROPY, POINTER(FitnessAssessment))
-        return bce_ptr.contents
-    
-    def get_params(self) -> FitnessParams:
-        """Returns parameters for Binary Cross Entropy"""
-        params = FitnessParams()
-        params.tolerance = self.tolerance
-        return params
+    def function(self) -> FitnessFunction:
+        return FitnessFunction.in_dll(liblgp, "BINARY_CROSS_ENTROPY")
 
 
-class GaussianLogLikelihood(FitnessAssessment):
+class GaussianLogLikelihood(Fitness):
     """Gaussian Log Likelihood fitness"""
     
     def __init__(self, sigma: float = 1.0):
-        super().__init__(FitnessType.MAXIMIZE, "Gaussian Log Likelihood")
-        self.sigma = sigma
-    
+        super().__init__(FitnessParams.new_sigma(sigma))
+
     @property
-    def c_wrapper(self) -> FitnessAssessment:
-        gll_ptr = ctypes.cast(liblgp.GAUSSIAN_LOG_LIKELIHOOD, POINTER(FitnessAssessment))
-        return gll_ptr.contents
-    
-    def get_params(self) -> FitnessParams:
-        """Returns parameters for Gaussian Log Likelihood"""
-        params = FitnessParams()
-        params.sigma = self.sigma
-        return params
+    def function(self) -> FitnessFunction:
+        return FitnessFunction.in_dll(liblgp, "GAUSSIAN_LOG_LIKELIHOOD")
 
 
-class MatthewsCorrelation(FitnessAssessment):
+class MatthewsCorrelation(Fitness):
     """Matthews Correlation Coefficient fitness"""
     
     def __init__(self):
-        super().__init__(FitnessType.MAXIMIZE, "Matthews Correlation")
+        super().__init__(FitnessParams())
     
     @property
-    def c_wrapper(self) -> FitnessAssessment:
-        mcc_ptr = ctypes.cast(liblgp.MATTHEWS_CORRELATION, POINTER(FitnessAssessment))
-        return mcc_ptr.contents
+    def function(self) -> FitnessFunction:
+        return FitnessFunction.in_dll(liblgp, "MATTHEWS_CORRELATION")
 
 
-class HingeLoss(FitnessAssessment):
+class HingeLoss(Fitness):
     """Hinge Loss fitness"""
     
     def __init__(self):
-        super().__init__(FitnessType.MINIMIZE, "Hinge Loss")
-    
+        super().__init__(FitnessParams())
+
     @property
-    def c_wrapper(self) -> FitnessAssessment:
-        hinge_ptr = ctypes.cast(liblgp.HINGE_LOSS, POINTER(FitnessAssessment))
-        return hinge_ptr.contents
+    def function(self) -> FitnessFunction:
+        return FitnessFunction.in_dll(liblgp, "HINGE_LOSS")
 
 
-class CohensKappa(FitnessAssessment):
+class CohensKappa(Fitness):
     """Cohen's Kappa fitness"""
     
     def __init__(self):
-        super().__init__(FitnessType.MAXIMIZE, "Cohen's Kappa")
-    
+        super().__init__(FitnessParams())
+
     @property
-    def c_wrapper(self) -> FitnessAssessment:
-        kappa_ptr = ctypes.cast(liblgp.COHENS_KAPPA, POINTER(FitnessAssessment))
-        return kappa_ptr.contents
+    def function(self) -> FitnessFunction:
+        return FitnessFunction.in_dll(liblgp, "COHENS_KAPPA")
 
 
-class AdversarialPerturbationSensitivity(FitnessAssessment):
+class AdversarialPerturbationSensitivity(Fitness):
     """Adversarial Perturbation Sensitivity fitness"""
     
-    def __init__(self, perturbation_vector: list = None):
-        super().__init__(FitnessType.MINIMIZE, "Adversarial Perturbation Sensitivity")
-        self.perturbation_vector = perturbation_vector
+    def __init__(self, perturbation_vector: np.array):
+        super().__init__(FitnessParams.new_perturbation_vector(perturbation_vector))
     
     @property
-    def c_wrapper(self) -> FitnessAssessment:
-        aps_ptr = ctypes.cast(liblgp.ADVERSARIAL_PERTURBATION_SENSITIVITY, POINTER(FitnessAssessment))
-        return aps_ptr.contents
-    
-    def get_params(self) -> FitnessParams:
-        """Returns parameters for Adversarial Perturbation Sensitivity"""
-        params = FitnessParams()
-        if self.perturbation_vector:
-            # Convert list to ctypes array pointer
-            arr_type = c_double * len(self.perturbation_vector)
-            arr = arr_type(*self.perturbation_vector)
-            params.perturbation_vector = ctypes.cast(arr, POINTER(c_double))
-        return params
+    def function(self) -> FitnessFunction:
+        return FitnessFunction.in_dll(liblgp, "ADVERSARIAL_PERTURBATION_SENSITIVITY")
 
-
-class ConditionalValueAtRisk(FitnessAssessment):
+class ConditionalValueAtRisk(Fitness):
     """Conditional Value at Risk fitness"""
     
     def __init__(self):
-        super().__init__(FitnessType.MINIMIZE, "Conditional Value at Risk")
+        super().__init__(FitnessParams())
     
     @property
-    def c_wrapper(self) -> FitnessAssessment:
-        cvar_ptr = ctypes.cast(liblgp.CONDITIONAL_VALUE_AT_RISK, POINTER(FitnessAssessment))
-        return cvar_ptr.contents
+    def function(self) -> FitnessFunction:
+        return FitnessFunction.in_dll(liblgp, "CONDITIONAL_VALUE_AT_RISK")
 
-__all__ = ['FitnessParams', 'FitnessAssessment', 'FitnessType', 'FitnessAssessment', 
+__all__ = ['FitnessParams', 'FitnessType', 'FitnessFunction', 'Fitness', 
            'MSE', 'RMSE', 'LengthPenalizedMSE', 'ClockPenalizedMSE', 'MAE', 'Accuracy', 'F1Score',
            'MAPE', 'SymmetricMAPE', 'LogCosh', 'WorstCaseError', 'HuberLoss', 'RSquared', 
            'PinballLoss', 'PearsonCorrelation', 'ThresholdAccuracy', 'BalancedAccuracy', 

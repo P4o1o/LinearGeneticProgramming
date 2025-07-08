@@ -50,7 +50,7 @@ main.c
 | `vm.{c,h}` | Virtual Machine implementation | `VirtualMachine`, `Instruction`, `Operation` |
 | `genetics.{c,h}` | Genetic data structures | `Individual`, `Population`, `LGPInput` |
 | `evolution.{c,h}` | Main evolutionary algorithm | `LGPOptions`, `LGPResult` |
-| `fitness.{c,h}` | Fitness function implementations | `FitnessAssessment`, `FitnessParams` |
+| `fitness.{c,h}` | Fitness function implementations | `Fitness`, `FitnessParams` |
 | `selection.{c,h}` | Selection method implementations | `Selection`, `SelectionParams` |
 | `creation.{c,h}` | Population initialization | `InitializationParams` |
 | `main.c` | Command-line interface | - |
@@ -193,7 +193,7 @@ struct LGPResult evolve(const struct LGPInput *const in,
 
 ```c
 struct LGPOptions {
-    const struct FitnessAssessment fitness;     // Fitness function
+    const struct Fitness fitness;     // Fitness function
     const union FitnessParams fitness_param;   // Fitness parameters
     const struct Selection selection;           // Selection method
     const union SelectionParams select_param;  // Selection parameters
@@ -267,7 +267,7 @@ typedef double (*fitness_fn)(const struct LGPInput *const in,
 ### Fitness Assessment Structure
 
 ```c
-struct FitnessAssessment {
+struct Fitness {
     const fitness_fn fn;           // Function pointer
     const enum FitnessType type;   // MINIMIZE or MAXIMIZE
     const char *name;              // Human-readable name
@@ -451,7 +451,7 @@ double new_fitness(const struct LGPInput *const in,
 
 2. **Declare in `fitness.h`**:
 ```c
-extern const struct FitnessAssessment NEW_FITNESS;
+extern const struct Fitness NEW_FITNESS;
 ```
 
 3. **Define assessment structure**:

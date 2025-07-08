@@ -2,6 +2,7 @@
 
 const uint64_t NUMBER_OF_THREADS = NUMBER_OF_OMP_THREADS;
 
+struct MT19937 random_engines[NUMBER_OF_OMP_THREADS];
 
 void random_init_wrapper(uint32_t seed, uint32_t thread_num) {
     random_init(seed, thread_num);

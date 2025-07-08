@@ -75,10 +75,10 @@ class Operation(Enum):
     """Enumerazione delle 87 operazioni della VM con OperationWrapper integrato"""
     
     # Define all 87 operations with their OperationWrapper instances
-    EXIT = OperationStruct(name=b"EXIT", regs=0, addr=0, state_changer=0, code=0)
-    LOAD_RAM = OperationStruct(name=b"LOAD_RAM", regs=2, addr=1, state_changer=0, code=1)
-    STORE_RAM = OperationStruct(name=b"STORE_RAM", regs=2, addr=1, state_changer=1, code=2)
-    LOAD_ROM = OperationStruct(name=b"LOAD_ROM", regs=2, addr=1, state_changer=0, code=3)
+    EXIT = OperationStruct(name=b"EXIT", regs=0, addr=0, state_changer=1, code=0)
+    LOAD_RAM = OperationStruct(name=b"LOAD_RAM", regs=1, addr=2, state_changer=0, code=1)
+    STORE_RAM = OperationStruct(name=b"STORE_RAM", regs=1, addr=2, state_changer=2, code=2)
+    LOAD_ROM = OperationStruct(name=b"LOAD_ROM", regs=1, addr=4, state_changer=0, code=3)
     MOV = OperationStruct(name=b"MOV", regs=2, addr=0, state_changer=0, code=4)
     CMOV_Z = OperationStruct(name=b"CMOV_Z", regs=2, addr=0, state_changer=0, code=5)
     CMOV_NZ = OperationStruct(name=b"CMOV_NZ", regs=2, addr=0, state_changer=0, code=6)
@@ -91,17 +91,17 @@ class Operation(Enum):
     CMOV_ODD = OperationStruct(name=b"CMOV_ODD", regs=2, addr=0, state_changer=0, code=13)
     CMOV_EVEN = OperationStruct(name=b"CMOV_EVEN", regs=2, addr=0, state_changer=0, code=14)
     MOV_I = OperationStruct(name=b"MOV_I", regs=1, addr=1, state_changer=0, code=15)
-    JMP = OperationStruct(name=b"JMP", regs=0, addr=1, state_changer=1, code=16)
-    JMP_Z = OperationStruct(name=b"JMP_Z", regs=0, addr=1, state_changer=1, code=17)
-    JMP_NZ = OperationStruct(name=b"JMP_NZ", regs=0, addr=1, state_changer=1, code=18)
-    JMP_L = OperationStruct(name=b"JMP_L", regs=0, addr=1, state_changer=1, code=19)
-    JMP_G = OperationStruct(name=b"JMP_G", regs=0, addr=1, state_changer=1, code=20)
-    JMP_LE = OperationStruct(name=b"JMP_LE", regs=0, addr=1, state_changer=1, code=21)
-    JMP_GE = OperationStruct(name=b"JMP_GE", regs=0, addr=1, state_changer=1, code=22)
-    JMP_EXIST = OperationStruct(name=b"JMP_EXIST", regs=0, addr=1, state_changer=1, code=23)
-    JMP_NEXIST = OperationStruct(name=b"JMP_NEXIST", regs=0, addr=1, state_changer=1, code=24)
-    JMP_EVEN = OperationStruct(name=b"JMP_EVEN", regs=0, addr=1, state_changer=1, code=25)
-    JMP_ODD = OperationStruct(name=b"JMP_ODD", regs=0, addr=1, state_changer=1, code=26)
+    JMP = OperationStruct(name=b"JMP", regs=0, addr=3, state_changer=1, code=16)
+    JMP_Z = OperationStruct(name=b"JMP_Z", regs=0, addr=3, state_changer=1, code=17)
+    JMP_NZ = OperationStruct(name=b"JMP_NZ", regs=0, addr=3, state_changer=1, code=18)
+    JMP_L = OperationStruct(name=b"JMP_L", regs=0, addr=3, state_changer=1, code=19)
+    JMP_G = OperationStruct(name=b"JMP_G", regs=0, addr=3, state_changer=1, code=20)
+    JMP_LE = OperationStruct(name=b"JMP_LE", regs=0, addr=3, state_changer=1, code=21)
+    JMP_GE = OperationStruct(name=b"JMP_GE", regs=0, addr=3, state_changer=1, code=22)
+    JMP_EXIST = OperationStruct(name=b"JMP_EXIST", regs=0, addr=3, state_changer=1, code=23)
+    JMP_NEXIST = OperationStruct(name=b"JMP_NEXIST", regs=0, addr=3, state_changer=1, code=24)
+    JMP_EVEN = OperationStruct(name=b"JMP_EVEN", regs=0, addr=3, state_changer=1, code=25)
+    JMP_ODD = OperationStruct(name=b"JMP_ODD", regs=0, addr=3, state_changer=1, code=26)
     CLC = OperationStruct(name=b"CLC", regs=0, addr=0, state_changer=1, code=27)
     CMP = OperationStruct(name=b"CMP", regs=2, addr=0, state_changer=1, code=28)
     TEST = OperationStruct(name=b"TEST", regs=1, addr=0, state_changer=1, code=29)
@@ -120,7 +120,7 @@ class Operation(Enum):
     SHR = OperationStruct(name=b"SHR", regs=3, addr=0, state_changer=0, code=42)
     CAST = OperationStruct(name=b"CAST", regs=2, addr=0, state_changer=0, code=43)
     NOP = OperationStruct(name=b"NOP", regs=0, addr=0, state_changer=0, code=44)
-    LOAD_RAM_F = OperationStruct(name=b"LOAD_RAM_F", regs=2, addr=1, state_changer=0, code=45)
+    LOAD_RAM_F = OperationStruct(name=b"LOAD_RAM_F", regs=1, addr=2, state_changer=0, code=45)
     LOAD_ROM_F = OperationStruct(name=b"LOAD_ROM_F", regs=1, addr=4, state_changer=0, code=46)
     STORE_RAM_F = OperationStruct(name=b"STORE_RAM_F", regs=1, addr=2, state_changer=2, code=47)
     MOV_F = OperationStruct(name=b"MOV_F", regs=2, addr=0, state_changer=0, code=48)
@@ -130,7 +130,7 @@ class Operation(Enum):
     CMOV_G_F = OperationStruct(name=b"CMOV_G_F", regs=2, addr=0, state_changer=0, code=52)
     CMOV_LE_F = OperationStruct(name=b"CMOV_LE_F", regs=2, addr=0, state_changer=0, code=53)
     CMOV_GE_F = OperationStruct(name=b"CMOV_GE_F", regs=2, addr=0, state_changer=0, code=54)
-    MOV_I_F = OperationStruct(name=b"MOV_I_F", regs=1, addr=1, state_changer=0, code=55)
+    MOV_I_F = OperationStruct(name=b"MOV_I_F", regs=1, addr=5, state_changer=0, code=55)
     CMOV_EXIST_F = OperationStruct(name=b"CMOV_EXIST_F", regs=2, addr=0, state_changer=0, code=56)
     CMOV_NEXIST_F = OperationStruct(name=b"CMOV_NEXIST_F", regs=2, addr=0, state_changer=0, code=57)
     CMOV_ODD_F = OperationStruct(name=b"CMOV_ODD_F", regs=2, addr=0, state_changer=0, code=58)
@@ -145,7 +145,7 @@ class Operation(Enum):
     POW = OperationStruct(name=b"POW", regs=3, addr=0, state_changer=0, code=67)
     EXP = OperationStruct(name=b"EXP", regs=2, addr=0, state_changer=0, code=68)
     LN = OperationStruct(name=b"LN", regs=2, addr=0, state_changer=0, code=69)
-    LOG = OperationStruct(name=b"LOG", regs=3, addr=0, state_changer=0, code=70)
+    LOG = OperationStruct(name=b"LOG", regs=2, addr=0, state_changer=0, code=70)
     LOG10 = OperationStruct(name=b"LOG10", regs=2, addr=0, state_changer=0, code=71)
     COS = OperationStruct(name=b"COS", regs=2, addr=0, state_changer=0, code=72)
     SIN = OperationStruct(name=b"SIN", regs=2, addr=0, state_changer=0, code=73)
@@ -163,10 +163,12 @@ class Operation(Enum):
     RAND = OperationStruct(name=b"RAND", regs=1, addr=0, state_changer=0, code=85)
     ROUND = OperationStruct(name=b"ROUND", regs=2, addr=0, state_changer=0, code=86)
     
+    @property
     def name(self) -> str:
         """Ritorna il nome dell'operazione"""
         return self.value.name.decode('utf-8') if self.value.name else f"OP_{self.value.code}"
         
+    @property
     def code(self) -> int:
         """Ritorna il codice dell'operazione"""
         return self.value.code
@@ -176,5 +178,5 @@ class Operation(Enum):
         """Ritorna l'OperationWrapper integrato"""
         return self.value
 
-__all__ = ['MemblockWrapper', 'InstructionWrapper', 'FlagRegWrapper', 'CoreWrapper', 
-           'VirtualMachineWrapper', 'ProgramWrapper', 'OperationWrapper', 'Operation']
+__all__ = ['Memblock', 'Instruction', 'FlagReg', 'Core', 
+           'VirtualMachine', 'Program', 'OperationStruct', 'Operation']
