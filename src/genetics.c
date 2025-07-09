@@ -17,7 +17,7 @@ struct Instruction rand_instruction(const struct LGPInput *const in, const uint6
             addr = RAND_UPTO(in->ram_size - 1);
         break;
         case 3:
-            addr = RAND_UPTO(prog_size + 1);
+            addr = RAND_UPTO(prog_size);
         break;
         case 4:
             addr = RAND_UPTO(in->rom_size - 1);
@@ -232,3 +232,15 @@ uint64_t xxhash_program(const struct Program *const prog){
     return hash;
 }
 
+inline void free_individual(struct Individual *ind){
+    aligned_free(ind->prog.content);
+}
+void free_population(struct Population *pop){
+    for (uint64_t i = 0; i < pop->size; i++){
+        free_individual(&(pop->individual[i]));
+    }
+    aligned_free(pop->individual);
+}
+void free_lgp_input(struct LGPInput *in){
+    free(in->memory);
+}

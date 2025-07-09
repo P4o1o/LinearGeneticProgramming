@@ -4,11 +4,13 @@ Unified wrapper classes combining C structures with user-friendly interfaces
 """
 
 # Main functions
-from .utils import print_program, random_init, random_init_all, get_number_of_threads, NUMBER_OF_OMP_THREADS
+from . import setup
+from .base import VECT_ALIGNMENT, INSTR_NUM, NUMBER_OF_OMP_THREADS
+from .utils import print_program, random_init, random_init_all
 from .evolution import evolve
 
 # Core classes (unified wrapper + interface)
-from .genetics import LGPInput, Individual, Population, VectorDistance, InstructionSet, LGPResult
+from .genetics import LGPInput, Program, Individual, Population, VectorDistance, InstructionSet, LGPResult
 
 # Fitness assessment
 from .fitness import (
@@ -41,11 +43,14 @@ random_init_all(0)
 __version__ = "1.0.0"
 
 __all__ = [
+    # Costants
+    'NUMBER_OF_OMP_THREADS', 'VECT_ALIGNMENT', 'INSTR_NUM',
+
     # Main functions
-    'evolve', 'print_program', 'random_init', 'random_init_all', 'get_number_of_threads', 'NUMBER_OF_OMP_THREADS',
+    'evolve', 'print_program', 'random_init', 'random_init_all',
     
     # Core classes (unified)
-    'LGPInput', 'Individual', 'Population', 'VectorDistance', 'InstructionSet', 'LGPResult',
+    'LGPInput', 'Program', 'Individual', 'Population', 'VectorDistance', 'InstructionSet', 'LGPResult',
     
     # Fitness
     'Fitness', 'FitnessType',

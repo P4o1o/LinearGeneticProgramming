@@ -37,12 +37,12 @@ double rmse(const struct LGPInput *const in, const struct Program *const prog, c
 }
 const struct Fitness RMSE = {.fn = rmse, .type = MINIMIZE, .name = "RMSE"};
 
-double lenght_penalized_mse(const struct LGPInput *const in, const struct Program *const prog, const uint64_t max_clock, const union FitnessParams *const params) {
+double length_penalized_mse(const struct LGPInput *const in, const struct Program *const prog, const uint64_t max_clock, const union FitnessParams *const params) {
     double base = mse(in, prog, max_clock, params);
     if (!isfinite(base)) return DBL_MAX;
     return base + params->alpha * (double)prog->size;
 }
-const struct Fitness LENGHT_PENALIZED_MSE = {.fn   = lenght_penalized_mse, .type = MINIMIZE, .name = "Lenght Penalized MSE"};
+const struct Fitness LENGTH_PENALIZED_MSE = {.fn   = length_penalized_mse, .type = MINIMIZE, .name = "Length Penalized MSE"};
 
 double clock_penalized_mse(const struct LGPInput *const in, const struct Program *const prog, const uint64_t max_clock, const union FitnessParams *const params) {
     ASSERT(prog->size > 0);
@@ -276,7 +276,7 @@ double r_squared(const struct LGPInput *const in, const struct Program *const pr
     return 1.0 - (ss_res / ss_tot);
 }
 
-const struct Fitness RSQUARED = {.fn = r_squared, .type = MAXIMIZE, .name = "R^2"};
+const struct Fitness R_SQUARED = {.fn = r_squared, .type = MAXIMIZE, .name = "R^2"};
 
 double worst_case_error(const struct LGPInput *const in, const struct Program *const prog, const uint64_t max_clock, UNUSED_ATTRIBUTE const union FitnessParams *const params){
     ASSERT(prog->size > 0);

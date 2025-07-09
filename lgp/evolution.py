@@ -95,11 +95,6 @@ def evolve(lgp_input: LGPInput,
         generations=generations,
         verbose=verbose
     )
-    
-    # Call evolve function - IMPORTANTE: impostare signature prima della chiamata
-    liblgp.evolve.argtypes = [POINTER(LGPInput), POINTER(LGPOptions)]
-    liblgp.evolve.restype = LGPResult
-    
     result = liblgp.evolve(ctypes.byref(lgp_input), ctypes.byref(options))
     
     return (

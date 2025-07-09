@@ -19,7 +19,7 @@ def setup_lgp():
     
     # Note: LGP automatically initializes PRNGs on import with seed 0
     # Here we set a custom seed for reproducible examples
-    print(f"✓ Available OpenMP threads: {lgp.get_number_of_threads()}")
+    print(f"✓ Available OpenMP threads: {lgp.NUMBER_OF_OMP_THREADS}")
     lgp.random_init_all(42)  # Custom seed for reproducible examples
     
     # Test basic functionalities

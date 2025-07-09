@@ -29,7 +29,7 @@ extern const uint64_t INSTR_NUM_WRAPPER;
 	INSTRUCTION(CMOV_ODD, 		13,		2,	0,	0) \
 	INSTRUCTION(CMOV_EVEN, 		14,		2,	0,	0) \
 	INSTRUCTION(MOV_I,   		15,		1,	1,	0) \
-	INSTRUCTION(JMP,    		16,		0,	3,	1) \
+	INSTRUCTION(JMP,    		16,		0,	3,	1) /*JMP instructions must be numbered from JMP to JMP_ODD*/ \
 	INSTRUCTION(JMP_Z,     		17,		0,	3,	1) \
 	INSTRUCTION(JMP_NZ,   		18,		0,	3,	1) \
 	INSTRUCTION(JMP_L,     		19,		0,	3,	1) \
@@ -39,7 +39,7 @@ extern const uint64_t INSTR_NUM_WRAPPER;
 	INSTRUCTION(JMP_EXIST, 		23,		0, 	3,	1) \
 	INSTRUCTION(JMP_NEXIST,		24,		0, 	3,	1) \
 	INSTRUCTION(JMP_EVEN,  		25,		0,	3,	1) \
-	INSTRUCTION(JMP_ODD,   		26,		0,	3,	1) \
+	INSTRUCTION(JMP_ODD,   		26,		0,	3,	1) /*JMP instructions must be numbered from JMP to JMP_ODD*/ \
 	INSTRUCTION(CLC,    		27,		0,	0,	1) \
 	INSTRUCTION(CMP,    		28,		2,	0,	1) \
 	INSTRUCTION(TEST,   		29,		1,	0,	1) \

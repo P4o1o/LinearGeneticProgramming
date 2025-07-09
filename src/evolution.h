@@ -4,6 +4,9 @@
 #include "genetics.h"
 #include "selection.h"
 #include "creation.h"
+#if LGP_DEBUG == 1
+	#include <stddef.h>  // for offsetof
+#endif
 
 struct LGPOptions {
 	const struct Fitness fitness;	// fitness function for program evaluation

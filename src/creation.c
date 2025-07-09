@@ -9,7 +9,7 @@ static inline struct Program rand_program(const struct LGPInput *const in, const
     size++;
     #if VECT_ALIGNMENT != 0
         uint64_t align = VECT_ALIGNMENT / 8;
-        size = (size + (align - (size & (align - 1))));
+        size = (size + align - 1) & ~(align - 1);
         ASSERT(size % align == 0);
     #endif
     ASSERT(size > res.size);
@@ -33,7 +33,7 @@ struct LGPResult rand_population(const struct LGPInput *const in, const struct I
     ASSERT(0 < params->minsize);
     ASSERT(params->minsize <= params->maxsize);
 	struct Population pop = {.size = params->pop_size};
-	pop.individual = (struct Individual *) aligned_alloc(VECT_ALIGNMENT, sizeof(struct Individual) * pop.size);
+	pop.individual = (struct Individual *) malloc(sizeof(struct Individual) * pop.size);
 	if (pop.individual == NULL) {
 		MALLOC_FAIL;
 	}
@@ -60,13 +60,13 @@ struct LGPResult unique_population(const struct LGPInput *const in, const struct
     ASSERT(0 < params->minsize);
     ASSERT(params->minsize <= params->maxsize);
 	struct Population pop = {.size = params->pop_size};
-    pop.individual = (struct Individual *) aligned_alloc(VECT_ALIGNMENT, sizeof(struct Individual) * pop.size);
+    pop.individual = (struct Individual *) malloc(sizeof(struct Individual) * pop.size);
 	if (pop.individual == NULL) {
 		MALLOC_FAIL;
 	}
     struct ProgramSet progmap = {.capacity = next_power_of_two(params->pop_size), .size = 0};
     uint64_t mask = progmap.capacity - 1;
-    progmap.table = (struct ProgramSetNode *) aligned_alloc(VECT_ALIGNMENT, sizeof(struct ProgramSetNode) * progmap.capacity);
+    progmap.table = (struct ProgramSetNode *) malloc(sizeof(struct ProgramSetNode) * progmap.capacity);
     if(progmap.table == NULL){
         MALLOC_FAIL;
     }
@@ -105,7 +105,7 @@ struct LGPResult unique_population(const struct LGPInput *const in, const struct
         }while(not_found);
         pop.individual[i] = (struct Individual){ .prog = prog, .fitness = fitness->fn(in, &prog, max_clock, fitness_param)};
     }
-    aligned_free(progmap.table);
+    free(progmap.table);
     struct LGPResult res = {.generations = 0, .pop = pop, .evaluations = pop.size};
     return res;
 }

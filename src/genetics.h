@@ -12,7 +12,7 @@
 extern const uint64_t VECT_ALIGNMENT_WRAPPER;
 
 struct Program{
-	alignas(VECT_ALIGNMENT) struct Instruction *content;
+	struct Instruction *content;
     uint64_t size;
 };
 
@@ -53,5 +53,8 @@ struct Instruction rand_instruction(const struct LGPInput *const in, const uint6
 
 unsigned int equal_program(const struct Program *const prog1, const struct Program *const prog2);
 uint64_t xxhash_program(const struct Program *const prog);
+void free_individual(struct Individual *ind);
+void free_population(struct Population *pop);
+void free_lgp_input(struct LGPInput *in);
 
 #endif

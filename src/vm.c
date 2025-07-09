@@ -248,7 +248,7 @@ uint64_t run_vm(struct VirtualMachine *env, const uint64_t clock_limit){
                 immf = fabs(env->core.freg[reg2]);
                 if(immf < ((double) 0xFFFFFFFFFFFFFFFFULL / 2ULL)){
                     env->core.reg[reg1] = (uint64_t) immf;
-                    if(env->core.freg[reg2] < ((uint64_t) 0)){
+                    if(env->core.freg[reg2] < 0.0){
                         env->core.reg[reg1] |= (((uint64_t) 1) << ((uint64_t) 63));
                     }
                 }
@@ -257,7 +257,7 @@ uint64_t run_vm(struct VirtualMachine *env, const uint64_t clock_limit){
                 immf = fabs(env->core.freg[reg2]);
                 if(immf < ((double) 0xFFFFFFFFFFFFFFFFULL / 2ULL)){
                     env->core.reg[reg1] = (uint64_t) (immf + 0.5);
-                    if(env->core.reg[reg1] && (env->core.freg[reg2] < ((uint64_t) 0))){
+                    if(env->core.reg[reg1] && (env->core.freg[reg2] <  0.0)){
                         env->core.reg[reg1] |= (((uint64_t) 1) << ((uint64_t) 63));
                     }
                 }

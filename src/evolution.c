@@ -64,7 +64,7 @@ static inline struct Program mutation(const struct LGPInput *const in, const str
     uint64_t size = mutated.size + 1;
     #if VECT_ALIGNMENT != 0
         uint64_t align = VECT_ALIGNMENT / 8;
-        size = (size + (align - (size & (align - 1))));
+        size = (size + align - 1) & ~(align - 1);
         ASSERT(size % align == 0);
     #endif
     ASSERT(size > mutated.size);
@@ -72,16 +72,26 @@ static inline struct Program mutation(const struct LGPInput *const in, const str
     if (mutated.content == NULL) {
         MALLOC_FAIL;
     }
-    if(start)
-        memcpy(mutated.content, parent->content, sizeof(struct Instruction) * start);
+    for(uint64_t i = 0; i < start; i++) {
+        struct Instruction instr = parent->content[i];
+        if(instr.op >= I_JMP && instr.op <= I_JMP_ODD && instr.addr > mutated.size) {
+            instr.addr = RAND_UPTO(mutated.size);
+        }
+        mutated.content[i] = instr;
+    }
     const uint64_t end_mutation = start + mutation_len;
     for(uint64_t i = start; i < end_mutation; i++){
         mutated.content[i] = rand_instruction(in, mutated.size);
     }
     const uint64_t restart = start + substitution;
     last_piece -= substitution;
-    if(last_piece)
-        memcpy(mutated.content + end_mutation, parent->content + restart, sizeof(struct Instruction) * last_piece);
+    for(uint64_t i = 0; i < last_piece; i++) {
+        struct Instruction instr = parent->content[restart + i];
+        if(instr.op >= I_JMP && instr.op <= I_JMP_ODD && instr.addr >= mutated.size) {
+            instr.addr = RAND_UPTO(mutated.size);
+        }
+        mutated.content[end_mutation + i] = instr;
+    }
     for(uint64_t i = mutated.size; i < size; i++){
         mutated.content[i] = (struct Instruction) {.op = I_EXIT, .reg = {0, 0, 0}, .addr = 0};
     }
@@ -118,7 +128,7 @@ static inline struct ProgramCouple crossover(const struct Program *const father,
     uint64_t size_first = first.size + 1;
     #if VECT_ALIGNMENT != 0
         uint64_t align = VECT_ALIGNMENT / 8;
-        size_first = (size_first + (align - (size_first & (align - 1))));
+        size_first = (size_first + align - 1) & ~(align - 1);
         ASSERT(size_first % align == 0);
     #endif
     ASSERT(size_first > first.size);
@@ -126,11 +136,27 @@ static inline struct ProgramCouple crossover(const struct Program *const father,
     if(first.content == NULL) {
         MALLOC_FAIL;
     }
-    if(start_f)
-        memcpy(first.content, father->content, sizeof(struct Instruction) * start_f);
-    memcpy(first.content + start_f, mother->content + start_m, sizeof(struct Instruction) * slice_m_size);
-    if(last_of_f)
-        memcpy(first.content +first_f_slice_m, father->content + end_f, sizeof(struct Instruction) * last_of_f);
+    for(uint64_t i = 0; i < start_f; i++) {
+        struct Instruction instr = father->content[i];
+        if(instr.op >= I_JMP && instr.op <= I_JMP_ODD && instr.addr >= first.size) {
+            instr.addr = RAND_UPTO(first.size);
+        }
+        first.content[i] = instr;
+    }
+    for(uint64_t i = 0; i < slice_m_size; i++) {
+        struct Instruction instr = mother->content[start_m + i];
+        if(instr.op >= I_JMP && instr.op <= I_JMP_ODD && instr.addr >= first.size) {
+            instr.addr = RAND_UPTO(first.size);
+        }
+        first.content[start_f + i] = instr;
+    }
+    for(uint64_t i = 0; i < last_of_f; i++) {
+        struct Instruction instr = father->content[end_f + i];
+        if(instr.op >= I_JMP && instr.op <= I_JMP_ODD && instr.addr >= first.size) {
+            instr.addr = RAND_UPTO(first.size);
+        }
+        first.content[first_f_slice_m + i] = instr;
+    }
     for(uint64_t i = first.size; i < size_first; i++){
         first.content[i] = (struct Instruction) {.op = I_EXIT, .reg = {0, 0, 0}, .addr = 0};
     }
@@ -142,7 +168,7 @@ static inline struct ProgramCouple crossover(const struct Program *const father,
     ASSERT(second.size <= max_individ_len);
     uint64_t size_second = second.size + 1;
     #if VECT_ALIGNMENT != 0
-        size_second = (size_second + (align - (size_second & (align - 1))));
+        size_second = (size_second + align - 1) & ~(align - 1);
         ASSERT(size_second % align == 0);
     #endif
     ASSERT(size_second > second.size);
@@ -150,11 +176,27 @@ static inline struct ProgramCouple crossover(const struct Program *const father,
     if(second.content == NULL) {
         MALLOC_FAIL;
     }
-    if(start_m)
-        memcpy(second.content, mother->content, sizeof(struct Instruction) * start_m);
-    memcpy(second.content + start_m, father->content + start_f, sizeof(struct Instruction) * slice_f_size);
-    if(last_of_m)
-        memcpy(second.content + first_m_slice_f, mother->content + end_m, sizeof(struct Instruction) * last_of_m); 
+    for(uint64_t i = 0; i < start_m; i++) {
+        struct Instruction instr = mother->content[i];
+        if(instr.op >= I_JMP && instr.op <= I_JMP_ODD && instr.addr >= second.size) {
+            instr.addr = RAND_UPTO(second.size);
+        }
+        second.content[i] = instr;
+    }
+    for(uint64_t i = 0; i < slice_f_size; i++) {
+        struct Instruction instr = father->content[start_f + i];
+        if(instr.op >= I_JMP && instr.op <= I_JMP_ODD && instr.addr >= second.size) {
+            instr.addr = RAND_UPTO(second.size);
+        }
+        second.content[start_m + i] = instr;
+    }
+    for(uint64_t i = 0; i < last_of_m; i++) {
+        struct Instruction instr = mother->content[end_m + i];
+        if(instr.op >= I_JMP && instr.op <= I_JMP_ODD && instr.addr >= second.size) {
+            instr.addr = RAND_UPTO(second.size);
+        }
+        second.content[first_m_slice_f + i] = instr;
+    }
     for(uint64_t i = second.size; i < size_second; i++){
         second.content[i] = (struct Instruction) {.op = I_EXIT, .reg = {0, 0, 0}, .addr = 0};
     }
@@ -214,13 +256,10 @@ struct LGPResult evolve(const struct LGPInput *const in, const struct LGPOptions
         uint64_t oldsize = pop.size;
         uint64_t max_pop_size = oldsize * (mut_times + 1 + 2 * (cross_times + 1) + 1);
         if(buffer_size < max_pop_size){
-            struct Individual *tmp  = (struct Individual *) aligned_alloc(VECT_ALIGNMENT, sizeof(struct Individual) * max_pop_size);
-            if (tmp == NULL){
+            pop.individual  = (struct Individual *) realloc(pop.individual, sizeof(struct Individual) * max_pop_size);
+            if (pop.individual == NULL){
                 MALLOC_FAIL;
             }
-            memcpy(tmp, pop.individual, pop.size * sizeof(struct Individual));
-            free(pop.individual);
-            pop.individual = tmp;
             buffer_size = max_pop_size;
         }
         uint64_t last_program = pop.size - 1;
@@ -300,6 +339,23 @@ struct LGPResult evolve(const struct LGPInput *const in, const struct LGPOptions
         }
     }
     gen -= 1; // the loop will stop at when res.generations = args->generations + 1; but only args->generations generations were applied
+    #if LGP_DEBUG == 1
+        // DEBUG: Print memory addresses and values before return
+        printf("DEBUG C: pop.individual = %p, pop.size = %lu\n", (void*)pop.individual, pop.size);
+        printf("DEBUG C: sizeof(Individual) = %lu\n", sizeof(struct Individual));
+        printf("DEBUG C: sizeof(Program) = %lu\n", sizeof(struct Program));
+        printf("DEBUG C: sizeof(double) = %lu\n", sizeof(double));
+        printf("DEBUG C: sizeof(Instruction*) = %lu\n", sizeof(struct Instruction*));
+        printf("DEBUG C: sizeof(uint64_t) = %lu\n", sizeof(uint64_t));
+        printf("DEBUG C: offsetof(Individual, prog) = %lu\n", offsetof(struct Individual, prog));
+        printf("DEBUG C: offsetof(Individual, fitness) = %lu\n", offsetof(struct Individual, fitness));
+        printf("DEBUG C: offsetof(Program, content) = %lu\n", offsetof(struct Program, content));
+        printf("DEBUG C: offsetof(Program, size) = %lu\n", offsetof(struct Program, size));
+        printf("DEBUG C: best_individ index = %lu\n", winner);
+        printf("DEBUG C: best_individ fitness = %f\n", pop.individual[winner].fitness);
+        printf("DEBUG C: best_individ prog.size = %lu\n", pop.individual[winner].prog.size);
+        printf("DEBUG C: best_individ prog.content = %p\n", (void*)pop.individual[winner].prog.content);
+    #endif
     const struct LGPResult res = {.evaluations = evaluations, .pop = pop, .generations = gen, .best_individ = winner};
     return res;
 }

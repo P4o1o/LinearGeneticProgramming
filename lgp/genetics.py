@@ -3,34 +3,22 @@ Genetics structures and types - corresponds to genetics.h
 Unified wrapper classes that combine C structures with user-friendly interfaces
 """
 
-from .base import Structure, POINTER, c_uint64, c_double, List, Optional, pd, ctypes, liblgp, VECT_ALIGNMENT
+from .base import Structure, POINTER, c_uint64, c_double, List, Optional, ctypes, liblgp, VECT_ALIGNMENT
 from .vm import Program, Memblock, OperationStruct, Instruction
-import numpy as np
 
-
-# Redefine Program with correct alignment if needed
-if VECT_ALIGNMENT > 1:
-    class Program(Structure):
-        """Program with correct alignment from C"""
-        _fields_ = [
-            ("content", POINTER(Instruction)),
-            ("size", c_uint64)
-        ]
-        _pack_ = VECT_ALIGNMENT
-else:
-    class Program(Structure):
-        """Standard Program structure without special alignment"""
-        _fields_ = [
-            ("content", POINTER(Instruction)),
-            ("size", c_uint64)
-        ]
+class Program(Structure):
+    """Standard Program structure without special alignment"""
+    _fields_ = [
+        ("content", POINTER(Instruction)),
+        ("size", c_uint64)
+    ]
 
 
 class Individual(Structure):
     """Corresponds to struct Individual in genetics.h with integrated user interface"""
     _fields_ = [
         ("prog", Program),
-        ("fitness", c_double)
+        ("fitness", c_double),
     ]
     
     def print_program(self) -> None:
@@ -43,10 +31,6 @@ class Individual(Structure):
         """Return the program size (number of instructions)"""
         return self.prog.size
     
-    @property
-    def c_wrapper(self):
-        """Return itself as C wrapper"""
-        return self
 
 
 class Population(Structure):
@@ -56,10 +40,9 @@ class Population(Structure):
         ("size", c_uint64)
     ]
     
-    @property
-    def c_wrapper(self):
-        """Return itself as C wrapper"""
-        return self
+    def __del__(self):
+        """Free the population memory when the object is deleted"""
+        liblgp.free_population(ctypes.byref(self))
     
     def get(self, index: int) -> Individual:
         """
@@ -74,12 +57,12 @@ class Population(Structure):
         Returns:
             Individual at the requested index
         """
+        if not self.individual:
+            raise RuntimeError("Population not properly initialized")
         if index < 0 or index >= self.size:
             raise IndexError(f"Index {index} out of range for population of size {self.size}")
-        
         return self.individual[index]
-
-
+        
 class InstructionSet(Structure):
     """Corresponds to struct InstructionSet in genetics.h with integrated user interface"""
     _fields_ = [
@@ -87,34 +70,29 @@ class InstructionSet(Structure):
         ("op", POINTER(OperationStruct))
     ]
     
-    def __init__(self, operations=None):
+    def __init__(self, operations: List[Instruction]):
         """
         Create an InstructionSet from a list of Operations
         
         Args:
             operations: List of Operations (optional for ctypes compatibility)
         """
-        if operations is not None:
-            # Convert to list if necessary
-            if not isinstance(operations, (list, tuple)):
-                operations = list(operations)
-            
-            # Create array of OperationStruct
-            op_array = (OperationStruct * len(operations))()
-            
-            # Fill array with OperationStruct from Operations
-            for i, op in enumerate(operations):
-                # op.value è l'OperationStruct, non op.c_wrapper
-                op_array[i] = op.value
-            
-            # Initialize structure fields
-            super().__init__(
-                size=len(operations),
-                op=ctypes.cast(op_array, POINTER(OperationStruct))
-            )
-        else:
-            # Empty initialization for ctypes compatibility
-            super().__init__()
+        if operations is None or len(operations) == 0:
+            raise ValueError("Instruction set cannot be empty")
+        
+        # Create array of OperationStruct
+        op_array = (OperationStruct * len(operations))()
+        
+        # Fill array with OperationStruct from Operations
+        for i, op in enumerate(operations):
+            # op.value è l'OperationStruct, non op.c_wrapper
+            op_array[i] = op.value
+        
+        # Initialize structure fields
+        super().__init__(
+            size=len(operations),
+            op=ctypes.cast(op_array, POINTER(OperationStruct))
+        )
     
     @staticmethod
     def complete():
@@ -131,12 +109,16 @@ class LGPInput(Structure):
         ("instr_set", InstructionSet),
         ("memory", POINTER(Memblock))
     ]
-    
-    @property
-    def c_wrapper(self):
-        """Return itself as C wrapper"""
-        return self
-    
+
+    def __init__(self, c_allocated=False):
+        super().__init__()
+        self._c_allocated = c_allocated
+
+    def __del__(self):
+        if self._c_allocated:
+            liblgp.free_lgp_input(ctypes.byref(self))
+
+
     @classmethod
     def from_df(cls, df, y: List[str], instruction_set: InstructionSet, ram_size: Optional[int] = None):
         """
@@ -148,9 +130,7 @@ class LGPInput(Structure):
             instruction_set: Available instruction set
             ram_size: RAM size (default: res_size)
         """
-        if pd is None:
-            raise ImportError("pandas is required for from_df method. Install with: pip install pandas")
-        
+        import pandas as pd
         # Parameter validation
         if len(y) == 0:
             raise ValueError("y list cannot be empty")
@@ -221,7 +201,7 @@ class LGPInput(Structure):
             instruction_set: Available instruction set
             ram_size: RAM size (default: max(1, y.shape[1]) if y is 2D, otherwise 1)
         """
-        
+        import numpy as np
         # Convert X to numpy array if not already
         X = np.asarray(X, dtype=np.float64)
         if X.ndim == 1:
@@ -298,10 +278,6 @@ class LGPResult(Structure):
         ("best_individ", c_uint64)
     ]
     
-    @property
-    def c_wrapper(self):
-        """Return itself as C wrapper"""
-        return self
 
 
 class VectorDistance(LGPInput):
@@ -316,8 +292,8 @@ class VectorDistance(LGPInput):
             vector_len: Vector length
             instances: Number of problem instances
         """
-        liblgp.vector_distance.argtypes = [POINTER(InstructionSet), c_uint64, c_uint64]
-        liblgp.vector_distance.restype = LGPInput
+        # Initialize parent class with c_allocated=True
+        super().__init__(c_allocated=True)
         
         result = liblgp.vector_distance(
             ctypes.byref(instruction_set),
@@ -333,4 +309,118 @@ class VectorDistance(LGPInput):
         self.instr_set = result.instr_set
         self.memory = result.memory
 
-__all__ = ['Individual', 'Population', 'InstructionSet', 'LGPInput', 'LGPResult', 'VectorDistance']
+
+class BouncingBalls(LGPInput):
+    """Subclass of LGPInput for bouncing balls problems"""
+    
+    def __init__(self, instruction_set: InstructionSet, instances: int):
+        """
+        Initialize a bouncing balls problem
+        
+        Args:
+            instruction_set: Available instruction set
+            instances: Number of problem instances
+        """
+        # Initialize parent class with c_allocated=True
+        super().__init__(c_allocated=True)
+        
+        result = liblgp.bouncing_balls(
+            ctypes.byref(instruction_set),
+            c_uint64(instances)
+        )
+        
+        # Copy fields from result
+        self.input_num = result.input_num
+        self.rom_size = result.rom_size
+        self.res_size = result.res_size
+        self.ram_size = result.ram_size
+        self.instr_set = result.instr_set
+        self.memory = result.memory
+
+
+class DiceGame(LGPInput):
+    """Subclass of LGPInput for dice game problems"""
+    
+    def __init__(self, instruction_set: InstructionSet, instances: int):
+        """
+        Initialize a dice game problem
+        
+        Args:
+            instruction_set: Available instruction set
+            instances: Number of problem instances
+        """
+        # Initialize parent class with c_allocated=True
+        super().__init__(c_allocated=True)
+        
+        result = liblgp.dice_game(
+            ctypes.byref(instruction_set),
+            c_uint64(instances)
+        )
+        
+        # Copy fields from result
+        self.input_num = result.input_num
+        self.rom_size = result.rom_size
+        self.res_size = result.res_size
+        self.ram_size = result.ram_size
+        self.instr_set = result.instr_set
+        self.memory = result.memory
+
+
+class ShoppingList(LGPInput):
+    """Subclass of LGPInput for shopping list problems"""
+    
+    def __init__(self, instruction_set: InstructionSet, num_of_items: int, instances: int):
+        """
+        Initialize a shopping list problem
+        
+        Args:
+            instruction_set: Available instruction set
+            num_of_items: Number of items in the shopping list
+            instances: Number of problem instances
+        """
+        # Initialize parent class with c_allocated=True
+        super().__init__(c_allocated=True)
+        
+        result = liblgp.shopping_list(
+            ctypes.byref(instruction_set),
+            c_uint64(num_of_items),
+            c_uint64(instances)
+        )
+        
+        # Copy fields from result
+        self.input_num = result.input_num
+        self.rom_size = result.rom_size
+        self.res_size = result.res_size
+        self.ram_size = result.ram_size
+        self.instr_set = result.instr_set
+        self.memory = result.memory
+
+
+class SnowDay(LGPInput):
+    """Subclass of LGPInput for snow day problems"""
+    
+    def __init__(self, instruction_set: InstructionSet, instances: int):
+        """
+        Initialize a snow day problem
+        
+        Args:
+            instruction_set: Available instruction set
+            instances: Number of problem instances
+        """
+        # Initialize parent class with c_allocated=True
+        super().__init__(c_allocated=True)
+        
+        result = liblgp.snow_day(
+            ctypes.byref(instruction_set),
+            c_uint64(instances)
+        )
+        
+        # Copy fields from result
+        self.input_num = result.input_num
+        self.rom_size = result.rom_size
+        self.res_size = result.res_size
+        self.ram_size = result.ram_size
+        self.instr_set = result.instr_set
+        self.memory = result.memory
+
+__all__ = ['Individual', 'Population', 'InstructionSet', 'LGPInput', 'LGPResult', 'VectorDistance', 'BouncingBalls', 'DiceGame', 'ShoppingList', 'SnowDay']

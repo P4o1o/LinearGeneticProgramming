@@ -9,7 +9,7 @@
 
 union FitnessParams{
 	const double threshold; // used in threshold_accuracy
-	const double alpha; // used in lenght_penalized_mse and clock_penalized_mse
+	const double alpha; // used in length_penalized_mse and clock_penalized_mse
 	const double beta; // used in f_beta_score
 	const double delta; // used in huber_loss
 	const double quantile; // used in pinball_loss
@@ -22,7 +22,7 @@ typedef double (*fitness_fn)(const struct LGPInput *const, const struct Program 
 
 double mse(const struct LGPInput *const in, const struct Program *const prog, const uint64_t max_clock, UNUSED_ATTRIBUTE const union FitnessParams *const params);
 double rmse(const struct LGPInput *const in, const struct Program *const prog, const uint64_t max_clock, UNUSED_ATTRIBUTE const union FitnessParams *const params);
-double lenght_penalized_mse(const struct LGPInput *const in, const struct Program *const prog, const uint64_t max_clock, const union FitnessParams *const params);
+double length_penalized_mse(const struct LGPInput *const in, const struct Program *const prog, const uint64_t max_clock, const union FitnessParams *const params);
 double clock_penalized_mse(const struct LGPInput *const in, const struct Program *const prog, const uint64_t max_clock, const union FitnessParams *const params);
 double mae(const struct LGPInput *const in, const struct Program *const prog, const uint64_t max_clock, UNUSED_ATTRIBUTE const union FitnessParams *const params);
 double mape(const struct LGPInput *const in, const struct Program *const prog, const uint64_t max_clock, UNUSED_ATTRIBUTE const union FitnessParams *const params);
@@ -64,7 +64,7 @@ struct Fitness{
 
 extern const struct Fitness MSE;
 extern const struct Fitness RMSE;
-extern const struct Fitness LENGHT_PENALIZED_MSE;
+extern const struct Fitness LENGTH_PENALIZED_MSE;
 extern const struct Fitness CLOCK_PENALIZED_MSE;
 extern const struct Fitness MAE;
 extern const struct Fitness MAPE;
@@ -72,7 +72,7 @@ extern const struct Fitness SYMMETRIC_MAPE;
 extern const struct Fitness LOGCOSH;
 extern const struct Fitness WORST_CASE_ERROR;
 extern const struct Fitness HUBER_LOSS;
-extern const struct Fitness RSQUARED;
+extern const struct Fitness R_SQUARED;
 extern const struct Fitness PINBALL_LOSS;
 extern const struct Fitness PEARSON_CORRELATION;
 extern const struct Fitness ACCURACY;
