@@ -1,0 +1,422 @@
+# LGP Python Interface
+
+This directory contains the Python interface for the Linear Genetic Programming framework. The Python interface provides ctypes bindings to the C implementation with input validation, memory management, and integration with NumPy and Pandas.
+
+## Module Structure
+
+- **`base.py`** - Core ctypes bindings and type definitions
+- **`genetics.py`** - Population, Individual, and LGPInput classes  
+- **`fitness.py`** - Fitness function classes and parameters
+- **`selection.py`** - Selection method classes
+- **`creation.py`** - Population initialization classes
+- **`evolution.py`** - Main evolution function and configuration
+- **`vm.py`** - Virtual machine operations and instruction set
+- **`utils.py`** - Utility functions (printing, random initialization)
+
+## Core Classes
+
+### LGPInput
+
+The main class for defining problems. Creates the memory layout expected by the C implementation.
+
+```python
+import lgp
+import numpy as np
+
+# From NumPy arrays
+X = np.array([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]])  # Inputs
+y = np.array([[3.0], [7.0], [11.0]])                 # Expected outputs
+
+instruction_set = lgp.InstructionSet.complete()
+lgp_input = lgp.LGPInput.from_numpy(X, y, instruction_set)
+
+# From Pandas DataFrame
+import pandas as pd
+df = pd.DataFrame({
+    'x1': [1.0, 3.0, 5.0], 
+    'x2': [2.0, 4.0, 6.0], 
+    'target': [3.0, 7.0, 11.0]
+})
+lgp_input = lgp.LGPInput.from_df(df, y=['target'], instruction_set)
+
+# Custom RAM size
+lgp_input = lgp.LGPInput.from_numpy(X, y, instruction_set, ram_size=16)
+```
+
+**Parameters:**
+- `X`: Input features (2D array: samples × features)
+- `y`: Target outputs (2D array: samples × outputs)  
+- `instruction_set`: Available VM operations
+- `ram_size`: Working memory size (default: same as output size)
+
+**Memory Layout:**
+```
+[sample1_inputs][sample1_targets][sample2_inputs][sample2_targets]...
+```
+
+### InstructionSet
+
+Defines available operations for program evolution.
+
+```python
+# Use all available operations (87 operations)
+instruction_set = lgp.InstructionSet.complete()
+
+# Custom instruction set
+from lgp.vm import Operation
+custom_ops = [
+    Operation.ADD_F,      # Floating-point addition
+    Operation.SUB_F,      # Floating-point subtraction
+    Operation.MUL_F,      # Floating-point multiplication
+    Operation.DIV_F,      # Floating-point division
+    Operation.STORE_RAM_F, # Store result to RAM
+    Operation.LOAD_ROM_F,  # Load input from ROM
+    Operation.JMP_Z,      # Jump if zero
+    Operation.CMP         # Compare values
+]
+instruction_set = lgp.InstructionSet(custom_ops)
+```
+
+### Population and Individual
+
+Access evolved programs and their fitness values.
+
+```python
+# After evolution
+result = lgp.evolve(lgp_input, fitness=lgp.MSE(), generations=50)
+population = result[0]
+best_idx = result[3]
+
+# Access best individual
+best_individual = population.get(best_idx)
+print(f"Fitness: {best_individual.fitness}")
+print(f"Program size: {best_individual.size}")
+
+# Print the program
+best_individual.print_program()
+```
+
+## Fitness Functions
+
+Fitness functions evaluate program performance. All functions support vectorial outputs and can be configured to evaluate specific output ranges.
+
+### Configuration
+
+```python
+# Basic fitness (evaluates all outputs)
+fitness = lgp.MSE()
+
+# Evaluate specific output range (indices 0-2)
+fitness = lgp.MSE(start=0, end=3)
+
+# Fitness with parameters
+fitness = lgp.HuberLoss(delta=1.5, start=0, end=1)
+fitness = lgp.ThresholdAccuracy(threshold=0.1, start=0, end=1)
+```
+
+### Regression Functions
+For continuous outputs (floating-point values):
+
+```python
+lgp.MSE()                           # Mean Squared Error
+lgp.RMSE()                          # Root Mean Squared Error
+lgp.MAE()                           # Mean Absolute Error
+lgp.MAPE()                          # Mean Absolute Percentage Error
+lgp.SymmetricMAPE()                 # Symmetric MAPE
+lgp.LogCosh()                       # Log-cosh loss
+lgp.HuberLoss(delta=1.0)           # Huber loss (robust)
+lgp.RSquared()                      # R-squared coefficient
+lgp.PearsonCorrelation()            # Pearson correlation
+lgp.WorstCaseError()                # Maximum error
+lgp.PinballLoss(quantile=0.5)      # Quantile regression
+lgp.GaussianLogLikelihood(sigma=1.0) # Log-likelihood
+```
+
+### Classification Functions
+For discrete outputs (interprets sign bit: negative = 0, positive = 1):
+
+```python
+lgp.Accuracy()                      # Per-label accuracy
+lgp.StrictAccuracy()                # Exact vector match per sample
+lgp.F1Score()                       # F1 score
+lgp.FBetaScore(beta=2.0)           # F-beta score
+lgp.MatthewsCorrelation()           # Matthews correlation coefficient
+lgp.BalancedAccuracy()              # Balanced accuracy
+lgp.GMean()                         # Geometric mean
+lgp.CohensKappa()                   # Cohen's kappa
+```
+
+### Threshold-Based Functions
+For regression with tolerance:
+
+```python
+lgp.ThresholdAccuracy(threshold=0.5)      # Accuracy with tolerance
+lgp.StrictThresholdAccuracy(threshold=0.1) # Strict threshold matching
+```
+
+### Probabilistic Functions
+For probability outputs (values in [0,1]):
+
+```python
+lgp.BinaryCrossEntropy(tolerance=1e-15)   # Cross-entropy loss
+lgp.BrierScore()                          # Brier score
+```
+
+### Other Functions
+```python
+lgp.HingeLoss()                           # SVM hinge loss
+lgp.LengthPenalizedMSE(alpha=0.01)       # MSE + length penalty
+lgp.ClockPenalizedMSE(alpha=0.01)        # MSE + time penalty
+lgp.ConditionalValueAtRisk(alpha=0.05)   # CVaR risk measure
+
+# Robustness (requires perturbation vector)
+import numpy as np
+perturbation = np.array([0.1, -0.1, 0.05])
+lgp.AdversarialPerturbationSensitivity(perturbation)
+```
+
+### Direct Evaluation
+
+Fitness functions can be called directly on individuals:
+
+```python
+fitness = lgp.MSE(start=0, end=1)
+score = fitness(lgp_input, individual, max_clock=5000)
+```
+fitness = lgp.RSquared()     # Coefficient of determination
+
+# Percentage-based metrics
+fitness = lgp.MAPE()         # Mean Absolute Percentage Error
+fitness = lgp.SymmetricMAPE() # Symmetric MAPE
+
+# Robust loss functions
+fitness = lgp.HuberLoss(delta=1.0)    # Huber loss with threshold
+fitness = lgp.LogCosh()               # Log-cosh loss
+fitness = lgp.PinballLoss(quantile=0.5) # Quantile regression
+
+# Statistical measures
+fitness = lgp.PearsonCorrelation()    # Correlation coefficient
+fitness = lgp.WorstCaseError()        # Maximum absolute error
+
+# Penalized fitness functions
+fitness = lgp.LengthPenalizedMSE(alpha=0.01)  # MSE + program length penalty
+fitness = lgp.ClockPenalizedMSE(alpha=0.01)   # MSE + execution time penalty
+```
+
+### Classification Fitness (Integer/Boolean Output)
+These functions interpret the **sign bit** of vectorial results from `vm.ram[params->start]` to `vm.ram[params->end-1]` where:
+- **Negative values** = False/Class 0
+- **Positive values** = True/Class 1
+
+```python
+# Basic classification metrics
+fitness = lgp.Accuracy()                    # Per-label accuracy
+fitness = lgp.StrictAccuracy()              # Exact match for entire output vector
+fitness = lgp.BinaryAccuracy()              # Binary classification per-label
+fitness = lgp.StrictBinaryAccuracy()        # Exact binary match per sample
+fitness = lgp.BalancedAccuracy()            # Sensitivity/specificity average
+
+# Advanced classification metrics  
+fitness = lgp.F1Score()                     # Harmonic mean of precision/recall
+fitness = lgp.FBetaScore(beta=2.0)          # F-beta score with custom beta
+fitness = lgp.MatthewsCorrelation()         # Matthews correlation coefficient
+fitness = lgp.CohensKappa()                 # Cohen's kappa statistic
+fitness = lgp.GMean()                       # Geometric mean of sensitivity/specificity
+
+# Loss functions for binary classification
+fitness = lgp.HingeLoss()                   # SVM-style hinge loss
+fitness = lgp.BinaryCrossEntropy(tolerance=1e-15) # Cross-entropy loss
+fitness = lgp.BrierScore()                  # Probabilistic forecasting accuracy
+```
+
+### Hybrid and Specialized Fitness
+```python
+# Threshold-based accuracy (floating-point with tolerance)
+fitness = lgp.ThresholdAccuracy(threshold=0.1)      # Per-label threshold accuracy
+fitness = lgp.StrictThresholdAccuracy(threshold=0.1) # Exact match within threshold
+
+# Probabilistic fitness
+fitness = lgp.GaussianLogLikelihood(sigma=1.0)
+
+# Risk measures
+fitness = lgp.ConditionalValueAtRisk()
+
+# Robustness testing (requires NumPy for perturbation_vector)
+import numpy as np
+perturbation = np.array([0.1, 0.05, 0.02])  # Small perturbations per input
+fitness = lgp.AdversarialPerturbationSensitivity(perturbation)
+```
+
+**Important Note**: Only `AdversarialPerturbationSensitivity.from_numpy()`, `LGPInput.from_df()`, and `LGPInput.from_numpy()` require NumPy/Pandas imports. All other functionality works without these dependencies.
+
+## 🧬 Evolution Configuration
+
+### Selection Methods
+```python
+# Tournament selection
+selection = lgp.Tournament(size=3)
+selection = lgp.FitnessSharingTournament(size=3, sigma=0.1)
+
+# Elitism (top N individuals)
+selection = lgp.Elitism(size=10)
+selection = lgp.FitnessSharingElitism(size=10, sigma=0.1)
+
+# Percentual elitism (top N% of population)  
+selection = lgp.PercentualElitism(percentage=0.1)
+selection = lgp.FitnessSharingPercentualElitism(percentage=0.1, sigma=0.1)
+
+# Roulette wheel selection
+selection = lgp.Roulette()
+selection = lgp.FitnessSharingRoulette(sigma=0.1)
+```
+
+### Population Initialization
+```python
+# Unique population (no duplicate programs)
+initialization = lgp.UniquePopulation()
+
+# Random population (allows duplicates)
+initialization = lgp.RandPopulation()
+```
+
+### Evolution Parameters
+```python
+params = lgp.LGPOptions(
+    fitness=lgp.MSE(),                    # Fitness function
+    selection=lgp.Tournament(size=3),     # Selection method
+    initialization=lgp.UniquePopulation(), # Population initialization
+    
+    # Population parameters
+    population_size=500,                  # Number of individuals
+    min_program_size=5,                   # Minimum program length
+    max_program_size=50,                  # Maximum program length
+    
+    # Evolution parameters
+    generations=100,                      # Number of generations
+    target_fitness=1e-6,                  # Stop when fitness reached
+    mutation_rate=0.1,                    # Probability of mutation
+    max_mutation_length=5,                # Maximum mutation size
+    crossover_rate=0.9,                   # Probability of crossover
+    
+    # Execution parameters
+    max_clock_cycles=5000,                # VM execution limit per program
+    verbose=True                          # Print evolution progress
+)
+```
+
+## 🔧 Advanced Usage
+
+### Custom Fitness Function
+```python
+# Define custom fitness evaluation
+def custom_fitness(lgp_input, individual, max_clock=5000):
+    fitness_func = lgp.MSE()
+    return fitness_func(lgp_input, individual, max_clock)
+
+# Use in evaluation
+fitness_value = custom_fitness(lgp_input, individual)
+```
+
+### Memory Management
+```python
+# The Python interface handles memory management automatically
+# LGPInput objects clean up their memory when garbage collected
+# No manual memory management required
+
+# For large datasets, consider:
+del lgp_input  # Explicit cleanup
+import gc; gc.collect()  # Force garbage collection
+```
+
+### Thread Safety
+```python
+# Initialize random number generators for all threads
+lgp.random_init_all(seed=42)
+
+# The number of OpenMP threads is determined by:
+# 1. OMP_NUM_THREADS environment variable
+# 2. System default (usually number of CPU cores)
+# 3. Compile-time THREADS variable
+
+import os
+os.environ['OMP_NUM_THREADS'] = '8'  # Limit to 8 threads
+```
+
+## 🚨 Error Handling
+
+The Python interface provides comprehensive input validation:
+
+```python
+try:
+    # Invalid input dimensions
+    X = np.array([[1, 2], [3, 4]])
+    y = np.array([1, 2, 3])  # Wrong length
+    lgp_input = lgp.LGPInput.from_numpy(X, y, instruction_set)
+except ValueError as e:
+    print(f"Input error: {e}")
+
+try:
+    # Invalid fitness parameters
+    fitness = lgp.HuberLoss(delta=-1.0)  # Negative delta
+except ValueError as e:
+    print(f"Parameter error: {e}")
+
+try:
+    # Empty instruction set
+    instruction_set = lgp.InstructionSet([])
+except ValueError as e:
+    print(f"Instruction set error: {e}")
+```
+
+## 📈 Performance Tips
+
+1. **Use NumPy arrays**: More efficient than Python lists
+2. **Appropriate RAM size**: Start with `ram_size = num_outputs`, increase if needed
+3. **Instruction set size**: Smaller sets evolve faster, larger sets more flexible
+4. **Population size**: Balance between diversity and speed (500-2000 typical)
+5. **Early stopping**: Set appropriate `target_fitness` to avoid overtraining
+
+## 🔗 Integration Examples
+
+### Scikit-learn Integration
+```python
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error
+
+# Split data
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+
+# Train LGP model
+lgp_input_train = lgp.LGPInput.from_numpy(X_train, y_train, instruction_set)
+result = lgp.evolve(lgp_input_train, params)
+
+# Evaluate on test set (would require implementing prediction function)
+# This is a conceptual example - actual implementation would need
+# a way to execute the evolved program on new data
+```
+
+### Pandas Workflow
+```python
+import pandas as pd
+
+# Load data
+df = pd.read_csv('data.csv')
+
+# Prepare features and targets
+feature_cols = ['feature1', 'feature2', 'feature3']
+target_cols = ['target']
+
+# Create LGP input directly from DataFrame
+lgp_input = lgp.LGPInput.from_df(
+    df[feature_cols + target_cols], 
+    y=target_cols, 
+    instruction_set=instruction_set
+)
+
+# Evolve solution
+result = lgp.evolve(lgp_input, params)
+```
+
+---
+
+For more examples and advanced usage patterns, see `../examples.py` in the root directory.

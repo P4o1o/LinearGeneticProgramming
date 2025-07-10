@@ -1,417 +1,323 @@
-# Linear Genetic Programming - C Core
+# Linear Genetic Programming - Core C Library
 
-This directory contains the C implementation of the Linear Genetic Programming (LGP) framework. The C core provides high-performance genetic programming capabilities with support for various fitness functions and automatic code generation.
+This directory contains the core C implementation of the Linear Genetic Programming (LGP) system. The library provides a high-performance, thread-safe implementation with SIMD optimizations for evolutionary computation.
 
 ## Architecture Overview
 
-The C core is organized into several modules:
+The LGP system consists of several interconnected components:
 
-- **`main.c`** - Entry point and command-line interface
-- **`vm.c/vm.h`** - Virtual machine for program execution
-- **`genetics.c/genetics.h`** - Genetic operations (crossover, mutation)
-- **`creation.c/creation.h`** - Individual creation and initialization
-- **`evolution.c/evolution.h`** - Evolution loop and population management
-- **`fitness.c/fitness.h`** - Fitness evaluation functions
-- **`selection.c/selection.h`** - Selection algorithms
-- **`prob.c/prob.h`** - Probability distributions and random number generation
-- **`psb2.c/psb2.h`** - Problem-specific benchmark functions
-- **`logger.c/logger.h`** - Logging and debugging utilities
-- **`mt19937.c/mt19937.h`** - Mersenne Twister random number generator
-- **`macros.h`** - Common macros and constants
+### Virtual Machine (`vm.h`, `vm.c`)
+The VM executes LGP programs with:
+- **87 instructions** defined in `INSTR_MACRO` supporting integer/floating-point operations
+- **4 integer registers** (`uint64_t reg[REG_NUM]` where `REG_NUM = 4`)
+- **4 floating-point registers** (`double freg[FREG_NUM]` where `FREG_NUM = 4`)
+- **Flag register** with `odd`, `negative`, `zero`, `exist` bits
+- **Memory access** through `union Memblock` supporting both `i64` and `f64` data
+- **Program counter** (`prcount`) with jump instruction support
+- **Clock limit** enforcement to prevent infinite loops
 
-## Build System
+The VM instruction set includes arithmetic, logic, control flow, memory access, and mathematical functions (trigonometric, logarithmic, etc.).
 
-The C core supports two build systems that provide identical functionality:
-
-### Quick Start
-```bash
-# Build executable (default)
-make
-
-# Build Python shared library
-make python
-
-# Show build configuration
-make info
-
-# Clean build artifacts
-make clean
-```
-
-### Build Variables
-
-Both Makefile and CMakeLists.txt support the following user-configurable variables:
-
-#### `THREADS` (default: auto-detected)
-Controls the number of threads used for parallel processing:
-- **Auto**: Automatically detects available CPU cores
-- **1**: Single-threaded execution
-- **N**: Use N threads (where N > 1)
-
-Examples:
-```bash
-make THREADS=4              # Use 4 threads
-cmake -DTHREADS=1 ..        # Single-threaded build
-```
-
-#### `DEBUG` (default: 0)
-Controls debug mode and optimizations:
-- **0**: Release mode with full optimizations (`-O3`, `-DNDEBUG`)
-- **1**: Debug mode with debug symbols (`-g`, `-O0`)
-
-Examples:
-```bash
-make DEBUG=1                # Debug build
-cmake -DDEBUG=1 ..          # Debug build with CMake
-```
-
-#### `C_STD` (default: auto-detected)
-Override the C standard version:
-- **Auto**: Automatically detects highest supported standard (C23 > C17 > C11 > C99 > C89)
-- **c89**, **c99**, **c11**, **c17**, **c23**: Force specific standard
-
-Examples:
-```bash
-make C_STD=c11              # Force C11 standard
-cmake -DC_STD=c17 ..        # Force C17 standard
-```
-
-#### `CC` (default: auto-detected)
-Override the compiler:
-- **Auto**: Automatically selects best available compiler per platform
-- **gcc**, **clang**, **cl**: Force specific compiler
-
-Examples:
-```bash
-make CC=clang               # Use clang compiler
-cmake -DCC=gcc ..           # Use gcc compiler
-```
-
-### Platform-Specific Behavior
-
-The build system automatically optimizes for each platform:
-
-#### **Linux/Ubuntu**
-- **Default compiler**: `gcc` (preferred) > `clang`
-- **Vector instructions**: AVX512 > AVX2 > AVX > SSE4.2 > SSE4.1 > SSE2
-- **OpenMP**: Enabled if supported (`-fomp`)
-
-#### **macOS**
-- **Default compiler**: `clang` (preferred) > `gcc`
-- **Vector instructions**: AVX512 > AVX2 > AVX > SSE4.2 (Intel), NEON (Apple Silicon)
-- **OpenMP**: Enabled if supported (`-fomp`)
-
-#### **Windows**
-- **Default compiler**: `msvc` (preferred) > `clang` > `gcc`
-- **Vector instructions**: AVX512 > AVX2 > AVX > SSE4.2 > SSE4.1 > SSE2
-- **OpenMP**: Enabled if supported (`/openmp` for MSVC, `-fomp` for others)
-
-#### **FreeBSD**
-- **Default compiler**: `clang` (preferred) > `gcc`
-- **Vector instructions**: AVX512 > AVX2 > AVX > SSE4.2 > SSE4.1 > SSE2
-- **OpenMP**: Enabled if supported (`-fomp`)
-
-## Fitness Functions
-
-The fitness evaluation system supports multiple types of fitness functions with different output requirements. Understanding these types is crucial for proper usage.
-
-### Fitness Function Types
-
-#### 1. **Floating-Point Output Functions**
-These functions expect programs to output floating-point values and compare them against target floating-point values.
-
-**Supported Functions:**
-- `koza1`, `koza2`, `koza3` - Koza's symbolic regression benchmarks
-- `nguyen1` through `nguyen12` - Nguyen's symbolic regression suite
-- `keijzer1` through `keijzer15` - Keijzer's symbolic regression benchmarks
-- `vladislavleva1` through `vladislavleva8` - Vladislavleva's benchmarks
-- `pagie1` - Pagie's symbolic regression function
-- `korns1` through `korns15` - Korns' symbolic regression suite
-
-**Expected Output:** Floating-point values (`double`)
-**Fitness Calculation:** Mean Squared Error (MSE) between program output and target values
-
-#### 2. **Integer Output Functions**
-These functions expect programs to output integer values and compare them against target integer values.
-
-**Supported Functions:**
-- `median` - Find median of three integers
-- `small_or_large` - Classify number as small or large
-- `for_loop_index` - Generate sequence indices
-- `compare_string_lengths` - Compare string lengths
-- `double_letters` - Count double letters
-- `collatz_numbers` - Collatz sequence operations
-- `string_lengths_backwards` - String length operations
-- `last_index_of_zero` - Find last zero index
-- `vector_average` - Vector averaging operations
-- `count_odds` - Count odd numbers
-- `mirror_image` - Mirror image operations
-- `super_anagrams` - Anagram operations
-- `sum_of_squares` - Sum of squares calculation
-- `vectors_summed` - Vector summation
-- `x_word_lines` - Word line operations
-- `pig_latin` - Pig Latin transformation
-- `negative_to_zero` - Negative number handling
-- `scrabble_score` - Scrabble scoring
-- `word_stats` - Word statistics
-- `checksum` - Checksum calculation
-- `digits` - Digit operations
-- `grade` - Grading operations
-- `smallest` - Find smallest element
-- `syllables` - Syllable counting
-
-**Expected Output:** Integer values (`int`)
-**Fitness Calculation:** Sum of absolute differences between program output and target values
-
-#### 3. **Boolean Output Functions**
-These functions expect programs to output boolean values (0 or 1) and compare them against target boolean values.
-
-**Supported Functions:**
-- `number_io` - Boolean number I/O operations
-- `replace_space_with_newline` - Space replacement operations
-- `string_differences` - String difference detection
-- `even_squares` - Even square detection
-- `wallis_pi` - Wallis pi approximation
-- `string_lengths_backwards` - String length comparisons
-- `last_index_of_zero` - Zero index detection
-- `vector_average` - Vector averaging comparisons
-- `count_odds` - Odd number detection
-- `mirror_image` - Mirror image detection
-- `super_anagrams` - Anagram detection
-- `sum_of_squares` - Sum validation
-- `vectors_summed` - Vector sum validation
-- `x_word_lines` - Word line validation
-- `pig_latin` - Pig Latin validation
-- `negative_to_zero` - Negative number detection
-- `scrabble_score` - Score validation
-- `word_stats` - Word statistics validation
-- `checksum` - Checksum validation
-- `digits` - Digit validation
-- `grade` - Grade validation
-- `smallest` - Smallest element detection
-- `syllables` - Syllable validation
-
-**Expected Output:** Boolean values (0 or 1)
-**Fitness Calculation:** Sum of mismatches between program output and target boolean values
-
-### Fitness Function Implementation
-
-#### Core Interface
-```c
-// Main fitness evaluation function
-double evaluate_fitness(individual_t *individual, fitness_case_t *test_cases, 
-                       int num_cases, char *function_name);
-
-// Fitness case structure
-typedef struct {
-    double *inputs;      // Input values for the test case
-    double target;       // Expected output value
-    int input_size;      // Number of input values
-} fitness_case_t;
-```
-
-#### Output Type Handling
-The fitness evaluation system automatically handles different output types:
+### Genetic System (`genetics.h`, `genetics.c`)
+Core data structures for evolutionary computation:
 
 ```c
-// For floating-point functions
-if (is_float_function(function_name)) {
-    double program_output = execute_program(individual, inputs);
-    double target_value = test_case->target;
-    error += (program_output - target_value) * (program_output - target_value);
-}
+struct Program {
+    struct Instruction *content;  // Array of VM instructions
+    uint64_t size;               // Number of instructions
+};
 
-// For integer functions
-else if (is_integer_function(function_name)) {
-    int program_output = (int)execute_program(individual, inputs);
-    int target_value = (int)test_case->target;
-    error += abs(program_output - target_value);
-}
+struct Individual {
+    struct Program prog;         // The genetic program
+    double fitness;             // Fitness evaluation result
+};
 
-// For boolean functions
-else if (is_boolean_function(function_name)) {
-    int program_output = (execute_program(individual, inputs) > 0.5) ? 1 : 0;
-    int target_value = (test_case->target > 0.5) ? 1 : 0;
-    error += (program_output != target_value) ? 1 : 0;
-}
-```
-
-### Adding Custom Fitness Functions
-
-To add a new fitness function:
-
-1. **Add function declaration** in `fitness.h`:
-```c
-double my_custom_function(individual_t *individual, fitness_case_t *test_cases, int num_cases);
-```
-
-2. **Implement function** in `fitness.c`:
-```c
-double my_custom_function(individual_t *individual, fitness_case_t *test_cases, int num_cases) {
-    double total_error = 0.0;
-    
-    for (int i = 0; i < num_cases; i++) {
-        // Execute program with test case inputs
-        double output = execute_program(individual, test_cases[i].inputs);
-        
-        // Calculate error based on output type
-        double error = fabs(output - test_cases[i].target);  // For float
-        // int error = abs((int)output - (int)test_cases[i].target);  // For int
-        // int error = ((output > 0.5) != (test_cases[i].target > 0.5)) ? 1 : 0;  // For bool
-        
-        total_error += error;
-    }
-    
-    return total_error;
-}
-```
-
-3. **Register function** in the fitness function lookup table:
-```c
-static fitness_function_t fitness_functions[] = {
-    {"my_custom_function", my_custom_function},
-    // ... other functions
+struct Population {
+    struct Individual *individual;  // Array of individuals
+    uint64_t size;                  // Population size
 };
 ```
 
-### Performance Considerations
+### Fitness Functions (`fitness.h`, `fitness.c`)
+The library provides **30+ fitness evaluation functions** for different types of machine learning problems:
 
-#### Multi-threading
-When `THREADS > 1`, fitness evaluation is automatically parallelized:
-- Each thread evaluates a subset of the population
-- Thread-safe random number generation is used
-- Memory allocation is optimized for parallel access
+#### Regression Functions (MINIMIZE)
+- **`MSE`**: Mean Squared Error
+- **`RMSE`**: Root Mean Squared Error
+- **`LENGTH_PENALIZED_MSE`**: MSE + α × program_length (requires `params->fact.alpha`)
+- **`CLOCK_PENALIZED_MSE`**: MSE + α × execution_time (requires `params->fact.alpha`)
+- **`MAE`**: Mean Absolute Error
+- **`MAPE`**: Mean Absolute Percentage Error
+- **`SYMMETRIC_MAPE`**: Symmetric Mean Absolute Percentage Error
+- **`LOGCOSH`**: Log-Cosh loss function
+- **`WORST_CASE_ERROR`**: Maximum error across samples
+- **`HUBER_LOSS`**: Robust Huber loss (requires `params->fact.delta`)
+- **`PINBALL_LOSS`**: Quantile regression loss (requires `params->fact.quantile`)
+- **`GAUSSIAN_LOG_LIKELIHOOD`**: Maximum likelihood estimation (requires `params->fact.sigma`)
+- **`BRIER_SCORE`**: Probabilistic forecasting accuracy
+- **`HINGE_LOSS`**: Support Vector Machine loss
+- **`BINARY_CROSS_ENTROPY`**: Cross-entropy for probabilities (requires `params->fact.tolerance`)
 
-#### Vector Instructions
-The build system automatically enables vector instructions when supported:
-- **AVX512**: 512-bit vector operations (Intel Skylake-X and newer)
-- **AVX2**: 256-bit vector operations (Intel Haswell and newer)
-- **AVX**: 256-bit vector operations (Intel Sandy Bridge and newer)
-- **SSE4.2**: 128-bit vector operations (Intel Nehalem and newer)
-- **NEON**: ARM vector instructions (ARM Cortex-A series)
+#### Regression Functions (MAXIMIZE)
+- **`R_SQUARED`**: Coefficient of determination
+- **`PEARSON_CORRELATION`**: Statistical correlation
 
-#### Memory Management
-- Stack-based allocation for temporary variables
-- Pool-based allocation for individuals
-- Garbage collection for unused genetic material
+#### Classification Functions (MAXIMIZE)
+Programs output classification decisions via sign bit of integer results (`vm.ram[j].i64 & (1ULL << 63)`):
 
-## Debug Mode
+- **`ACCURACY`**: Per-label classification accuracy
+- **`STRICT_ACCURACY`**: Exact match for entire output vector per sample
+- **`BINARY_ACCURACY`**: Binary classification accuracy
+- **`STRICT_BINARY_ACCURACY`**: Strict binary classification accuracy
+- **`THRESHOLD_ACCURACY`**: Tolerance-based accuracy (requires `params->fact.threshold`)
+- **`STRICT_THRESHOLD_ACCURACY`**: Strict threshold accuracy
+- **`BALANCED_ACCURACY`**: Average of sensitivity and specificity
+- **`G_MEAN`**: Geometric mean of sensitivity and specificity
+- **`F1_SCORE`**: F1 score (harmonic mean of precision/recall)
+- **`F_BETA_SCORE`**: F-Beta score (requires `params->fact.beta`)
+- **`MATTHEWS_CORRELATION`**: Matthews correlation coefficient
+- **`COHENS_KAPPA`**: Cohen's kappa statistic
 
-When `DEBUG=1`, the following debug features are enabled:
+#### Specialized Functions
+- **`ADVERSARIAL_PERTURBATION_SENSITIVITY`**: Robustness measure (requires `params->fact.perturbation_vector`)
+- **`CONDITIONAL_VALUE_AT_RISK`**: Risk management metric (requires `params->fact.alpha`)
 
-### Debug Output
-- **Population statistics**: Size, diversity, convergence metrics
-- **Fitness evaluation**: Detailed error breakdown per test case
-- **Genetic operations**: Crossover and mutation success rates
-- **Memory usage**: Allocation and deallocation tracking
+Each fitness function:
+- Takes parameters: `(LGPInput*, Program*, uint64_t max_clock, FitnessParams*)`
+- Executes the program on test instances using `run_vm`
+- For regression: compares program output from `vm.ram[params->start]` to `vm.ram[params->end-1]` (as `f64`)
+- For classification: uses sign bit of integer output (`vm.ram[j].i64 & (1ULL << 63)`)
+- Handles numerical errors (NaN, infinity) by returning `DBL_MAX` (minimization) or `0.0` (maximization)
+- Returns `double` fitness value
 
-### Debug Macros
+#### Fitness Parameters
 ```c
-#ifdef DEBUG
-    #define DEBUG_PRINT(fmt, ...) printf("[DEBUG] " fmt "\n", ##__VA_ARGS__)
-    #define DEBUG_ASSERT(condition) assert(condition)
-    #define DEBUG_TRACE() printf("[TRACE] %s:%d\n", __FILE__, __LINE__)
-#else
-    #define DEBUG_PRINT(fmt, ...)
-    #define DEBUG_ASSERT(condition)
-    #define DEBUG_TRACE()
-#endif
+union FitnessFactor {
+    const double threshold;         // used in threshold_accuracy
+    const double alpha;             // used in length_penalized_mse, clock_penalized_mse, conditional_value_at_risk
+    const double beta;              // used in f_beta_score
+    const double delta;             // used in huber_loss
+    const double quantile;          // used in pinball_loss
+    const double tolerance;         // used in binary_cross_entropy
+    const double sigma;             // used in gaussian_log_likelihood
+    const double *perturbation_vector; // used in adversarial_perturbation_sensitivity
+};
+
+struct FitnessParams {
+    const uint64_t start;      // First output index to evaluate (0-based)
+    const uint64_t end;        // Last output index to evaluate + 1 (exclusive upper bound)
+    union FitnessFactor fact;  // Additional parameters specific to fitness function
+};
 ```
 
-### Memory Debugging
-- **Valgrind compatibility**: Clean memory access patterns
-- **AddressSanitizer support**: Built-in memory error detection
-- **Leak detection**: Automatic memory leak reporting
+**Important**: Programs output to RAM indices `[start, end)`. To evaluate outputs at RAM indices 0-2, use `start=0, end=3`.
 
-## Integration with Python
+### Selection Algorithms (`selection.h`, `selection.c`)
+Eight selection algorithms implemented with both MINIMIZE/MAXIMIZE variants:
 
-The C core can be compiled as a shared library for Python integration:
+- **`tournament`**: Tournament selection with configurable tournament size
+- **`fitness_sharing_tournament`**: Tournament with diversity preservation
+- **`elitism`**: Keep best N individuals
+- **`fitness_sharing_elitism`**: Elitism with diversity preservation
+- **`percentual_elitism`**: Keep top percentage of population
+- **`fitness_sharing_percentual_elitism`**: Percentage elitism with diversity
+- **`roulette`**: Roulette wheel selection
+- **`fitness_sharing_roulette`**: Roulette with diversity preservation
 
-```bash
-make python                 # Creates Python-compatible shared library
+Selection parameters use `union SelectionParams` with different fields depending on algorithm type.
+
+### Population Initialization (`creation.h`, `creation.c`)
+Two initialization strategies:
+
+- **`rand_population`**: Generates random programs within size bounds
+- **`unique_population`**: Ensures all programs are genetically unique using xxHash-based deduplication
+
+Both functions return `LGPResult` containing the initial population and evaluation count.
+
+### Evolution Engine (`evolution.h`, `evolution.c`)
+The main evolutionary loop implementing:
+- **Mutation**: Replaces a random program segment with new random instructions
+- **Crossover**: Exchanges segments between two parent programs
+- **Jump address correction**: Automatically fixes jump targets that exceed program length
+- **Parallel evaluation**: OpenMP-based concurrent fitness evaluation
+
+## Input/Output Interface
+
+### Problem Input (`LGPInput`)
+```c
+struct LGPInput {
+    const uint64_t input_num;    // Number of test instances
+    const uint64_t rom_size;     // Problem data size per instance
+    const uint64_t res_size;     // Expected solution size per instance
+    const uint64_t ram_size;     // RAM size (must be >= res_size)
+    const struct InstructionSet instr_set;  // Allowed instruction set
+    union Memblock *memory;      // Memory layout: [instance0_data][instance0_solution][instance1_data][instance1_solution]...
+};
 ```
 
-### Python Interface
-The shared library exports the following functions:
+The memory layout has `(rom_size + res_size)` blocks per instance, totaling `input_num * (rom_size + res_size)` blocks.
+
+### Evolution Configuration (`LGPOptions`)
+All fields are **required**:
 
 ```c
-// Initialize LGP system
-int lgp_init(int population_size, int max_generations, int num_threads);
-
-// Run evolution
-int lgp_evolve(char *fitness_function, double *fitness_cases, int num_cases);
-
-// Get best individual
-char* lgp_get_best_individual();
-
-// Cleanup
-void lgp_cleanup();
+struct LGPOptions {
+    // Fitness configuration
+    const struct Fitness fitness;              // One of: MSE, RMSE, MAE, ACCURACY, R_SQUARED, etc. (30+ available)
+    const struct FitnessParams fitness_param;  // start, end, and fact (union with specific parameters)
+    
+    // Selection configuration  
+    const struct Selection selection;           // Selection algorithm
+    const union SelectionParams select_param;  // Algorithm-specific parameters
+    
+    // Population initialization (must provide ONE of these)
+    const initialization_fn initialization_func;     // Function pointer (rand_population or unique_population) OR
+    const struct Population initial_pop;             // Pre-built population (if initialization_func == NULL)
+    const struct InitializationParams init_params;   // pop_size, minsize, maxsize (used if initialization_func != NULL)
+    
+    // Evolution parameters
+    const double target;                // Target fitness for early termination
+    const double mutation_prob;         // Mutation probability (>= 0.0, can be > 1.0 for multiple mutations per individual)
+    const double crossover_prob;        // Crossover probability (>= 0.0, can be > 1.0 for multiple crossovers per individual)
+    const uint64_t max_clock;          // VM execution limit per program run
+    const uint64_t max_individ_len;    // Maximum program length
+    const uint64_t max_mutation_len;   // Maximum length of mutation segments
+    const uint64_t generations;        // Maximum generations to run
+    const unsigned verbose;            // 0 = silent, 1 = print per-generation statistics
+};
 ```
 
-### C-Python Data Exchange
-- **Fitness cases**: Passed as NumPy arrays
-- **Individuals**: Returned as serialized strings
-- **Statistics**: Returned as Python dictionaries
-
-## Error Handling
-
-The C core implements comprehensive error handling:
-
-### Error Types
-- **Memory errors**: Out-of-memory, invalid pointers
-- **Fitness errors**: Invalid fitness function, malformed test cases
-- **Evolution errors**: Population convergence, generation limits
-- **I/O errors**: File access, parameter parsing
-
-### Error Codes
+### Evolution Result (`LGPResult`)
 ```c
-#define LGP_SUCCESS           0
-#define LGP_ERROR_MEMORY     -1
-#define LGP_ERROR_FITNESS    -2
-#define LGP_ERROR_EVOLUTION  -3
-#define LGP_ERROR_IO         -4
-#define LGP_ERROR_INVALID    -5
+struct LGPResult {
+    const struct Population pop;    // Final population
+    const uint64_t evaluations;    // Total fitness evaluations performed
+    const uint64_t generations;    // Actual generations executed (may be < max if target reached)
+    const uint64_t best_individ;   // Index of best individual in pop.individual array
+};
 ```
 
-### Error Handling Pattern
+## Main Evolution Function
+
 ```c
-int result = lgp_function();
-if (result != LGP_SUCCESS) {
-    fprintf(stderr, "Error: %s\n", lgp_error_string(result));
-    return result;
+struct LGPResult evolve(const struct LGPInput *const in, const struct LGPOptions *const args);
+```
+
+The `evolve` function executes the complete evolutionary algorithm. Early termination occurs if the best individual's fitness reaches the target value.
+
+## Memory Management
+
+- **Aligned allocation**: Uses `aligned_alloc()` with `VECT_ALIGNMENT` for SIMD compatibility
+- **VECT_ALIGNMENT**: 16 bytes (SSE2), 32 bytes (AVX2), or 64 bytes (AVX512)
+- **Program padding**: Extra instructions beyond program size are filled with `I_EXIT` 
+- **Memory cleanup**: Use `free_individual()`, `free_population()`, `free_lgp_input()` for cleanup
+- **Instruction alignment**: Programs allocated with extra space for SIMD alignment
+
+## Concurrency and Performance
+
+- **OpenMP support**: Controlled by `NUMBER_OF_OMP_THREADS` macro
+- **Thread-safe random generation**: Each thread has its own MT19937 state
+- **SIMD optimizations**: AVX/AVX512 implementations for MT19937 and xxHash
+- **Parallel sections**: Fitness evaluation, population initialization, genetic operations
+
+Random number access via `random()` macro automatically uses thread-local generator.
+
+## Random Number Generation (`prob.h`, `mt19937.h`)
+
+High-performance MT19937 implementation with:
+- **Vectorized generation**: AVX512/AVX2/SSE2 batch generation
+- **Thread-local state**: `random_engines[NUMBER_OF_OMP_THREADS]` array
+- **Utility macros**: 
+  - `WILL_HAPPEN(prob)` - probabilistic events
+  - `RAND_BOUNDS(min, max)` - integers in range
+  - `RAND_DBL_BOUNDS(min, max)` - doubles in range
+
+Initialize with `random_init_all(seed)` before use.
+
+## Benchmark Problems (PSB2)
+
+Five PSB2 benchmark problems in `psb2.h`:
+
+1. **`vector_distance(instr_set, vector_len, instances)`**: Euclidean distance between vectors
+2. **`bouncing_balls(instr_set, instances)`**: Ball trajectory physics simulation  
+3. **`dice_game(instr_set, instances)`**: Dice game probability calculation
+4. **`shopping_list(instr_set, num_items, instances)`**: Shopping total with discounts
+5. **`snow_day(instr_set, instances)`**: Snow accumulation/melting simulation
+
+Each returns a configured `LGPInput` ready for evolution.
+
+## Error Handling and Logging
+
+- **Assertion system**: `ASSERT(condition)` macro calls `unreachable()` on failure
+- **Logging**: `LOG_EXIT(message)` and `LOG_EXIT_THREADSAFE(message)` log to `genetic.log` and exit
+- **Memory allocation**: `MALLOC_FAIL` and `MALLOC_FAIL_THREADSAFE` macros for allocation failures
+- **Fitness error handling**: NaN/infinity results properly handled with penalty values
+
+## Build Configuration
+
+The library auto-detects SIMD capabilities:
+- **SIMD support**: Automatic AVX512/AVX2/SSE2 detection via compiler flags
+- **OpenMP**: Detected via `_OPENMP` preprocessor define
+- **C standard**: Supports C89/C99/C11/C17/C23 with appropriate fallbacks
+- **Alignment**: Automatic aligned allocation based on available SIMD instructions
+
+## Thread Safety
+
+The library is thread-safe when:
+- `random_init_all()` called before parallel sections
+- Each thread uses his own MT19937
+- Memory allocation/deallocation not shared between threads
+
+## Basic Usage Example
+
+```c
+#include "evolution.h"
+#include "psb2.h"
+
+int main() {
+    // Initialize random number generation
+    random_init_all(42);
+    
+    // Create instruction set (all floating-point operations)
+    struct InstructionSet instr_set = {.size = INSTR_NUM, .op = INSTRSET};
+    
+    // Create problem using PSB2 benchmark
+    struct LGPInput input = vector_distance(&instr_set, 3, 100);
+    
+    // Configure evolution
+    struct LGPOptions options = {
+        .fitness = MSE,
+        .fitness_param = {.start = 0, .end = 1},
+        .selection = tournament,
+        .select_param = {.size = 3},
+        .initialization_func = unique_population,
+        .init_params = {.pop_size = 500, .minsize = 5, .maxsize = 30},
+        .target = 1e-6,
+        .mutation_prob = 0.1,
+        .crossover_prob = 0.9,
+        .max_clock = 1000,
+        .max_individ_len = 100,
+        .max_mutation_len = 10,
+        .generations = 100,
+        .verbose = 1
+    };
+    
+    // Run evolution
+    struct LGPResult result = evolve(&input, &options);
+    
+    // Access best individual
+    struct Individual *best = &result.pop.individual[result.best_individ];
+    printf("Best fitness: %f\n", best->fitness);
+    printf("Generations: %lu\n", result.generations);
+    printf("Evaluations: %lu\n", result.evaluations);
+    
+    // Print the evolved program
+    print_program(&best->prog);
+    
+    // Cleanup
+    free_population(&result.pop);
+    free_lgp_input(&input);
+    
+    return 0;
 }
 ```
-
-## Testing
-
-The C core includes comprehensive test coverage:
-
-### Unit Tests
-- **Fitness functions**: Verify correct output types and calculations
-- **Genetic operations**: Test crossover and mutation correctness
-- **Memory management**: Ensure no leaks or corruption
-- **Random number generation**: Statistical validation
-
-### Integration Tests
-- **Evolution runs**: Complete evolution with known benchmarks
-- **Python integration**: C-Python interface validation
-- **Multi-threading**: Parallel execution correctness
-
-### Performance Tests
-- **Benchmark suite**: Standard GP benchmarks with timing
-- **Memory profiling**: Memory usage under different configurations
-- **Scalability tests**: Performance with varying population sizes
-
-## Contributing
-
-When contributing to the C core:
-
-1. **Follow coding style**: Use consistent indentation and naming
-2. **Add documentation**: Document all public functions
-3. **Include tests**: Add tests for new functionality
-4. **Check memory safety**: Use valgrind or AddressSanitizer
-5. **Verify cross-platform**: Test on multiple operating systems
-
-## License
-
-This C core is part of the Linear Genetic Programming project and is subject to the same license terms as the overall project.

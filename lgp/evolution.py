@@ -77,6 +77,12 @@ def evolve(lgp_input: LGPInput,
             init_params = InitializationParams()
         else:
             raise ValueError("Either initialization or initial_pop must be provided")
+    if(fitness.parameters.end == 0):
+            fitness.parameters.end = lgp_input.res_size  # Default to the full range if end is not set
+    if(fitness.parameters.start >= lgp_input.res_size or
+       fitness.parameters.end > lgp_input.res_size):
+        raise ValueError("Invalid start or end for FitnessParams in fitness function")
+    fitness.check_input(lgp_input)
     
     options = LGPOptions(
         fitness=fitness.function,

@@ -1,13 +1,14 @@
 """
 Fitness structures and classes - corresponds to fitness.h
 """
+from typing import override
 from .vm import Program
 from .base import Structure, Union, c_uint64, POINTER, c_uint, c_double, c_char_p, c_void_p, IntEnum, ctypes, liblgp
 
 from .genetics import LGPInput, Individual
 
-class FitnessParams(Union):
-    """Corrisponde a union FitnessParams in fitness.h"""
+class FitnessFactor(Union):
+    """Corrisponde a union FitnessFactor in fitness.h"""
     _fields_ = [
         ("threshold", c_double),
         ("alpha", c_double),
@@ -19,76 +20,88 @@ class FitnessParams(Union):
         ("perturbation_vector", POINTER(c_double))
     ]
 
-    def __init__(self):
+class FitnessParams(Structure):
+    """Corrisponde a struct FitnessParams in fitness.h"""
+    _fields_ = [
+        ("start", c_uint64),
+        ("end", c_uint64),
+        ("factor", FitnessFactor)
+    ]
+
+    def __init__(self, start: int = 0, end: int = 0):
         super().__init__()
+        if(start < 0 or end < 0):
+            raise ValueError("Invalid start or end for FitnessParams")
+        self.start = c_uint64(start)
+        self.end = c_uint64(end)
 
     @staticmethod
-    def new_threshold(threshold: float = 0.5) -> "FitnessParams":
+    def new_threshold(threshold: float = 0.5, start: int = 0, end: int = 0) -> "FitnessParams":
         if threshold < 0.0 or threshold > 1.0:
             raise ValueError("Invalid threshold for FitnessParams")
-        res = FitnessParams()
-        res.threshold = c_double(threshold)
+        res = FitnessParams(start, end)
+        res.factor.threshold = c_double(threshold)
         return res
     
     @staticmethod
-    def new_alpha(alpha: float = 0.01) -> "FitnessParams":
+    def new_alpha(alpha: float = 0.01, start: int = 0, end: int = 0) -> "FitnessParams":
         if alpha < 0.0:
             raise ValueError("Invalid alpha for FitnessParams")
-        res = FitnessParams()
-        res.alpha = c_double(alpha)
+        res = FitnessParams(start, end)
+        res.factor.alpha = c_double(alpha)
         return res
     
     @staticmethod
-    def new_beta(beta: float = 1.0) -> "FitnessParams":
+    def new_beta(beta: float = 1.0, start: int = 0, end: int = 0) -> "FitnessParams":
         if beta < 0.0:
             raise ValueError("Invalid beta for FitnessParams")
-        res = FitnessParams()
-        res.beta = c_double(beta)
+        res = FitnessParams(start, end)
+        res.factor.beta = c_double(beta)
         return res
     
     @staticmethod
-    def new_delta(delta: float = 1.0) -> "FitnessParams":
+    def new_delta(delta: float = 1.0, start: int = 0, end: int = 0) -> "FitnessParams":
         if delta < 0.0:
             raise ValueError("Invalid delta for FitnessParams")
-        res = FitnessParams()
-        res.delta = c_double(delta)
+        res = FitnessParams(start, end)
+        res.factor.delta = c_double(delta)
         return res
     
     @staticmethod
-    def new_quantile(quantile: float = 0.5) -> "FitnessParams":
+    def new_quantile(quantile: float = 0.5, start: int = 0, end: int = 0) -> "FitnessParams":
         if quantile < 0.0 or quantile > 1.0:
             raise ValueError("Invalid quantile for FitnessParams")
-        res = FitnessParams()
-        res.quantile = c_double(quantile)
+        res = FitnessParams(start, end)
+        res.factor.quantile = c_double(quantile)
         return res
     
     @staticmethod
-    def new_tolerance(tolerance: float = 1e-15) -> "FitnessParams":
+    def new_tolerance(tolerance: float = 1e-15, start: int = 0, end: int = 0) -> "FitnessParams":
         if tolerance < 0.0:
             raise ValueError("Invalid tolerance for FitnessParams")
-        res = FitnessParams()
-        res.tolerance = c_double(tolerance)
+        res = FitnessParams(start, end)
+        res.factor.tolerance = c_double(tolerance)
         return res
     
     @staticmethod
-    def new_sigma(sigma: float = 1.0) -> "FitnessParams":
+    def new_sigma(sigma: float = 1.0, start: int = 0, end: int = 0) -> "FitnessParams":
         if sigma <= 0.0:
             raise ValueError("Invalid sigma for FitnessParams")
-        res = FitnessParams()
-        res.sigma = c_double(sigma)
+        res = FitnessParams(start, end)
+        res.factor.sigma = c_double(sigma)
         return res
     
     @staticmethod
-    def new_perturbation_vector(vector) -> "FitnessParams":
+    def new_perturbation_vector(vector, start: int = 0, end: int = 0) -> "FitnessParams":
         import numpy as np
         if not isinstance(vector, np.ndarray):
             raise TypeError("perturbation_vector must be a numpy array")
         if vector.size < 1:
             raise ValueError("perturbation_vector must have at least one element")
-        res = FitnessParams()
+        res = FitnessParams(start, end)
         arr_type = c_double * vector.size
         arr = arr_type(*vector)
-        res.perturbation_vector = ctypes.cast(arr, POINTER(c_double))
+        res.factor.perturbation_vector = ctypes.cast(arr, POINTER(c_double))
         return res
 
 class FitnessType(IntEnum):
@@ -123,6 +136,10 @@ class Fitness():
     @property
     def parameters(self) -> FitnessParams:
         return self._params
+    
+    def check_input(self, lgp_input: LGPInput):
+        # Throw a ValueError if the input is not valid
+        pass
 
     def __call__(self, lgp_input: LGPInput, individual: Individual, max_clock: int = 5000) -> float:
         """
@@ -136,6 +153,11 @@ class Fitness():
         Returns:
             Fitness value as a float
         """
+        if(self._params.end == 0):
+            self._params.end = lgp_input.res_size  # Default to the full range if end is not set
+        if(self._params.start >= lgp_input.res_size or self._params.end > lgp_input.res_size):
+            raise ValueError("Invalid start or end for FitnessParams")
+        self.check_input(lgp_input)
         result = self._func_wrapper(
             ctypes.byref(lgp_input),
             ctypes.cast(ctypes.byref(individual.prog), POINTER(Program)),  # Cast like print_program does
@@ -149,181 +171,229 @@ class Fitness():
 class MSE(Fitness):
     """Mean Squared Error fitness"""
     
-    def __init__(self):
-        super().__init__(FitnessFunction.in_dll(liblgp, "MSE"), FitnessParams())
+    def __init__(self, start: int = 0, end: int = 0):
+        super().__init__(FitnessFunction.in_dll(liblgp, "MSE"), FitnessParams(start, end))
 
 
 class RMSE(Fitness):
     """Root Mean Squared Error fitness"""
     
-    def __init__(self):
-        super().__init__(FitnessFunction.in_dll(liblgp, "RMSE"), FitnessParams())
+    def __init__(self, start: int = 0, end: int = 0):
+        super().__init__(FitnessFunction.in_dll(liblgp, "RMSE"), FitnessParams(start, end))
 
 
 class LengthPenalizedMSE(Fitness):
     """Length Penalized MSE fitness"""
     
-    def __init__(self, alpha: float = 0.01):
-        super().__init__(FitnessFunction.in_dll(liblgp, "LENGTH_PENALIZED_MSE"), FitnessParams.new_alpha(alpha))
+    def __init__(self, alpha: float = 0.01, start: int = 0, end: int = 0):
+        super().__init__(FitnessFunction.in_dll(liblgp, "LENGTH_PENALIZED_MSE"), FitnessParams.new_alpha(alpha, start, end))
 
 
 class ClockPenalizedMSE(Fitness):
     """Clock Penalized MSE fitness"""
     
-    def __init__(self, alpha: float = 0.01):
-        super().__init__(FitnessFunction.in_dll(liblgp, "CLOCK_PENALIZED_MSE"), FitnessParams.new_alpha(alpha))
+    def __init__(self, alpha: float = 0.01, start: int = 0, end: int = 0):
+        super().__init__(FitnessFunction.in_dll(liblgp, "CLOCK_PENALIZED_MSE"), FitnessParams.new_alpha(alpha, start, end))
 
 
 class MAE(Fitness):
     """Mean Absolute Error fitness"""
     
-    def __init__(self):
-        super().__init__(FitnessFunction.in_dll(liblgp, "MAE"), FitnessParams())
+    def __init__(self, start: int = 0, end: int = 0):
+        super().__init__(FitnessFunction.in_dll(liblgp, "MAE"), FitnessParams(start, end))
 
 
 class Accuracy(Fitness):
     """Accuracy fitness"""
     
-    def __init__(self):
-        super().__init__(FitnessFunction.in_dll(liblgp, "ACCURACY"), FitnessParams())
+    def __init__(self, start: int = 0, end: int = 0):
+        super().__init__(FitnessFunction.in_dll(liblgp, "ACCURACY"), FitnessParams(start, end))
 
 
 class F1Score(Fitness):
     """F1 Score fitness"""
     
-    def __init__(self):
-        super().__init__(FitnessFunction.in_dll(liblgp, "F1_SCORE"), FitnessParams())
+    def __init__(self, start: int = 0, end: int = 0):
+        super().__init__(FitnessFunction.in_dll(liblgp, "F1_SCORE"), FitnessParams(start, end))
 
 
 class MAPE(Fitness):
     """Mean Absolute Percentage Error fitness"""
     
-    def __init__(self):
-        super().__init__(FitnessFunction.in_dll(liblgp, "MAPE"), FitnessParams())
+    def __init__(self, start: int = 0, end: int = 0):
+        super().__init__(FitnessFunction.in_dll(liblgp, "MAPE"), FitnessParams(start, end))
 
 
 class SymmetricMAPE(Fitness):
     """Symmetric Mean Absolute Percentage Error fitness"""
     
-    def __init__(self):
-        super().__init__(FitnessFunction.in_dll(liblgp, "SYMMETRIC_MAPE"), FitnessParams())
+    def __init__(self, start: int = 0, end: int = 0):
+        super().__init__(FitnessFunction.in_dll(liblgp, "SYMMETRIC_MAPE"), FitnessParams(start, end))
 
 
 class LogCosh(Fitness):
     """LogCosh fitness"""
     
-    def __init__(self):
-        super().__init__(FitnessFunction.in_dll(liblgp, "LOGCOSH"), FitnessParams())
+    def __init__(self, start: int = 0, end: int = 0):
+        super().__init__(FitnessFunction.in_dll(liblgp, "LOGCOSH"), FitnessParams(start, end))
 
 
 class WorstCaseError(Fitness):
     """Worst Case Error fitness"""
     
-    def __init__(self):
-        super().__init__(FitnessFunction.in_dll(liblgp, "WORST_CASE_ERROR"), FitnessParams())
+    def __init__(self, start: int = 0, end: int = 0):
+        super().__init__(FitnessFunction.in_dll(liblgp, "WORST_CASE_ERROR"), FitnessParams(start, end))
 
 
 class HuberLoss(Fitness):
     """Huber Loss fitness"""
     
-    def __init__(self, delta: float = 1.0):
-        super().__init__(FitnessFunction.in_dll(liblgp, "HUBER_LOSS"), FitnessParams.new_delta(delta))
+    def __init__(self, delta: float = 1.0, start: int = 0, end: int = 0):
+        super().__init__(FitnessFunction.in_dll(liblgp, "HUBER_LOSS"), FitnessParams.new_delta(delta, start, end))
 
 
 class RSquared(Fitness):
     """R-Squared fitness"""
     
-    def __init__(self):
-        super().__init__(FitnessFunction.in_dll(liblgp, "R_SQUARED"), FitnessParams())
+    def __init__(self, start: int = 0, end: int = 0):
+        super().__init__(FitnessFunction.in_dll(liblgp, "R_SQUARED"), FitnessParams(start, end))
 
 
 class PinballLoss(Fitness):
     """Pinball Loss fitness"""
     
-    def __init__(self, quantile: float = 0.5):
-        super().__init__(FitnessFunction.in_dll(liblgp, "PINBALL_LOSS"), FitnessParams.new_quantile(quantile))
+    def __init__(self, quantile: float = 0.5, start: int = 0, end: int = 0):
+        super().__init__(FitnessFunction.in_dll(liblgp, "PINBALL_LOSS"), FitnessParams.new_quantile(quantile, start, end))
 
 
 class PearsonCorrelation(Fitness):
     """Pearson Correlation fitness"""
     
-    def __init__(self):
-        super().__init__(FitnessFunction.in_dll(liblgp, "PEARSON_CORRELATION"), FitnessParams())
+    def __init__(self, start: int = 0, end: int = 0):
+        super().__init__(FitnessFunction.in_dll(liblgp, "PEARSON_CORRELATION"), FitnessParams(start, end))
 
 
 class ThresholdAccuracy(Fitness):
     """Threshold Accuracy fitness"""
     
-    def __init__(self, threshold: float = 0.5):
-        super().__init__(FitnessFunction.in_dll(liblgp, "THRESHOLD_ACCURACY"), FitnessParams.new_threshold(threshold))
+    def __init__(self, threshold: float = 0.5, start: int = 0, end: int = 0):
+        super().__init__(FitnessFunction.in_dll(liblgp, "THRESHOLD_ACCURACY"), FitnessParams.new_threshold(threshold, start, end))
 
 
 class BalancedAccuracy(Fitness):
     """Balanced Accuracy fitness"""
     
-    def __init__(self):
-        super().__init__(FitnessFunction.in_dll(liblgp, "BALANCED_ACCURACY"), FitnessParams())
+    def __init__(self, start: int = 0, end: int = 0):
+        super().__init__(FitnessFunction.in_dll(liblgp, "BALANCED_ACCURACY"), FitnessParams(start, end))
 
 
 class GMean(Fitness):
     """Geometric Mean fitness"""
     
-    def __init__(self):
-        super().__init__(FitnessFunction.in_dll(liblgp, "G_MEAN"), FitnessParams())
+    def __init__(self, start: int = 0, end: int = 0):
+        super().__init__(FitnessFunction.in_dll(liblgp, "G_MEAN"), FitnessParams(start, end))
 
 
 class FBetaScore(Fitness):
     """F-Beta Score fitness"""
     
-    def __init__(self, beta: float = 1.0):
-        super().__init__(FitnessFunction.in_dll(liblgp, "F_BETA_SCORE"), FitnessParams.new_beta(beta))
+    def __init__(self, beta: float = 1.0, start: int = 0, end: int = 0):
+        super().__init__(FitnessFunction.in_dll(liblgp, "F_BETA_SCORE"), FitnessParams.new_beta(beta, start, end))
 
 class BinaryCrossEntropy(Fitness):
     """Binary Cross Entropy fitness"""
-    
-    def __init__(self, tolerance: float = 1e-15):
-        super().__init__(FitnessFunction.in_dll(liblgp, "BINARY_CROSS_ENTROPY"), FitnessParams.new_tolerance(tolerance))
+
+    def __init__(self, tolerance: float = 1e-15, start: int = 0, end: int = 0):
+        super().__init__(FitnessFunction.in_dll(liblgp, "BINARY_CROSS_ENTROPY"), FitnessParams.new_tolerance(tolerance, start, end))
 
 
 class GaussianLogLikelihood(Fitness):
     """Gaussian Log Likelihood fitness"""
-    
-    def __init__(self, sigma: float = 1.0):
-        super().__init__(FitnessFunction.in_dll(liblgp, "GAUSSIAN_LOG_LIKELIHOOD"), FitnessParams.new_sigma(sigma))
+
+    def __init__(self, sigma: float = 1.0, start: int = 0, end: int = 0):
+        super().__init__(FitnessFunction.in_dll(liblgp, "GAUSSIAN_LOG_LIKELIHOOD"), FitnessParams.new_sigma(sigma, start, end))
 
 
 class MatthewsCorrelation(Fitness):
     """Matthews Correlation Coefficient fitness"""
     
-    def __init__(self):
-        super().__init__(FitnessFunction.in_dll(liblgp, "MATTHEWS_CORRELATION"), FitnessParams())
+    def __init__(self, start: int = 0, end: int = 0):
+        super().__init__(FitnessFunction.in_dll(liblgp, "MATTHEWS_CORRELATION"), FitnessParams(start, end))
 
 
 class HingeLoss(Fitness):
     """Hinge Loss fitness"""
     
-    def __init__(self):
-        super().__init__(FitnessFunction.in_dll(liblgp, "HINGE_LOSS"), FitnessParams())
+    def __init__(self, start: int = 0, end: int = 0):
+        super().__init__(FitnessFunction.in_dll(liblgp, "HINGE_LOSS"), FitnessParams(start, end))
 
 
 class CohensKappa(Fitness):
     """Cohen's Kappa fitness"""
     
-    def __init__(self):
-        super().__init__(FitnessFunction.in_dll(liblgp, "COHENS_KAPPA"), FitnessParams())
+    def __init__(self, start: int = 0, end: int = 0):
+        super().__init__(FitnessFunction.in_dll(liblgp, "COHENS_KAPPA"), FitnessParams(start, end))
 
 
 class AdversarialPerturbationSensitivity(Fitness):
     """Adversarial Perturbation Sensitivity fitness"""
     
-    def __init__(self, perturbation_vector):
-        super().__init__(FitnessFunction.in_dll(liblgp, "ADVERSARIAL_PERTURBATION_SENSITIVITY"), FitnessParams.new_perturbation_vector(perturbation_vector))
+    def __init__(self, perturbation_vector, start: int = 0, end: int = 0):
+        super().__init__(FitnessFunction.in_dll(liblgp, "ADVERSARIAL_PERTURBATION_SENSITIVITY"), FitnessParams.new_perturbation_vector(perturbation_vector, start, end))
+
+    @override
+    def check_input(self, lgp_input: LGPInput):
+        if(lgp_input.input_num != len(self._params.factor.perturbation_vector.contents)):
+            raise ValueError("Invalid perturbation vector for AdversarialPerturbationSensitivity")
 
 class ConditionalValueAtRisk(Fitness):
     """Conditional Value at Risk fitness"""
+
+    def __init__(self, alpha: float = 0.05, start: int = 0, end: int = 0):
+        super().__init__(FitnessFunction.in_dll(liblgp, "CONDITIONAL_VALUE_AT_RISK"), FitnessParams.new_alpha(alpha, start, end))
+        if(alpha >= 1.0):
+            raise ValueError("Invalid alpha for ConditionalValueAtRisk, must be in (0.0, 1.0)")
+
+    @override
+    def check_input(self, lgp_input: LGPInput):
+        if(lgp_input.input_num * self._params.factor.alpha + 0.5 <= 0):
+            raise ValueError("Invalid alpha for ConditionalValueAtRisk")
+
+
+class StrictAccuracy(Fitness):
+    """Strict Accuracy fitness - exact match for entire output vector per sample"""
     
-    def __init__(self):
-        super().__init__(FitnessFunction.in_dll(liblgp, "CONDITIONAL_VALUE_AT_RISK"), FitnessParams())
+    def __init__(self, start: int = 0, end: int = 0):
+        super().__init__(FitnessFunction.in_dll(liblgp, "STRICT_ACCURACY"), FitnessParams(start, end))
+
+
+class BinaryAccuracy(Fitness):
+    """Binary Accuracy fitness - sign bit interpretation per label"""
+    
+    def __init__(self, start: int = 0, end: int = 0):
+        super().__init__(FitnessFunction.in_dll(liblgp, "BINARY_ACCURACY"), FitnessParams(start, end))
+
+
+class StrictBinaryAccuracy(Fitness):
+    """Strict Binary Accuracy fitness - exact match for entire binary output vector per sample"""
+    
+    def __init__(self, start: int = 0, end: int = 0):
+        super().__init__(FitnessFunction.in_dll(liblgp, "STRICT_BINARY_ACCURACY"), FitnessParams(start, end))
+
+
+class StrictThresholdAccuracy(Fitness):
+    """Strict Threshold Accuracy fitness - exact match within threshold for entire output vector per sample"""
+    
+    def __init__(self, threshold: float = 0.5, start: int = 0, end: int = 0):
+        super().__init__(FitnessFunction.in_dll(liblgp, "STRICT_THRESHOLD_ACCURACY"), FitnessParams.new_threshold(threshold, start, end))
+
+
+class BrierScore(Fitness):
+    """Brier Score fitness - probabilistic forecasting accuracy"""
+    
+    def __init__(self, start: int = 0, end: int = 0):
+        super().__init__(FitnessFunction.in_dll(liblgp, "BRIER_SCORE"), FitnessParams(start, end))
+
 
 __all__ = ['FitnessParams', 'FitnessType', 'FitnessFunction', 'Fitness', 
            'MSE', 'RMSE', 'LengthPenalizedMSE', 'ClockPenalizedMSE', 'MAE', 'Accuracy', 'F1Score',
@@ -331,4 +401,5 @@ __all__ = ['FitnessParams', 'FitnessType', 'FitnessFunction', 'Fitness',
            'PinballLoss', 'PearsonCorrelation', 'ThresholdAccuracy', 'BalancedAccuracy', 
            'GMean', 'FBetaScore', 'BinaryCrossEntropy', 'GaussianLogLikelihood', 
            'MatthewsCorrelation', 'HingeLoss', 'CohensKappa', 'AdversarialPerturbationSensitivity', 
-           'ConditionalValueAtRisk']
+           'ConditionalValueAtRisk', 'StrictAccuracy', 'BinaryAccuracy', 'StrictBinaryAccuracy', 
+           'StrictThresholdAccuracy', 'BrierScore']

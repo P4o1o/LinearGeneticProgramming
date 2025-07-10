@@ -23,6 +23,10 @@ int main(UNUSED_ATTRIBUTE int argc, UNUSED_ATTRIBUTE char *argv[]){
 	}
 	const struct LGPOptions par = {
 		.fitness = MSE,
+		.fitness_param = (struct FitnessParams) {
+			.start = 0,
+			.end = 1,
+		},
 		.selection = tournament,
 		.select_param = (union SelectionParams) {.size = 3},
 		.initialization_func = unique_population,

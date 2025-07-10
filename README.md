@@ -9,8 +9,8 @@ Linear Genetic Programming is an evolutionary computation technique that evolves
 - **Dual Interface Architecture**: Ultra-fast C core with comprehensive Python wrapper
 - **Cross-Platform Compatibility**: Windows, macOS, Linux, and FreeBSD support
 - **Automatic Optimization**: Vector instructions (SSE, AVX, AVX-512) and OpenMP when available
-- **Comprehensive Fitness Functions**: 20+ fitness functions for regression and classification
-- **Flexible VM Architecture**: Custom instruction set with 87+ operations
+- **Comprehensive Fitness Functions**: 25+ fitness functions for regression and classification (vectorial support)
+- **Flexible VM Architecture**: Custom instruction set with 87+ operations, vectorial output support
 - **Thread-Safe Design**: Full OpenMP parallelization support
 
 ## 🏗️ Architecture
@@ -34,29 +34,35 @@ The Python wrapper adds safety and convenience:
 The framework includes specialized fitness functions for different problem types:
 
 ### Regression Problems (Floating-Point Output)
-These fitness functions analyze the **floating-point result** from `vm.ram[0].f64`:
+These fitness functions analyze **vectorial floating-point results** from `vm.ram[params->start]` to `vm.ram[params->end-1]`:
 - **MSE/RMSE**: Mean Squared/Root Mean Squared Error
 - **MAE**: Mean Absolute Error  
 - **MAPE/Symmetric MAPE**: Mean Absolute Percentage Error
-- **Huber Loss**: Robust loss function
-- **R-Squared**: Coefficient of determination
+- **Huber Loss**: Robust loss function with delta parameter
+- **R-Squared**: Coefficient of determination (vectorial version)
 - **Logcosh**: Logarithm of hyperbolic cosine
-- **Pearson Correlation**: Statistical correlation measure
+- **Pearson Correlation**: Statistical correlation measure (vectorial average)
+- **Worst Case Error**: Maximum error across samples
+- **Pinball Loss**: Quantile regression loss function
 
 ### Classification Problems (Integer/Boolean Output)
-These fitness functions interpret the **sign bit** of `vm.ram[0].i64` (negative = false, positive = true):
-- **Accuracy**: Classification accuracy
-- **F1-Score/F-Beta**: Harmonic mean of precision and recall
-- **Matthews Correlation**: Balanced classification metric
-- **Balanced Accuracy**: Accuracy corrected for class imbalance
+These fitness functions interpret the **sign bit** of vectorial results from `vm.ram[params->start]` to `vm.ram[params->end-1]` (negative = false, positive = true):
+- **Accuracy**: Per-label classification accuracy
+- **Strict Accuracy**: Exact match for entire output vector per sample
+- **F1-Score/F-Beta**: Harmonic mean of precision and recall (multilabel)
+- **Matthews Correlation**: Balanced classification metric (multilabel)
+- **Balanced Accuracy**: Sensitivity/specificity average (multilabel)
 - **Cohen's Kappa**: Inter-rater agreement statistic
 - **G-Mean**: Geometric mean of sensitivity and specificity
 
 ### Specialized Functions
-- **Threshold Accuracy**: Regression with tolerance threshold
-- **Binary Cross Entropy**: Probabilistic classification loss
-- **Gaussian Log Likelihood**: Maximum likelihood estimation
-- **Adversarial Perturbation Sensitivity**: Robustness measure (requires NumPy)
+- **Threshold Accuracy**: Regression with tolerance threshold (vectorial)
+- **Binary Cross Entropy**: Probabilistic classification loss (vectorial)
+- **Gaussian Log Likelihood**: Maximum likelihood estimation (vectorial)
+- **Hinge Loss**: Support Vector Machine loss function (vectorial)
+- **Brier Score**: Probabilistic forecasting accuracy (vectorial)
+- **Adversarial Perturbation Sensitivity**: Robustness measure with perturbation vectors
+- **Conditional Value at Risk**: Risk management metric using worst α% of samples
 
 ## 🛠️ Building
 

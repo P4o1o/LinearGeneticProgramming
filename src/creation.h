@@ -10,10 +10,10 @@ struct InitializationParams{
 	const uint64_t maxsize; // maximum size of a program generated in the initialization_func
 };
 
-typedef struct LGPResult (*initialization_fn)(const struct LGPInput *const, const struct InitializationParams *const, const struct Fitness *const, const uint64_t, const union FitnessParams *const);
+typedef struct LGPResult (*initialization_fn)(const struct LGPInput *const, const struct InitializationParams *const, const struct Fitness *const, const uint64_t, const struct FitnessParams *const);
 
-struct LGPResult unique_population(const struct LGPInput *const in, const struct InitializationParams *const params, const struct Fitness *const fitness, const uint64_t max_clock, const union FitnessParams *const fitness_param);
-struct LGPResult rand_population(const struct LGPInput *const in, const struct InitializationParams *const params, const struct Fitness *const fitness, const uint64_t max_clock, const union FitnessParams *const fitness_param);
+struct LGPResult unique_population(const struct LGPInput *const in, const struct InitializationParams *const params, const struct Fitness *const fitness, const uint64_t max_clock, const struct FitnessParams *const fitness_param);
+struct LGPResult rand_population(const struct LGPInput *const in, const struct InitializationParams *const params, const struct Fitness *const fitness, const uint64_t max_clock, const struct FitnessParams *const fitness_param);
 
 // used in unique_population
 

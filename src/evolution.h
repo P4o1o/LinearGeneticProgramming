@@ -10,7 +10,7 @@
 
 struct LGPOptions {
 	const struct Fitness fitness;	// fitness function for program evaluation
-	const union FitnessParams fitness_param; // parameters for the fitness function
+	const struct FitnessParams fitness_param; // parameters for the fitness function
 	const struct Selection selection; // selection function to be used
 	const union SelectionParams select_param; // parameters for the selection function
 	const initialization_fn initialization_func; // function for create an initial Population
