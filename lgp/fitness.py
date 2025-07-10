@@ -113,12 +113,17 @@ class FitnessFunction(Structure):
     """Corrisponde a struct Fitness in fitness.h"""
     _fields_ = [
         ("fn", c_void_p),
+        ("step", c_void_p),
+        ("combine", c_void_p),
+        ("finalize", c_void_p),
+        ("init_acc", c_void_p),
         ("type", c_uint),
+        ("data_type", c_uint),
         ("name", c_char_p)
     ]
 
 class Fitness():
-    def __init__(self, func, params: FitnessParams):
+    def __init__(self, func: FitnessFunction, params: FitnessParams):
         self._func = func
         self._params = params
         self._func_wrapper = ctypes.cast(self._func.fn, ctypes.CFUNCTYPE(
