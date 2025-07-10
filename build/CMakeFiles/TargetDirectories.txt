@@ -1,5 +1,0 @@
-/home/p4o1o/Documenti/LinearGeneticProgramming/sviluppi/build/CMakeFiles/LGP.dir
-/home/p4o1o/Documenti/LinearGeneticProgramming/sviluppi/build/CMakeFiles/lgp.dir
-/home/p4o1o/Documenti/LinearGeneticProgramming/sviluppi/build/CMakeFiles/python.dir
-/home/p4o1o/Documenti/LinearGeneticProgramming/sviluppi/build/CMakeFiles/edit_cache.dir
-/home/p4o1o/Documenti/LinearGeneticProgramming/sviluppi/build/CMakeFiles/rebuild_cache.dir
