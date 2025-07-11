@@ -183,7 +183,7 @@ struct LGPOptions {
     const uint64_t max_individ_len;    // Maximum program length
     const uint64_t max_mutation_len;   // Maximum length of mutation segments
     const uint64_t generations;        // Maximum generations to run
-    const unsigned verbose;            // 0 = silent, 1 = print per-generation statistics
+    const unsigned verbose;            // 0 = silent, 1 = print per-generation statistics, 2 = print every 2 gen, etc...
 };
 ```
 

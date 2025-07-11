@@ -325,7 +325,8 @@ struct LGPResult evolve(const struct LGPInput *const in, const struct LGPOptions
         evaluations += (pop.size - oldsize);
         winner = best_individ(&pop, args->fitness.type);
         if(args->verbose)
-            printf("Generation %ld, Best Individual (%s): %lf, Population Size %ld, Evaluations %ld\n", gen, args->fitness.name, pop.individual[winner].fitness, pop.size, evaluations);
+            if(gen % args->verbose == 0)
+                printf("Generation %ld, Best Individual (%s): %lf, Population Size %ld, Evaluations %ld\n", gen, args->fitness.name, pop.individual[winner].fitness, pop.size, evaluations);
         if(args->fitness.type == MINIMIZE){
             if(pop.individual[winner].fitness <= args->target){
                 const struct LGPResult res = {.evaluations = evaluations, .pop = pop, .generations = gen, .best_individ = winner};

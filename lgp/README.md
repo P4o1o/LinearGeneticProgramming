@@ -350,7 +350,7 @@ def evolve(lgp_input: LGPInput,
 - `max_individ_len`: Maximum program length in instructions (default: `50`)
 - `max_mutation_len`: Maximum length of mutation segments (default: `5`)
 - `generations`: Maximum generations to run (default: `40`)
-- `verbose`: Print progress (`0`=silent, `1`=per-generation stats)
+- `verbose`: Print progress (`0`=silent, `1`=per-generation stats, `2`=every 2 generations, ...)
 
 **Returns:** 
 `Tuple[Population, int, int, int]` = `(final_population, total_evaluations, actual_generations, best_individual_index)`
