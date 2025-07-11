@@ -49,6 +49,8 @@ struct Selection{
 SELECTION_MACRO
 #undef SELECTION
 
+typedef void (*multi_selection_fn)(struct MultiPopulation*, const union SelectionParams *const);
+
 
 struct DoubleCouple{
     const double val[2];

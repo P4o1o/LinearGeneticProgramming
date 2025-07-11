@@ -16,7 +16,23 @@ struct LGPOptions {
 	const initialization_fn initialization_func; // function for create an initial Population
 	const struct InitializationParams init_params; // parameters for the initialization function
 	const struct Population initial_pop; // if initialization_func == NULL then start with initial_pop
-	const double target; // the evolution stops if tollerance > mse of the best individual
+	const double target; // target fitness value to reach, if reached then stop the evolution
+	const double mutation_prob; // mutation propability
+	const double crossover_prob; // crossover propability
+    const uint64_t max_clock;
+    const uint64_t max_individ_len;
+	const uint64_t max_mutation_len; // maximum lenght of the new cromosomes added by the mutation
+	const uint64_t generations; // maximum generation of execution
+	const unsigned verbose; // if 0 doesn't print anything else for every generations print "number of generation, best individual's mse, Population size and number of evaluations"
+};
+
+struct LGPMultiOptions {
+	const struct MultiFitness fitness;	// fitness function for program evaluation
+	const struct multi_selection_fn selection; // selection function to be used
+	const multi_initialization_fn initialization_func; // function for create an initial Population
+	const struct InitializationParams init_params; // parameters for the initialization function
+	const struct MultiPopulation initial_pop; // if initialization_func == NULL then start with initial_pop
+	const double *target; // target fitness value to reach, if reached then stop the evolution
 	const double mutation_prob; // mutation propability
 	const double crossover_prob; // crossover propability
     const uint64_t max_clock;
@@ -27,6 +43,8 @@ struct LGPOptions {
 };
 
 struct LGPResult evolve(const struct LGPInput *const in, const struct LGPOptions *const args);
+
+struct LGPMultiResult multi_evolve(const struct LGPInput *const in, const struct LGPMultiOptions *const args);
 
 void print_program(const struct Program *const prog);
 

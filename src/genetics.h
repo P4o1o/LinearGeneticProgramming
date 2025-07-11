@@ -26,6 +26,16 @@ struct Population{
     uint64_t size;
 };
 
+struct MultiIndividual{
+	struct Program prog;
+    double *fitness;
+};
+
+struct MultiPopulation{
+	struct MultiIndividual *individual;
+    uint64_t size;
+};
+
 struct InstructionSet{
 	const uint64_t size;
 	const struct Operation *op;
@@ -42,6 +52,13 @@ struct LGPInput{
 
 struct LGPResult{
 	const struct Population pop; // resulting pupulation
+	const uint64_t evaluations; // number of the total evaluations done in this evolution
+	const uint64_t generations; // number of generations the evolution has done
+	const uint64_t best_individ; // index of the best individual in the Population
+};
+
+struct LGPMultiResult{
+	const struct MultiPopulation pop; // resulting pupulation
 	const uint64_t evaluations; // number of the total evaluations done in this evolution
 	const uint64_t generations; // number of generations the evolution has done
 	const uint64_t best_individ; // index of the best individual in the Population

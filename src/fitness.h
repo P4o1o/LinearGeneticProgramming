@@ -180,17 +180,10 @@ struct Fitness{
 	const char *name; // name of the fitness function, used for printing
 };
 
-enum MultiObjectiveStrategy {
-    MULTI_WEIGHTED_SUM = 0,    // somma pesata
-    MULTI_PARETO_FRONT = 1,    // fronte di Pareto
-    MULTI_LEXICOGRAPHIC = 2    // ordinamento lessicografico
-};
-
 struct MultiFitness {
 	const struct Fitness *functions; // array di fitness
     const struct FitnessParams *params;  // parametri per ogni fitness
     const uint64_t size;                // numero di fitness
-    const enum MultiObjectiveStrategy strategy; // strategia di combinazione
 };
 
 double *eval_multifitness(const struct LGPInput *const in, const struct Program *const prog, const uint64_t max_clock, struct MultiFitness * const fitness);

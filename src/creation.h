@@ -15,6 +15,10 @@ typedef struct LGPResult (*initialization_fn)(const struct LGPInput *const, cons
 struct LGPResult unique_population(const struct LGPInput *const in, const struct InitializationParams *const params, const struct Fitness *const fitness, const uint64_t max_clock, const struct FitnessParams *const fitness_param);
 struct LGPResult rand_population(const struct LGPInput *const in, const struct InitializationParams *const params, const struct Fitness *const fitness, const uint64_t max_clock, const struct FitnessParams *const fitness_param);
 
+
+typedef struct LGPMultiResult (*multi_initialization_fn)(const struct LGPInput *const, const struct InitializationParams *const, const struct MultiFitness *const, const uint64_t);
+
+
 // used in unique_population
 
 struct ProgramSetNode{
