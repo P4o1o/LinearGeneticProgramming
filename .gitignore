@@ -13,3 +13,4 @@ callgrind*
 liblgp.so
 __pycache__
 lgp/__pycache__
+datasets

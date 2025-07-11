@@ -278,7 +278,7 @@ int main() {
     // Initialize random number generation
     random_init_all(42);
     
-    // Create instruction set (all floating-point operations)
+    // Create instruction set (all vm's operations)
     struct InstructionSet instr_set = {.size = INSTR_NUM, .op = INSTRSET};
     
     // Create problem using PSB2 benchmark

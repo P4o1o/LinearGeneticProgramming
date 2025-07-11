@@ -158,13 +158,29 @@ int main() {
     struct LGPInput input = vector_distance(&instr_set, 2, 100);
     
     // Configure evolution parameters
-    struct LGPOptions params = {
-        .fitness = MSE,
-        .selection = tournament,
-        .init_params = {.pop_size = 500, .minsize = 5, .maxsize = 20},
-        .target = 1e-6,
-        .generations = 50
-    };
+    const struct LGPOptions par = {
+		.fitness = MSE,
+		.fitness_param = (struct FitnessParams) {
+			.start = 0,
+			.end = 1,
+		},
+		.selection = tournament,
+		.select_param = (union SelectionParams) {.size = 3},
+		.initialization_func = unique_population,
+		.init_params = (struct InitializationParams) {
+			.pop_size = 1000,
+			.minsize = 2,
+			.maxsize = 5
+		},
+		.target = 1e-27,
+		.mutation_prob = 0.76,
+		.max_mutation_len = 5,
+		.crossover_prob = 0.95,
+		.max_clock = 5000,
+		.max_individ_len = 50,
+		.generations = 10,
+		.verbose = 1
+	};
     
     // Evolve solution
     struct LGPResult result = evolve(&input, &params);
