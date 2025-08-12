@@ -116,7 +116,7 @@ static inline uint64_t xxh_roll(const uint64_t previous, const uint64_t input){
             const __m256i multiplied = avx256_mul_epi64(input, prime2);
         #endif
         const __m256i added = _mm256_add_epi64(previous, multiplied);
-        const __m256i rolled = _mm256_or_si256(_mm256_slli_epi64(added, 31), _mm256_slli_epi64(added, 33));
+        const __m256i rolled = _mm256_or_si256(_mm256_slli_epi64(added, 31), _mm256_srli_epi64(added, 33));
         #if defined(INCLUDE_AVX512DQ) && defined(INCLUDE_AVX512VL)
             return _mm256_mullo_epi64(rolled, prime1);
         #else
@@ -143,10 +143,35 @@ static inline uint64_t xxh_roll(const uint64_t previous, const uint64_t input){
         const __m128i prime1 = _mm_set1_epi64x(PRIME1);
         const __m128i multiplied = sse2_mul_epi64(input, prime2);
         const __m128i added = _mm_add_epi64(previous, multiplied);
-        const __m128i rolled = _mm_or_si128(_mm_slli_epi64(added, 31), _mm_slli_epi64(added, 33));
+        const __m128i rolled = _mm_or_si128(_mm_slli_epi64(added, 31), _mm_srli_epi64(added, 33));
         return sse2_mul_epi64(rolled, prime1);
     }
+#elif defined(INCLUDE_NEON)
+
+    static inline uint64x2_t neon_mul_epi64(uint64x2_t a, uint64x2_t b) {
+        uint32x2_t a_lo = vmovn_u64(a);
+        uint32x2_t a_hi = vshrn_n_u64(a, 32);
+        uint32x2_t b_lo = vmovn_u64(b);
+        uint32x2_t b_hi = vshrn_n_u64(b, 32);
+        uint64x2_t lo_lo = vmull_u32(a_lo, b_lo); // a_lo * b_lo
+        uint64x2_t hi_lo = vmull_u32(a_hi, b_lo); // a_hi * b_lo
+        uint64x2_t lo_hi = vmull_u32(a_lo, b_hi); // a_lo * b_hi
+        uint64x2_t cross = vaddq_u64(hi_lo, lo_hi); // a_hi*b_lo + a_lo*b_hi
+        uint64x2_t cross_shifted = vshlq_n_u64(cross, 32);
+        return vaddq_u64(lo_lo, cross_shifted);
+}
+
+    static inline uint64x2_t neon_xxh_roll(const uint64x2_t previous, const uint64x2_t input){
+        const uint64x2_t prime2 = vdupq_n_u64(PRIME2);
+        const uint64x2_t prime1 = vdupq_n_u64(PRIME1);
+        const uint64x2_t multiplied = neon_mul_epi64(input, prime2);
+        const uint64x2_t added = vaddq_u64(previous, multiplied);
+        const uint64x2_t rolled = vorrq_u64(vshlq_n_u64(added, 31), vshrq_n_u64(added, 33));
+        return neon_mul_epi64(rolled, prime1);
+    } 
+
 #endif
+
 
 uint64_t xxhash_program(const struct Program *const prog){
     const uint64_t PRIME3 = 0x165667B19E3779F9ULL;
@@ -191,12 +216,27 @@ uint64_t xxhash_program(const struct Program *const prog){
                 __m128i data = _mm_load_si128((__m128i*)(input));
                 small_acc1 = sse2_xxh_roll(small_acc1, data);
                 input += 2;
+                __m128i data = _mm_load_si128((__m128i*)(input));
                 small_acc2 = sse2_xxh_roll(small_acc2, data);
                 input += 2;
             }
             alignas(16) uint64_t counter[4];
             _mm_store_si128((__m128i *)(counter), small_acc1);
             _mm_store_si128((__m128i *)(counter + 2), small_acc2);
+        #elif defined(INCLUDE_NEON)
+            uint64x2_t small_acc1 = {HASH_SEED + PRIME1 + PRIME2, HASH_SEED + PRIME2};
+            uint64x2_t small_acc2 = {HASH_SEED, HASH_SEED - PRIME1};
+            while(input + 4 <= end){
+                uint64x2_t data = vld1q_u64(input);
+                small_acc1 = neon_xxh_roll(small_acc1, data);
+                input += 2;
+                uint64x2_t data = vld1q_u64(input);
+                small_acc2 = neon_xxh_roll(small_acc2, data);
+                input += 2;
+            }
+            uint64_t counter[4];
+            vst1q_u64(counter, small_acc1);
+            vst1q_u64(counter + 2, small_acc2);
         #else
             uint64_t counter[4];
             counter[0] = HASH_SEED + PRIME1 + PRIME2;

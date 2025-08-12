@@ -40,6 +40,10 @@
     #endif
 #endif
 
+#if defined(__ARM_NEON) || defined(__ARM_NEON__)
+    #define INCLUDE_NEON
+#endif
+
 #ifdef INCLUDE_SSE2
     #include <xmmintrin.h> // SSE2
     #include <emmintrin.h>
@@ -56,11 +60,15 @@
     #include <immintrin.h> // AVX AVX2 AVX512
 #endif
 
+#ifdef INCLUDE_NEON
+    #include <arm_neon.h> // ARM NEON
+#endif
+
 #if defined(INCLUDE_AVX512F)
     #define VECT_ALIGNMENT 64
 #elif defined(INCLUDE_AVX2)
     #define VECT_ALIGNMENT 32
-#elif defined(INCLUDE_SSE2)
+#elif defined(INCLUDE_SSE2) || defined(INCLUDE_NEON)
     #define VECT_ALIGNMENT 16
 #endif
 

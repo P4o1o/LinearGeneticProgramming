@@ -8,7 +8,7 @@ Linear Genetic Programming is an evolutionary computation technique that evolves
 
 - **Dual Interface Architecture**: Ultra-fast C core with comprehensive Python wrapper
 - **Cross-Platform Compatibility**: Windows, macOS, Linux, and FreeBSD support
-- **Automatic Optimization**: Vector instructions (SSE, AVX, AVX-512) and OpenMP when available
+- **Automatic Optimization**: Vector instructions (SSE, AVX, AVX-512 and ARM NEON) and OpenMP when available
 - **Comprehensive Fitness Functions**: 25+ fitness functions for regression and classification (vectorial support)
 - **Flexible VM Architecture**: Custom instruction set with 87+ operations, vectorial output support
 - **Thread-Safe Design**: Full OpenMP parallelization support
@@ -19,7 +19,7 @@ Linear Genetic Programming is an evolutionary computation technique that evolves
 The C implementation provides maximum performance with minimal overhead:
 - **No input validation** - assumes correct usage for speed
 - **Direct memory access** - optimized for performance-critical applications
-- **Vector instruction support** - automatically uses SSE2, AVX, AVX2, AVX-512 when available
+- **Vector instruction support** - automatically uses SSE2, AVX, AVX2, AVX-512 or ARM NEON when available
 - **OpenMP parallelization** - scales across multiple CPU cores
 
 ### Python Interface (`lgp/`)

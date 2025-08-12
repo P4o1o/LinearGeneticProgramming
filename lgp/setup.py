@@ -2,9 +2,9 @@
 Setup module for library function signatures - CENTRALIZED
 """
 
-from .base import POINTER, c_uint32, c_uint64, c_double, liblgp, ctypes
+from .base import POINTER, c_uint32, c_uint64, c_double, liblgp
 from .vm import Program
-from .genetics import LGPInput, InstructionSet, LGPResult, Population, Individual
+from .genetics import LGPInput, InstructionSet, LGPResult, Population
 from .evolution import LGPOptions
 from .fitness import FitnessFunction, FitnessParams
 from .creation import InitializationParams
@@ -86,9 +86,5 @@ def setup_library():
     
     liblgp.balanced_accuracy.argtypes = [POINTER(LGPInput), POINTER(Program), c_uint64, POINTER(FitnessParams)]
     liblgp.balanced_accuracy.restype = c_double
-    
-
-# Call setup when module is imported
-setup_library()
 
 __all__ = ['setup_library']

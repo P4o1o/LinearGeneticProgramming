@@ -4,8 +4,9 @@ Unified wrapper classes combining C structures with user-friendly interfaces
 """
 
 # Main functions
-from . import setup
 from .base import VECT_ALIGNMENT, INSTR_NUM, NUMBER_OF_OMP_THREADS
+from .setup import setup_library
+setup_library()
 from .utils import print_program, random_init, random_init_all
 from .evolution import evolve
 
