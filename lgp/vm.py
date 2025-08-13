@@ -1,29 +1,20 @@
-"""
-VM structures and Operation enumeration - corresponds to vm.h
-"""
-
 from .base import Structure, Union, POINTER, c_uint8, c_uint32, c_uint64, c_double, c_char_p, c_int8, IntEnum, ctypes, liblgp
 from enum import Enum
 
 class Memblock(Union):
-    """Corrisponde a union Memblock in vm.h"""
     _fields_ = [
         ("i64", c_uint64),
         ("f64", c_double)
     ]
 
-
 class Instruction(Structure):
-    """Corrisponde a struct Instruction in vm.h"""
     _fields_ = [
         ("op", c_uint8),
         ("reg", c_uint8 * 3),
         ("addr", c_uint32)
     ]
 
-
 class FlagReg(Structure):
-    """Corrisponde a struct FlagReg in vm.h"""
     _fields_ = [
         ("odd", c_uint8, 1),
         ("negative", c_uint8, 1),
@@ -31,9 +22,7 @@ class FlagReg(Structure):
         ("exist", c_uint8, 1)
     ]
 
-
 class Core(Structure):
-    """Corrisponde a struct Core in vm.h"""
     _fields_ = [
         ("reg", c_uint64 * 4),
         ("freg", c_double * 4),
@@ -41,9 +30,7 @@ class Core(Structure):
         ("prcount", c_uint64)
     ]
 
-
 class VirtualMachine(Structure):
-    """Corrisponde a struct VirtualMachine in vm.h"""
     _fields_ = [
         ("core", Core),
         ("ram", POINTER(Memblock)),
@@ -51,9 +38,7 @@ class VirtualMachine(Structure):
         ("program", POINTER(Instruction))
     ]
 
-
 class Program(Structure):
-    """Corrisponde a struct Program in genetics.h"""
     _fields_ = [
         ("content", POINTER(Instruction)),
         ("size", c_uint64)
@@ -61,7 +46,6 @@ class Program(Structure):
 
 
 class OperationStruct(Structure):
-    """Corrisponde a struct Operation in vm.h"""
     _fields_ = [
         ("name", c_char_p),
         ("regs", c_uint8),
@@ -72,9 +56,6 @@ class OperationStruct(Structure):
 
 
 class Operation(Enum):
-    """Enumerazione delle 87 operazioni della VM con OperationWrapper integrato"""
-    
-    # Define all 87 operations with their OperationWrapper instances
     EXIT = OperationStruct.in_dll(liblgp, "OP_EXIT")
     LOAD_RAM = OperationStruct.in_dll(liblgp, "OP_LOAD_RAM")
     STORE_RAM = OperationStruct.in_dll(liblgp, "OP_STORE_RAM")
@@ -165,17 +146,14 @@ class Operation(Enum):
     
     @property
     def name(self) -> str:
-        """Ritorna il nome dell'operazione"""
         return self.value.name.decode('utf-8') if self.value.name else f"OP_{self.value.code}"
         
     @property
     def code(self) -> int:
-        """Ritorna il codice dell'operazione"""
         return self.value.code
     
     @property
     def c_wrapper(self) -> OperationStruct:
-        """Ritorna l'OperationWrapper integrato"""
         return self.value
 
 __all__ = ['Memblock', 'Instruction', 'FlagReg', 'Core', 

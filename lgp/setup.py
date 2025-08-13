@@ -1,7 +1,3 @@
-"""
-Setup module for library function signatures - CENTRALIZED
-"""
-
 from .base import POINTER, c_uint32, c_uint64, c_double, liblgp
 from .vm import Program
 from .genetics import LGPInput, InstructionSet, LGPResult, Population
@@ -10,7 +6,6 @@ from .fitness import FitnessFunction, FitnessParams
 from .creation import InitializationParams
 
 def setup_library():
-    """Setup centralizzato di tutti i tipi per le funzioni della libreria"""
     
     # ========== EVOLUTION FUNCTIONS ==========
     liblgp.evolve.argtypes = [POINTER(LGPInput), POINTER(LGPOptions)]

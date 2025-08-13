@@ -37,7 +37,7 @@ static inline void twist_MT19937(struct MT19937 * rand_engine){
         _mm512_store_si512(rand_engine->state, result);
         memcpy(rand_engine->state + MT19937_64_STATE_SIZE, rand_engine->state, 13 * sizeof(uint32_t));
         for(size_t idx = 16; idx < MT19937_STATE_SIZE - MIDDLE_WORD_R32; idx += 16){
-            uint32_t *now = rand_engine->state + idx
+            uint32_t *now = rand_engine->state + idx;
             __m512i x = _mm512_load_si512(now);
             __m512i x_next = _mm512_loadu_si512(now + 1);
             __m512i mag = _mm512_and_si512(x, _mm512_set1_epi32(U_MASK_R32));
@@ -50,7 +50,7 @@ static inline void twist_MT19937(struct MT19937 * rand_engine){
             _mm512_store_si512(now, result);
         }
         for(size_t idx = MT19937_STATE_SIZE - MIDDLE_WORD_R32 + 13; idx < MT19937_STATE_SIZE; idx += 16){
-            uint32_t *now = rand_engine->state + idx
+            uint32_t *now = rand_engine->state + idx;
             __m512i x = _mm512_load_si512(now);
             __m512i x_next = _mm512_loadu_si512(now + 1);
             __m512i mag = _mm512_and_si512(x, _mm512_set1_epi32(U_MASK_R32));
@@ -75,7 +75,7 @@ static inline void twist_MT19937(struct MT19937 * rand_engine){
         _mm256_store_si256((__m256i*)rand_engine->state, result);
         memcpy(rand_engine->state + MT19937_64_STATE_SIZE, rand_engine->state, 5 * sizeof(uint32_t));
         for (size_t idx = 8; idx < MT19937_STATE_SIZE - MIDDLE_WORD_R32; idx += 8) {
-            uint32_t *now = rand_engine->state + idx
+            uint32_t *now = rand_engine->state + idx;
             __m256i x = _mm256_load_si256((const __m256i*) now);
             __m256i x_next = _mm256_loadu_si256((const __m256i*)(now + 1));
             __m256i mag = _mm256_and_si256(x, _mm256_set1_epi32(U_MASK_R32));
@@ -88,7 +88,7 @@ static inline void twist_MT19937(struct MT19937 * rand_engine){
             _mm256_store_si256((__m256i*) now, result);
         }
         for(size_t idx = MT19937_STATE_SIZE - MIDDLE_WORD_R32 + 5; idx < MT19937_STATE_SIZE; idx += 8){
-            uint32_t *now = rand_engine->state + idx
+            uint32_t *now = rand_engine->state + idx;
             __m256i x = _mm256_load_si256((const __m256i*) now);
             __m256i x_next = _mm256_loadu_si256((const __m256i*)(now + 1));
             __m256i mag = _mm256_and_si256(x, _mm256_set1_epi32(U_MASK_R32));
@@ -113,7 +113,7 @@ static inline void twist_MT19937(struct MT19937 * rand_engine){
         _mm_store_si128((__m128i*)rand_engine->state, result);
         rand_engine->state[MT19937_STATE_SIZE] = rand_engine->state[0];
         for (size_t idx = 4; idx < MT19937_STATE_SIZE - MIDDLE_WORD_R32; idx += 4) {
-            uint32_t *now = rand_engine->state + idx
+            uint32_t *now = rand_engine->state + idx;
             __m128i x = _mm_load_si128((__m128i*) now);
             __m128i x_next = _mm_loadu_si128((__m128i*)(now + 1));
             __m128i mag = _mm_and_si128(x, _mm_set1_epi32(U_MASK_R32));
@@ -126,7 +126,7 @@ static inline void twist_MT19937(struct MT19937 * rand_engine){
             _mm_store_si128((__m128i*) now, result);
         }
         for(size_t idx = MT19937_STATE_SIZE - MIDDLE_WORD_R32 + 1; idx < MT19937_STATE_SIZE; idx += 4){
-            uint32_t *now = rand_engine->state + idx
+            uint32_t *now = rand_engine->state + idx;
             __m128i x = _mm_load_si128((__m128i*)(now));
             __m128i x_next = _mm_loadu_si128((__m128i*)(now + 1));
             __m128i mag = _mm_and_si128(x, _mm_set1_epi32(U_MASK_R32));
@@ -151,7 +151,7 @@ static inline void twist_MT19937(struct MT19937 * rand_engine){
         vst1q_u32(rand_engine->state, result);
         rand_engine->state[MT19937_STATE_SIZE] = rand_engine->state[0];
         for (size_t idx = 4; idx < MT19937_STATE_SIZE - MIDDLE_WORD_R32; idx += 4) {
-            uint32_t *now = rand_engine->state + idx
+            uint32_t *now = rand_engine->state + idx;
             uint32x4_t x = vld1q_u32(now);
             uint32x4_t x_next = vld1q_u32(now + 1);
             uint32x4_t mag = vandq_u32(x, vdupq_n_u32(U_MASK_R32));
@@ -164,7 +164,7 @@ static inline void twist_MT19937(struct MT19937 * rand_engine){
             vst1q_u32(now, result);
         }
         for (size_t idx = MT19937_STATE_SIZE - MIDDLE_WORD_R32 + 1; idx < MT19937_STATE_SIZE; idx += 4) {
-            uint32_t *now = rand_engine->state + idx
+            uint32_t *now = rand_engine->state + idx;
             uint32x4_t x = vld1q_u32(now);
             uint32x4_t x_next = vld1q_u32(now + 1);
             uint32x4_t mag = vandq_u32(x, vdupq_n_u32(U_MASK_R32));

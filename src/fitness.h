@@ -67,6 +67,15 @@ enum FitnessType{
 	FITNESS_TYPE_NUM
 };
 
+enum MultiFitnessType{
+	LEXIOGRAPHIC = 0,
+	PARETO = 1,
+
+
+	MULTI_FITNESS_TYPE_NUM
+};
+
+
 enum FitnessDataType{
 	FITNESS_FLOAT = 0,
     FITNESS_INT = 1,

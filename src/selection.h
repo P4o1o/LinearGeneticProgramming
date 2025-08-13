@@ -51,6 +51,9 @@ SELECTION_MACRO
 
 typedef void (*multi_selection_fn)(struct MultiPopulation*, const union SelectionParams *const);
 
+struct MultiSelection{
+    const multi_selection_fn type[MULTI_FITNESS_TYPE_NUM];
+};
 
 struct DoubleCouple{
     const double val[2];

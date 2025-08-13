@@ -28,7 +28,7 @@ struct LGPOptions {
 
 struct LGPMultiOptions {
 	const struct MultiFitness fitness;	// fitness function for program evaluation
-	const struct multi_selection_fn selection; // selection function to be used
+	const struct MultiSelection selection; // selection function to be used
 	const multi_initialization_fn initialization_func; // function for create an initial Population
 	const struct InitializationParams init_params; // parameters for the initialization function
 	const struct MultiPopulation initial_pop; // if initialization_func == NULL then start with initial_pop

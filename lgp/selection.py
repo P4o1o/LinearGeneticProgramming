@@ -1,11 +1,6 @@
-"""
-Selection structures and classes - corresponds to selection.h
-"""
-
 from .base import Structure, Union, c_uint64, c_double, c_void_p, liblgp
 
 class SelectFactor(Union):
-    """Corrisponde all'union select_factor in selection.h"""
     _fields_ = [
         ("size", c_uint64),
         ("val", c_double)
@@ -16,7 +11,6 @@ class SelectFactor(Union):
 
     @staticmethod
     def new_size(size: int = 0) -> "SelectFactor":
-        """Imposta il valore di size"""
         if size < 0:
             raise ValueError("Invalid size for SelectFactor in FitnessSharingParams")
         res = SelectFactor()
@@ -25,7 +19,6 @@ class SelectFactor(Union):
 
     @staticmethod
     def new_value(val: float = 0.0) -> "SelectFactor":
-        """Imposta il valore di val"""
         if val < 0.0:
             raise ValueError("Invalid value for SelectFactor in FitnessSharingParams")
         res = SelectFactor()
@@ -34,7 +27,6 @@ class SelectFactor(Union):
 
 
 class FitnessSharingParams(Structure):
-    """Corrisponde a struct FitnessSharingParams in selection.h"""
     _fields_ = [
         ("alpha", c_double),
         ("beta", c_double),
@@ -53,7 +45,6 @@ class FitnessSharingParams(Structure):
 
 
 class SelectionParams(Union):
-    """Corrisponde a union SelectionParams in selection.h"""
     _fields_ = [
         ("size", c_uint64),
         ("val", c_double),
@@ -65,14 +56,12 @@ class SelectionParams(Union):
 
     @staticmethod
     def new_fitness_sharing(fs_params: FitnessSharingParams) -> "SelectionParams":
-        """Crea un'istanza di SelectionParams da FitnessSharingParams"""
         params = SelectionParams()
         params.fs_params = fs_params
         return params
     
     @staticmethod
     def new_size(size: int = 0) -> "SelectionParams":
-        """Crea un'istanza di SelectionParams con un valore di size"""
         if size < 0:
             raise ValueError("Invalid size for SelectionParams")
         params = SelectionParams()
@@ -81,7 +70,6 @@ class SelectionParams(Union):
     
     @staticmethod
     def new_value(val: float = 0.0) -> "SelectionParams":
-        """Crea un'istanza di SelectionParams con un valore di val"""
         if val < 0.0:
             raise ValueError("Invalid value for SelectionParams")
         params = SelectionParams()
@@ -89,7 +77,6 @@ class SelectionParams(Union):
         return params
 
 class SelectionFunction(Structure):
-    """Corrisponde a struct Selection in selection.h - unified wrapper + interface"""
     _fields_ = [
         ("type", c_void_p * 2)  # FITNESS_TYPE_NUM = 2
     ]
@@ -101,7 +88,6 @@ class Selection():
 
     @property
     def function(self) -> SelectionFunction:
-        """Override in subclasses to return the corresponding C struct"""
         raise NotImplementedError
     
     @property
@@ -110,8 +96,6 @@ class Selection():
 
 
 class Tournament(Selection):
-    """Tournament selection"""
-    
     def __init__(self, tournament_size: int = 3):
         super().__init__(SelectionParams.new_size(tournament_size))
     
@@ -122,8 +106,6 @@ class Tournament(Selection):
 
 
 class Elitism(Selection):
-    """Elitism selection"""
-    
     def __init__(self, elite_size: int = 10):
         super().__init__(SelectionParams.new_size(elite_size))
     
@@ -133,8 +115,6 @@ class Elitism(Selection):
 
 
 class PercentualElitism(Selection):
-    """Percentual Elitism selection"""
-    
     def __init__(self, elite_percentage: float = 0.1):
         super().__init__(SelectionParams.new_value(elite_percentage))
     
@@ -144,8 +124,6 @@ class PercentualElitism(Selection):
 
 
 class Roulette(Selection):
-    """Roulette wheel selection"""
-    
     def __init__(self, sampling_size: int = 100):
         super().__init__(SelectionParams.new_size(sampling_size))
 
@@ -155,8 +133,6 @@ class Roulette(Selection):
 
 
 class FitnessSharingTournament(Selection):
-    """Fitness Sharing Tournament selection"""
-    
     def __init__(self, tournament_size: int = 3, alpha: float = 1.0, beta: float = 1.0, sigma: float = 1.0):
         super().__init__(SelectionParams.new_fitness_sharing(FitnessSharingParams(alpha, beta, sigma, SelectFactor.new_size(tournament_size))))
     
@@ -166,8 +142,6 @@ class FitnessSharingTournament(Selection):
 
 
 class FitnessSharingElitism(Selection):
-    """Fitness Sharing Elitism selection"""
-    
     def __init__(self, elite_size: int = 10, alpha: float = 1.0, beta: float = 1.0, sigma: float = 1.0):
         super().__init__(SelectionParams.new_fitness_sharing(FitnessSharingParams(alpha, beta, sigma, SelectFactor.new_size(elite_size))))
     
@@ -177,8 +151,6 @@ class FitnessSharingElitism(Selection):
 
 
 class FitnessSharingPercentualElitism(Selection):
-    """Fitness Sharing Percentual Elitism selection"""
-    
     def __init__(self, elite_percentage: float = 0.1, alpha: float = 1.0, beta: float = 1.0, sigma: float = 1.0):
         super().__init__(SelectionParams.new_fitness_sharing(FitnessSharingParams(alpha, beta, sigma, SelectFactor.new_value(elite_percentage))))
     
@@ -188,8 +160,6 @@ class FitnessSharingPercentualElitism(Selection):
 
 
 class FitnessSharingRoulette(Selection):
-    """Fitness Sharing Roulette selection"""
-    
     def __init__(self, sampling_size: int = 100, alpha: float = 1.0, beta: float = 1.0, sigma: float = 1.0):
         super().__init__(SelectionParams.new_fitness_sharing(FitnessSharingParams(alpha, beta, sigma, SelectFactor.new_size(sampling_size))))
     

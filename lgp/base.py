@@ -1,13 +1,8 @@
-"""
-Base module for LGP library loading and common imports
-"""
-
 import ctypes
 from ctypes import Structure, Union, POINTER, c_uint8, c_uint32, c_uint64, c_double, c_char_p, c_void_p, c_uint, c_int8
 from typing import Tuple, Optional, List
 from enum import IntEnum
 
-# Carica la libreria dinamica
 try:
     liblgp = ctypes.CDLL('./liblgp.so')
     VECT_ALIGNMENT = ctypes.c_uint64.in_dll(liblgp, "VECT_ALIGNMENT_WRAPPER").value

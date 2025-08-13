@@ -1,13 +1,8 @@
-"""
-Creation/Initialization structures and classes - corresponds to creation.h
-"""
-
 from lgp.fitness import Fitness
 from lgp.genetics import LGPInput, LGPResult
 from .base import Structure, POINTER, c_uint64, c_void_p, ctypes, liblgp
 
 class InitializationParams(Structure):
-    """Corresponds to struct InitializationParams in creation.h"""
     _fields_ = [
         ("pop_size", c_uint64),
         ("minsize", c_uint64),
@@ -24,8 +19,6 @@ class InitializationParams(Structure):
 
 
 class Initialization:
-    """Base class for initialization methods"""
-    
     def __init__(self, func, params: InitializationParams):
         self._func = func
         self._params = params
@@ -43,15 +36,11 @@ class Initialization:
 
 
 class UniquePopulation(Initialization):
-    """Unique Population initialization - avoids duplicates"""
-    
     def __init__(self, pop_size: int = 100, minsize: int = 1, maxsize: int = 10):
         super().__init__(liblgp.unique_population, InitializationParams(pop_size, minsize, maxsize))
 
 
 class RandPopulation(Initialization):
-    """Random Population initialization - completely random"""
-    
     def __init__(self, pop_size: int = 100, minsize: int = 1, maxsize: int = 10):
         super().__init__(liblgp.rand_population, InitializationParams(pop_size, minsize, maxsize))
 

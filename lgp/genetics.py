@@ -1,13 +1,7 @@
-"""
-Genetics structures and types - corresponds to genetics.h
-Unified wrapper classes that combine C structures with user-friendly interfaces
-"""
-
 from .base import Structure, POINTER, c_uint64, c_double, List, Optional, ctypes, liblgp, VECT_ALIGNMENT
 from .vm import Program, Memblock, OperationStruct, Instruction
 
 class Program(Structure):
-    """Standard Program structure without special alignment"""
     _fields_ = [
         ("content", POINTER(Instruction)),
         ("size", c_uint64)
@@ -15,48 +9,35 @@ class Program(Structure):
 
 
 class Individual(Structure):
-    """Corresponds to struct Individual in genetics.h with integrated user interface"""
     _fields_ = [
         ("prog", Program),
         ("fitness", c_double),
     ]
     
     def print_program(self) -> None:
-        """Print the program of this individual"""
         from .utils import print_program
         print_program(self)
     
     @property
     def size(self) -> int:
-        """Return the program size (number of instructions)"""
         return self.prog.size
     
 
 
 class Population(Structure):
-    """Corresponds to struct Population in genetics.h with integrated user interface"""
+    _fields_ = [
+        ("individual", POINTER(Individual)),
+        ("size", c_uint64)
+    ]
     _fields_ = [
         ("individual", POINTER(Individual)),
         ("size", c_uint64)
     ]
     
     def __del__(self):
-        """Free the population memory when the object is deleted"""
         liblgp.free_population(ctypes.byref(self))
     
     def get(self, index: int) -> Individual:
-        """
-        Get an individual from the population by index
-        
-        Args:
-    # get_INSTRSET function
-    liblgp.get_INSTRSET.argtypes = [c_uint32]
-    liblgp.get_INSTRSET.restype = POINTER(OperationStruct)
-            index: Individual index (0-based)
-            
-        Returns:
-            Individual at the requested index
-        """
         if not self.individual:
             raise RuntimeError("Population not properly initialized")
         if index < 0 or index >= self.size:
@@ -64,19 +45,12 @@ class Population(Structure):
         return self.individual[index]
         
 class InstructionSet(Structure):
-    """Corresponds to struct InstructionSet in genetics.h with integrated user interface"""
     _fields_ = [
         ("size", c_uint64),
         ("op", POINTER(OperationStruct))
     ]
     
     def __init__(self, operations: List[Instruction]):
-        """
-        Create an InstructionSet from a list of Operations
-        
-        Args:
-            operations: List of Operations (optional for ctypes compatibility)
-        """
         if operations is None or len(operations) == 0:
             raise ValueError("Instruction set cannot be empty")
         
@@ -100,7 +74,6 @@ class InstructionSet(Structure):
 
 
 class LGPInput(Structure):
-    """Corresponds to struct LGPInput in genetics.h with integrated user interface"""
     _fields_ = [
         ("input_num", c_uint64),
         ("rom_size", c_uint64),
@@ -121,15 +94,6 @@ class LGPInput(Structure):
 
     @classmethod
     def from_df(cls, df, y: List[str], instruction_set: InstructionSet, ram_size: Optional[int] = None):
-        """
-        Create an LGPInput instance from a pandas DataFrame
-        
-        Args:
-            df: DataFrame containing the data
-            y: List of columns to consider as targets (y)
-            instruction_set: Available instruction set
-            ram_size: RAM size (default: res_size)
-        """
         import pandas as pd
         # Parameter validation
         if len(y) == 0:
@@ -192,15 +156,6 @@ class LGPInput(Structure):
     
     @classmethod
     def from_numpy(cls, X, y, instruction_set: InstructionSet, ram_size: Optional[int] = None):
-        """
-        Create an LGPInput instance from numpy arrays/lists
-        
-        Args:
-            X: Array/matrix of input features (n_samples, n_features)
-            y: Array/list of targets - can be 1D or list of values
-            instruction_set: Available instruction set
-            ram_size: RAM size (default: max(1, y.shape[1]) if y is 2D, otherwise 1)
-        """
         import numpy as np
         # Convert X to numpy array if not already
         X = np.asarray(X, dtype=np.float64)
@@ -270,7 +225,6 @@ class LGPInput(Structure):
 
 
 class LGPResult(Structure):
-    """Corresponds to struct LGPResult in genetics.h with integrated user interface"""
     _fields_ = [
         ("pop", Population),
         ("evaluations", c_uint64),
@@ -281,18 +235,7 @@ class LGPResult(Structure):
 
 
 class VectorDistance(LGPInput):
-    """Subclass of LGPInput for vector distance problems"""
-    
     def __init__(self, instruction_set: InstructionSet, vector_len: int, instances: int):
-        """
-        Initialize a vector distance problem
-        
-        Args:
-            instruction_set: Available instruction set
-            vector_len: Vector length
-            instances: Number of problem instances
-        """
-        # Initialize parent class with c_allocated=True
         super().__init__(c_allocated=True)
         
         result = liblgp.vector_distance(
@@ -301,7 +244,6 @@ class VectorDistance(LGPInput):
             c_uint64(instances)
         )
         
-        # Copy fields from result
         self.input_num = result.input_num
         self.rom_size = result.rom_size
         self.res_size = result.res_size
@@ -311,17 +253,7 @@ class VectorDistance(LGPInput):
 
 
 class BouncingBalls(LGPInput):
-    """Subclass of LGPInput for bouncing balls problems"""
-    
     def __init__(self, instruction_set: InstructionSet, instances: int):
-        """
-        Initialize a bouncing balls problem
-        
-        Args:
-            instruction_set: Available instruction set
-            instances: Number of problem instances
-        """
-        # Initialize parent class with c_allocated=True
         super().__init__(c_allocated=True)
         
         result = liblgp.bouncing_balls(
@@ -329,7 +261,6 @@ class BouncingBalls(LGPInput):
             c_uint64(instances)
         )
         
-        # Copy fields from result
         self.input_num = result.input_num
         self.rom_size = result.rom_size
         self.res_size = result.res_size
@@ -339,17 +270,7 @@ class BouncingBalls(LGPInput):
 
 
 class DiceGame(LGPInput):
-    """Subclass of LGPInput for dice game problems"""
-    
     def __init__(self, instruction_set: InstructionSet, instances: int):
-        """
-        Initialize a dice game problem
-        
-        Args:
-            instruction_set: Available instruction set
-            instances: Number of problem instances
-        """
-        # Initialize parent class with c_allocated=True
         super().__init__(c_allocated=True)
         
         result = liblgp.dice_game(
@@ -357,7 +278,6 @@ class DiceGame(LGPInput):
             c_uint64(instances)
         )
         
-        # Copy fields from result
         self.input_num = result.input_num
         self.rom_size = result.rom_size
         self.res_size = result.res_size
@@ -367,18 +287,7 @@ class DiceGame(LGPInput):
 
 
 class ShoppingList(LGPInput):
-    """Subclass of LGPInput for shopping list problems"""
-    
     def __init__(self, instruction_set: InstructionSet, num_of_items: int, instances: int):
-        """
-        Initialize a shopping list problem
-        
-        Args:
-            instruction_set: Available instruction set
-            num_of_items: Number of items in the shopping list
-            instances: Number of problem instances
-        """
-        # Initialize parent class with c_allocated=True
         super().__init__(c_allocated=True)
         
         result = liblgp.shopping_list(
@@ -387,7 +296,6 @@ class ShoppingList(LGPInput):
             c_uint64(instances)
         )
         
-        # Copy fields from result
         self.input_num = result.input_num
         self.rom_size = result.rom_size
         self.res_size = result.res_size
@@ -397,17 +305,7 @@ class ShoppingList(LGPInput):
 
 
 class SnowDay(LGPInput):
-    """Subclass of LGPInput for snow day problems"""
-    
     def __init__(self, instruction_set: InstructionSet, instances: int):
-        """
-        Initialize a snow day problem
-        
-        Args:
-            instruction_set: Available instruction set
-            instances: Number of problem instances
-        """
-        # Initialize parent class with c_allocated=True
         super().__init__(c_allocated=True)
         
         result = liblgp.snow_day(
@@ -415,7 +313,6 @@ class SnowDay(LGPInput):
             c_uint64(instances)
         )
         
-        # Copy fields from result
         self.input_num = result.input_num
         self.rom_size = result.rom_size
         self.res_size = result.res_size

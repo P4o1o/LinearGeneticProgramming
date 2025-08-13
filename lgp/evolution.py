@@ -1,7 +1,3 @@
-"""
-Evolution structures and functions - corresponds to evolution.h
-"""
-
 from .base import Structure, POINTER, c_uint64, c_uint, c_double, c_void_p, Tuple, Optional, ctypes, liblgp
 from .genetics import LGPInput, LGPResult, Population
 from .fitness import MSE, Fitness, FitnessFunction, FitnessParams
@@ -12,7 +8,6 @@ from .creation import InitializationParams, Initialization, UniquePopulation
 initialization_fn = c_void_p
 
 class LGPOptions(Structure):
-    """Corresponds to struct LGPOptions in evolution.h"""
     _fields_ = [
         ("fitness", FitnessFunction),
         ("fitness_param", FitnessParams),
