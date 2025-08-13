@@ -1,6 +1,5 @@
 # Linear Genetic Programming (LGP) Framework
 
-[![CI/CD Pipeline](https://github.com/P4o1o/LinearGeneticProgramming/actions/workflows/ci.yml/badge.svg)](https://github.com/P4o1o/LinearGeneticProgramming/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20macOS%20%7C%20Windows-blue.svg)](https://github.com/P4o1o/LinearGeneticProgramming)
 [![Performance](https://img.shields.io/badge/performance-30k%2B%20evals%2Fsec-green.svg)](https://github.com/P4o1o/LinearGeneticProgramming)
