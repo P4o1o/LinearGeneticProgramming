@@ -11,7 +11,6 @@ import lgp
 import numpy as np
 import pandas as pd
 import time
-import warnings
 
 def setup_lgp():
     """Initial LGP system setup"""

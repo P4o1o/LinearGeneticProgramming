@@ -1,7 +1,7 @@
 #include <stdio.h>
-#include "evolution.h"
-#include "psb2.h"
-#include "prob.h"
+#include "src/evolution.h"
+#include "src/psb2.h"
+#include "src/prob.h"
  
 
 static inline double get_time_sec(void) {

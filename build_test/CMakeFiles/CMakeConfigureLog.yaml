@@ -1,0 +1,1312 @@
+
+---
+events:
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake-3.28/Modules/CMakeDetermineSystem.cmake:233 (message)"
+      - "CMakeLists.txt:3 (project)"
+    message: |
+      The system is: Linux - 6.14.0-27-generic - x86_64
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake-3.28/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "/usr/share/cmake-3.28/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "/usr/share/cmake-3.28/Modules/CMakeDetermineCCompiler.cmake:123 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:3 (project)"
+    message: |
+      Compiling the C compiler identification source file "CMakeCCompilerId.c" succeeded.
+      Compiler: /usr/bin/cc 
+      Build flags: 
+      Id flags:  
+      
+      The output was:
+      0
+      
+      
+      Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "a.out"
+      
+      The C compiler identification is GNU, found in:
+        /home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/3.28.3/CompilerIdC/a.out
+      
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.28/Modules/CMakeDetermineCompilerABI.cmake:57 (try_compile)"
+      - "/usr/share/cmake-3.28/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:3 (project)"
+    checks:
+      - "Detecting C compiler ABI info"
+    directories:
+      source: "/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-Xm3Oyq"
+      binary: "/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-Xm3Oyq"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "CMAKE_C_ABI_COMPILED"
+      cached: true
+      stdout: |
+        Change Dir: '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-Xm3Oyq'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_0184e/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_0184e.dir/build.make CMakeFiles/cmTC_0184e.dir/build
+        gmake[1]: Entering directory '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-Xm3Oyq'
+        Building C object CMakeFiles/cmTC_0184e.dir/CMakeCCompilerABI.c.o
+        /usr/bin/cc   -v -o CMakeFiles/cmTC_0184e.dir/CMakeCCompilerABI.c.o -c /usr/share/cmake-3.28/Modules/CMakeCCompilerABI.c
+        Using built-in specs.
+        COLLECT_GCC=/usr/bin/cc
+        OFFLOAD_TARGET_NAMES=nvptx-none:amdgcn-amdhsa
+        OFFLOAD_TARGET_DEFAULT=1
+        Target: x86_64-linux-gnu
+        Configured with: ../src/configure -v --with-pkgversion='Ubuntu 13.3.0-6ubuntu2~24.04' --with-bugurl=file:///usr/share/doc/gcc-13/README.Bugs --enable-languages=c,ada,c++,go,d,fortran,objc,obj-c++,m2 --prefix=/usr --with-gcc-major-version-only --program-suffix=-13 --program-prefix=x86_64-linux-gnu- --enable-shared --enable-linker-build-id --libexecdir=/usr/libexec --without-included-gettext --enable-threads=posix --libdir=/usr/lib --enable-nls --enable-bootstrap --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --with-default-libstdcxx-abi=new --enable-libstdcxx-backtrace --enable-gnu-unique-object --disable-vtable-verify --enable-plugin --enable-default-pie --with-system-zlib --enable-libphobos-checking=release --with-target-system-zlib=auto --enable-objc-gc=auto --enable-multiarch --disable-werror --enable-cet --with-arch-32=i686 --with-abi=m64 --with-multilib-list=m32,m64,mx32 --enable-multilib --with-tune=generic --enable-offload-targets=nvptx-none=/build/gcc-13-fG75Ri/gcc-13-13.3.0/debian/tmp-nvptx/usr,amdgcn-amdhsa=/build/gcc-13-fG75Ri/gcc-13-13.3.0/debian/tmp-gcn/usr --enable-offload-defaulted --without-cuda-driver --enable-checking=release --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu --with-build-config=bootstrap-lto-lean --enable-link-serialization=2
+        Thread model: posix
+        Supported LTO compression algorithms: zlib zstd
+        gcc version 13.3.0 (Ubuntu 13.3.0-6ubuntu2~24.04) 
+        COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_0184e.dir/CMakeCCompilerABI.c.o' '-c' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_0184e.dir/'
+         /usr/libexec/gcc/x86_64-linux-gnu/13/cc1 -quiet -v -imultiarch x86_64-linux-gnu /usr/share/cmake-3.28/Modules/CMakeCCompilerABI.c -quiet -dumpdir CMakeFiles/cmTC_0184e.dir/ -dumpbase CMakeCCompilerABI.c.c -dumpbase-ext .c -mtune=generic -march=x86-64 -version -fasynchronous-unwind-tables -fstack-protector-strong -Wformat -Wformat-security -fstack-clash-protection -fcf-protection -o /tmp/ccNGu4wU.s
+        GNU C17 (Ubuntu 13.3.0-6ubuntu2~24.04) version 13.3.0 (x86_64-linux-gnu)
+        	compiled by GNU C version 13.3.0, GMP version 6.3.0, MPFR version 4.2.1, MPC version 1.3.1, isl version isl-0.26-GMP
+        
+        GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
+        ignoring duplicate directory "/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/include"
+        ignoring nonexistent directory "/usr/local/include/x86_64-linux-gnu"
+        ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/13/include-fixed/x86_64-linux-gnu"
+        ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/13/include-fixed"
+        ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/13/../../../../x86_64-linux-gnu/include"
+        #include "..." search starts here:
+        #include <...> search starts here:
+         /opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/include
+         .
+         /usr/lib/gcc/x86_64-linux-gnu/13/include
+         /usr/local/include
+         /usr/include/x86_64-linux-gnu
+         /usr/include
+        End of search list.
+        Compiler executable checksum: 38987c28e967c64056a6454abdef726e
+        COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_0184e.dir/CMakeCCompilerABI.c.o' '-c' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_0184e.dir/'
+         as -v --64 -o CMakeFiles/cmTC_0184e.dir/CMakeCCompilerABI.c.o /tmp/ccNGu4wU.s
+        GNU assembler version 2.42 (x86_64-linux-gnu) using BFD version (GNU Binutils for Ubuntu) 2.42
+        COMPILER_PATH=/usr/libexec/gcc/x86_64-linux-gnu/13/:/usr/libexec/gcc/x86_64-linux-gnu/13/:/usr/libexec/gcc/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/13/:/usr/lib/gcc/x86_64-linux-gnu/
+        LIBRARY_PATH=/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib/../lib/:/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib/../lib/:/usr/lib/gcc/x86_64-linux-gnu/13/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../../lib/:/lib/x86_64-linux-gnu/:/lib/../lib/:/usr/lib/x86_64-linux-gnu/:/usr/lib/../lib/:/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib/:/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib/:./:/usr/lib/gcc/x86_64-linux-gnu/13/../../../:/lib/:/usr/lib/
+        COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_0184e.dir/CMakeCCompilerABI.c.o' '-c' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_0184e.dir/CMakeCCompilerABI.c.'
+        Linking C executable cmTC_0184e
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_0184e.dir/link.txt --verbose=1
+        /usr/bin/cc  -v CMakeFiles/cmTC_0184e.dir/CMakeCCompilerABI.c.o -o cmTC_0184e 
+        Using built-in specs.
+        COLLECT_GCC=/usr/bin/cc
+        COLLECT_LTO_WRAPPER=/usr/libexec/gcc/x86_64-linux-gnu/13/lto-wrapper
+        OFFLOAD_TARGET_NAMES=nvptx-none:amdgcn-amdhsa
+        OFFLOAD_TARGET_DEFAULT=1
+        Target: x86_64-linux-gnu
+        Configured with: ../src/configure -v --with-pkgversion='Ubuntu 13.3.0-6ubuntu2~24.04' --with-bugurl=file:///usr/share/doc/gcc-13/README.Bugs --enable-languages=c,ada,c++,go,d,fortran,objc,obj-c++,m2 --prefix=/usr --with-gcc-major-version-only --program-suffix=-13 --program-prefix=x86_64-linux-gnu- --enable-shared --enable-linker-build-id --libexecdir=/usr/libexec --without-included-gettext --enable-threads=posix --libdir=/usr/lib --enable-nls --enable-bootstrap --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --with-default-libstdcxx-abi=new --enable-libstdcxx-backtrace --enable-gnu-unique-object --disable-vtable-verify --enable-plugin --enable-default-pie --with-system-zlib --enable-libphobos-checking=release --with-target-system-zlib=auto --enable-objc-gc=auto --enable-multiarch --disable-werror --enable-cet --with-arch-32=i686 --with-abi=m64 --with-multilib-list=m32,m64,mx32 --enable-multilib --with-tune=generic --enable-offload-targets=nvptx-none=/build/gcc-13-fG75Ri/gcc-13-13.3.0/debian/tmp-nvptx/usr,amdgcn-amdhsa=/build/gcc-13-fG75Ri/gcc-13-13.3.0/debian/tmp-gcn/usr --enable-offload-defaulted --without-cuda-driver --enable-checking=release --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu --with-build-config=bootstrap-lto-lean --enable-link-serialization=2
+        Thread model: posix
+        Supported LTO compression algorithms: zlib zstd
+        gcc version 13.3.0 (Ubuntu 13.3.0-6ubuntu2~24.04) 
+        COMPILER_PATH=/usr/libexec/gcc/x86_64-linux-gnu/13/:/usr/libexec/gcc/x86_64-linux-gnu/13/:/usr/libexec/gcc/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/13/:/usr/lib/gcc/x86_64-linux-gnu/
+        LIBRARY_PATH=/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib/../lib/:/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib/../lib/:/usr/lib/gcc/x86_64-linux-gnu/13/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../../lib/:/lib/x86_64-linux-gnu/:/lib/../lib/:/usr/lib/x86_64-linux-gnu/:/usr/lib/../lib/:/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib/:/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib/:./:/usr/lib/gcc/x86_64-linux-gnu/13/../../../:/lib/:/usr/lib/
+        COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_0184e' '-mtune=generic' '-march=x86-64' '-dumpdir' 'cmTC_0184e.'
+         /usr/libexec/gcc/x86_64-linux-gnu/13/collect2 -plugin /usr/libexec/gcc/x86_64-linux-gnu/13/liblto_plugin.so -plugin-opt=/usr/libexec/gcc/x86_64-linux-gnu/13/lto-wrapper -plugin-opt=-fresolution=/tmp/ccmhV2yk.res -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s --build-id --eh-frame-hdr -m elf_x86_64 --hash-style=gnu --as-needed -dynamic-linker /lib64/ld-linux-x86-64.so.2 -pie -z now -z relro -o cmTC_0184e /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crti.o /usr/lib/gcc/x86_64-linux-gnu/13/crtbeginS.o -L/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib/../lib -L/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib/../lib -L/usr/lib/gcc/x86_64-linux-gnu/13 -L/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/13/../../../../lib -L/lib/x86_64-linux-gnu -L/lib/../lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib/../lib -L/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib -L/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib -L. -L/usr/lib/gcc/x86_64-linux-gnu/13/../../.. CMakeFiles/cmTC_0184e.dir/CMakeCCompilerABI.c.o -lgcc --push-state --as-needed -lgcc_s --pop-state -lc -lgcc --push-state --as-needed -lgcc_s --pop-state /usr/lib/gcc/x86_64-linux-gnu/13/crtendS.o /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crtn.o
+        COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_0184e' '-mtune=generic' '-march=x86-64' '-dumpdir' 'cmTC_0184e.'
+        gmake[1]: Leaving directory '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-Xm3Oyq'
+        
+      exitCode: 0
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake-3.28/Modules/CMakeDetermineCompilerABI.cmake:127 (message)"
+      - "/usr/share/cmake-3.28/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:3 (project)"
+    message: |
+      Parsed C implicit include dir info: rv=done
+        found start of include info
+        found start of implicit include info
+          add: [/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/include]
+          add: [.]
+          add: [/usr/lib/gcc/x86_64-linux-gnu/13/include]
+          add: [/usr/local/include]
+          add: [/usr/include/x86_64-linux-gnu]
+          add: [/usr/include]
+        end of search list found
+        collapse include dir [/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/include] ==> [/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/include]
+        skipping relative include dir [.]
+        collapse include dir [/usr/lib/gcc/x86_64-linux-gnu/13/include] ==> [/usr/lib/gcc/x86_64-linux-gnu/13/include]
+        collapse include dir [/usr/local/include] ==> [/usr/local/include]
+        collapse include dir [/usr/include/x86_64-linux-gnu] ==> [/usr/include/x86_64-linux-gnu]
+        collapse include dir [/usr/include] ==> [/usr/include]
+        implicit include dirs: [/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/include;/usr/lib/gcc/x86_64-linux-gnu/13/include;/usr/local/include;/usr/include/x86_64-linux-gnu;/usr/include]
+      
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake-3.28/Modules/CMakeDetermineCompilerABI.cmake:159 (message)"
+      - "/usr/share/cmake-3.28/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:3 (project)"
+    message: |
+      Parsed C implicit link information:
+        link line regex: [^( *|.*[/\\])(ld|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\\]+-)?ld|collect2)[^/\\]*( |$)]
+        ignore line: [Change Dir: '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-Xm3Oyq']
+        ignore line: []
+        ignore line: [Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_0184e/fast]
+        ignore line: [/usr/bin/gmake  -f CMakeFiles/cmTC_0184e.dir/build.make CMakeFiles/cmTC_0184e.dir/build]
+        ignore line: [gmake[1]: Entering directory '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-Xm3Oyq']
+        ignore line: [Building C object CMakeFiles/cmTC_0184e.dir/CMakeCCompilerABI.c.o]
+        ignore line: [/usr/bin/cc   -v -o CMakeFiles/cmTC_0184e.dir/CMakeCCompilerABI.c.o -c /usr/share/cmake-3.28/Modules/CMakeCCompilerABI.c]
+        ignore line: [Using built-in specs.]
+        ignore line: [COLLECT_GCC=/usr/bin/cc]
+        ignore line: [OFFLOAD_TARGET_NAMES=nvptx-none:amdgcn-amdhsa]
+        ignore line: [OFFLOAD_TARGET_DEFAULT=1]
+        ignore line: [Target: x86_64-linux-gnu]
+        ignore line: [Configured with: ../src/configure -v --with-pkgversion='Ubuntu 13.3.0-6ubuntu2~24.04' --with-bugurl=file:///usr/share/doc/gcc-13/README.Bugs --enable-languages=c ada c++ go d fortran objc obj-c++ m2 --prefix=/usr --with-gcc-major-version-only --program-suffix=-13 --program-prefix=x86_64-linux-gnu- --enable-shared --enable-linker-build-id --libexecdir=/usr/libexec --without-included-gettext --enable-threads=posix --libdir=/usr/lib --enable-nls --enable-bootstrap --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --with-default-libstdcxx-abi=new --enable-libstdcxx-backtrace --enable-gnu-unique-object --disable-vtable-verify --enable-plugin --enable-default-pie --with-system-zlib --enable-libphobos-checking=release --with-target-system-zlib=auto --enable-objc-gc=auto --enable-multiarch --disable-werror --enable-cet --with-arch-32=i686 --with-abi=m64 --with-multilib-list=m32 m64 mx32 --enable-multilib --with-tune=generic --enable-offload-targets=nvptx-none=/build/gcc-13-fG75Ri/gcc-13-13.3.0/debian/tmp-nvptx/usr amdgcn-amdhsa=/build/gcc-13-fG75Ri/gcc-13-13.3.0/debian/tmp-gcn/usr --enable-offload-defaulted --without-cuda-driver --enable-checking=release --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu --with-build-config=bootstrap-lto-lean --enable-link-serialization=2]
+        ignore line: [Thread model: posix]
+        ignore line: [Supported LTO compression algorithms: zlib zstd]
+        ignore line: [gcc version 13.3.0 (Ubuntu 13.3.0-6ubuntu2~24.04) ]
+        ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_0184e.dir/CMakeCCompilerABI.c.o' '-c' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_0184e.dir/']
+        ignore line: [ /usr/libexec/gcc/x86_64-linux-gnu/13/cc1 -quiet -v -imultiarch x86_64-linux-gnu /usr/share/cmake-3.28/Modules/CMakeCCompilerABI.c -quiet -dumpdir CMakeFiles/cmTC_0184e.dir/ -dumpbase CMakeCCompilerABI.c.c -dumpbase-ext .c -mtune=generic -march=x86-64 -version -fasynchronous-unwind-tables -fstack-protector-strong -Wformat -Wformat-security -fstack-clash-protection -fcf-protection -o /tmp/ccNGu4wU.s]
+        ignore line: [GNU C17 (Ubuntu 13.3.0-6ubuntu2~24.04) version 13.3.0 (x86_64-linux-gnu)]
+        ignore line: [	compiled by GNU C version 13.3.0  GMP version 6.3.0  MPFR version 4.2.1  MPC version 1.3.1  isl version isl-0.26-GMP]
+        ignore line: []
+        ignore line: [GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072]
+        ignore line: [ignoring duplicate directory "/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/include"]
+        ignore line: [ignoring nonexistent directory "/usr/local/include/x86_64-linux-gnu"]
+        ignore line: [ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/13/include-fixed/x86_64-linux-gnu"]
+        ignore line: [ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/13/include-fixed"]
+        ignore line: [ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/13/../../../../x86_64-linux-gnu/include"]
+        ignore line: [#include "..." search starts here:]
+        ignore line: [#include <...> search starts here:]
+        ignore line: [ /opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/include]
+        ignore line: [ .]
+        ignore line: [ /usr/lib/gcc/x86_64-linux-gnu/13/include]
+        ignore line: [ /usr/local/include]
+        ignore line: [ /usr/include/x86_64-linux-gnu]
+        ignore line: [ /usr/include]
+        ignore line: [End of search list.]
+        ignore line: [Compiler executable checksum: 38987c28e967c64056a6454abdef726e]
+        ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_0184e.dir/CMakeCCompilerABI.c.o' '-c' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_0184e.dir/']
+        ignore line: [ as -v --64 -o CMakeFiles/cmTC_0184e.dir/CMakeCCompilerABI.c.o /tmp/ccNGu4wU.s]
+        ignore line: [GNU assembler version 2.42 (x86_64-linux-gnu) using BFD version (GNU Binutils for Ubuntu) 2.42]
+        ignore line: [COMPILER_PATH=/usr/libexec/gcc/x86_64-linux-gnu/13/:/usr/libexec/gcc/x86_64-linux-gnu/13/:/usr/libexec/gcc/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/13/:/usr/lib/gcc/x86_64-linux-gnu/]
+        ignore line: [LIBRARY_PATH=/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib/../lib/:/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib/../lib/:/usr/lib/gcc/x86_64-linux-gnu/13/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../../lib/:/lib/x86_64-linux-gnu/:/lib/../lib/:/usr/lib/x86_64-linux-gnu/:/usr/lib/../lib/:/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib/:/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib/:./:/usr/lib/gcc/x86_64-linux-gnu/13/../../../:/lib/:/usr/lib/]
+        ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_0184e.dir/CMakeCCompilerABI.c.o' '-c' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_0184e.dir/CMakeCCompilerABI.c.']
+        ignore line: [Linking C executable cmTC_0184e]
+        ignore line: [/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_0184e.dir/link.txt --verbose=1]
+        ignore line: [/usr/bin/cc  -v CMakeFiles/cmTC_0184e.dir/CMakeCCompilerABI.c.o -o cmTC_0184e ]
+        ignore line: [Using built-in specs.]
+        ignore line: [COLLECT_GCC=/usr/bin/cc]
+        ignore line: [COLLECT_LTO_WRAPPER=/usr/libexec/gcc/x86_64-linux-gnu/13/lto-wrapper]
+        ignore line: [OFFLOAD_TARGET_NAMES=nvptx-none:amdgcn-amdhsa]
+        ignore line: [OFFLOAD_TARGET_DEFAULT=1]
+        ignore line: [Target: x86_64-linux-gnu]
+        ignore line: [Configured with: ../src/configure -v --with-pkgversion='Ubuntu 13.3.0-6ubuntu2~24.04' --with-bugurl=file:///usr/share/doc/gcc-13/README.Bugs --enable-languages=c ada c++ go d fortran objc obj-c++ m2 --prefix=/usr --with-gcc-major-version-only --program-suffix=-13 --program-prefix=x86_64-linux-gnu- --enable-shared --enable-linker-build-id --libexecdir=/usr/libexec --without-included-gettext --enable-threads=posix --libdir=/usr/lib --enable-nls --enable-bootstrap --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --with-default-libstdcxx-abi=new --enable-libstdcxx-backtrace --enable-gnu-unique-object --disable-vtable-verify --enable-plugin --enable-default-pie --with-system-zlib --enable-libphobos-checking=release --with-target-system-zlib=auto --enable-objc-gc=auto --enable-multiarch --disable-werror --enable-cet --with-arch-32=i686 --with-abi=m64 --with-multilib-list=m32 m64 mx32 --enable-multilib --with-tune=generic --enable-offload-targets=nvptx-none=/build/gcc-13-fG75Ri/gcc-13-13.3.0/debian/tmp-nvptx/usr amdgcn-amdhsa=/build/gcc-13-fG75Ri/gcc-13-13.3.0/debian/tmp-gcn/usr --enable-offload-defaulted --without-cuda-driver --enable-checking=release --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu --with-build-config=bootstrap-lto-lean --enable-link-serialization=2]
+        ignore line: [Thread model: posix]
+        ignore line: [Supported LTO compression algorithms: zlib zstd]
+        ignore line: [gcc version 13.3.0 (Ubuntu 13.3.0-6ubuntu2~24.04) ]
+        ignore line: [COMPILER_PATH=/usr/libexec/gcc/x86_64-linux-gnu/13/:/usr/libexec/gcc/x86_64-linux-gnu/13/:/usr/libexec/gcc/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/13/:/usr/lib/gcc/x86_64-linux-gnu/]
+        ignore line: [LIBRARY_PATH=/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib/../lib/:/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib/../lib/:/usr/lib/gcc/x86_64-linux-gnu/13/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../../lib/:/lib/x86_64-linux-gnu/:/lib/../lib/:/usr/lib/x86_64-linux-gnu/:/usr/lib/../lib/:/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib/:/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib/:./:/usr/lib/gcc/x86_64-linux-gnu/13/../../../:/lib/:/usr/lib/]
+        ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_0184e' '-mtune=generic' '-march=x86-64' '-dumpdir' 'cmTC_0184e.']
+        link line: [ /usr/libexec/gcc/x86_64-linux-gnu/13/collect2 -plugin /usr/libexec/gcc/x86_64-linux-gnu/13/liblto_plugin.so -plugin-opt=/usr/libexec/gcc/x86_64-linux-gnu/13/lto-wrapper -plugin-opt=-fresolution=/tmp/ccmhV2yk.res -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s --build-id --eh-frame-hdr -m elf_x86_64 --hash-style=gnu --as-needed -dynamic-linker /lib64/ld-linux-x86-64.so.2 -pie -z now -z relro -o cmTC_0184e /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crti.o /usr/lib/gcc/x86_64-linux-gnu/13/crtbeginS.o -L/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib/../lib -L/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib/../lib -L/usr/lib/gcc/x86_64-linux-gnu/13 -L/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/13/../../../../lib -L/lib/x86_64-linux-gnu -L/lib/../lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib/../lib -L/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib -L/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib -L. -L/usr/lib/gcc/x86_64-linux-gnu/13/../../.. CMakeFiles/cmTC_0184e.dir/CMakeCCompilerABI.c.o -lgcc --push-state --as-needed -lgcc_s --pop-state -lc -lgcc --push-state --as-needed -lgcc_s --pop-state /usr/lib/gcc/x86_64-linux-gnu/13/crtendS.o /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crtn.o]
+          arg [/usr/libexec/gcc/x86_64-linux-gnu/13/collect2] ==> ignore
+          arg [-plugin] ==> ignore
+          arg [/usr/libexec/gcc/x86_64-linux-gnu/13/liblto_plugin.so] ==> ignore
+          arg [-plugin-opt=/usr/libexec/gcc/x86_64-linux-gnu/13/lto-wrapper] ==> ignore
+          arg [-plugin-opt=-fresolution=/tmp/ccmhV2yk.res] ==> ignore
+          arg [-plugin-opt=-pass-through=-lgcc] ==> ignore
+          arg [-plugin-opt=-pass-through=-lgcc_s] ==> ignore
+          arg [-plugin-opt=-pass-through=-lc] ==> ignore
+          arg [-plugin-opt=-pass-through=-lgcc] ==> ignore
+          arg [-plugin-opt=-pass-through=-lgcc_s] ==> ignore
+          arg [--build-id] ==> ignore
+          arg [--eh-frame-hdr] ==> ignore
+          arg [-m] ==> ignore
+          arg [elf_x86_64] ==> ignore
+          arg [--hash-style=gnu] ==> ignore
+          arg [--as-needed] ==> ignore
+          arg [-dynamic-linker] ==> ignore
+          arg [/lib64/ld-linux-x86-64.so.2] ==> ignore
+          arg [-pie] ==> ignore
+          arg [-znow] ==> ignore
+          arg [-zrelro] ==> ignore
+          arg [-o] ==> ignore
+          arg [cmTC_0184e] ==> ignore
+          arg [/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o] ==> obj [/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o]
+          arg [/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crti.o] ==> obj [/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crti.o]
+          arg [/usr/lib/gcc/x86_64-linux-gnu/13/crtbeginS.o] ==> obj [/usr/lib/gcc/x86_64-linux-gnu/13/crtbeginS.o]
+          arg [-L/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib/../lib] ==> dir [/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib/../lib]
+          arg [-L/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib/../lib] ==> dir [/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib/../lib]
+          arg [-L/usr/lib/gcc/x86_64-linux-gnu/13] ==> dir [/usr/lib/gcc/x86_64-linux-gnu/13]
+          arg [-L/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu] ==> dir [/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu]
+          arg [-L/usr/lib/gcc/x86_64-linux-gnu/13/../../../../lib] ==> dir [/usr/lib/gcc/x86_64-linux-gnu/13/../../../../lib]
+          arg [-L/lib/x86_64-linux-gnu] ==> dir [/lib/x86_64-linux-gnu]
+          arg [-L/lib/../lib] ==> dir [/lib/../lib]
+          arg [-L/usr/lib/x86_64-linux-gnu] ==> dir [/usr/lib/x86_64-linux-gnu]
+          arg [-L/usr/lib/../lib] ==> dir [/usr/lib/../lib]
+          arg [-L/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib] ==> dir [/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib]
+          arg [-L/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib] ==> dir [/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib]
+          arg [-L.] ==> ignore
+          arg [-L/usr/lib/gcc/x86_64-linux-gnu/13/../../..] ==> dir [/usr/lib/gcc/x86_64-linux-gnu/13/../../..]
+          arg [CMakeFiles/cmTC_0184e.dir/CMakeCCompilerABI.c.o] ==> ignore
+          arg [-lgcc] ==> lib [gcc]
+          arg [--push-state] ==> ignore
+          arg [--as-needed] ==> ignore
+          arg [-lgcc_s] ==> lib [gcc_s]
+          arg [--pop-state] ==> ignore
+          arg [-lc] ==> lib [c]
+          arg [-lgcc] ==> lib [gcc]
+          arg [--push-state] ==> ignore
+          arg [--as-needed] ==> ignore
+          arg [-lgcc_s] ==> lib [gcc_s]
+          arg [--pop-state] ==> ignore
+          arg [/usr/lib/gcc/x86_64-linux-gnu/13/crtendS.o] ==> obj [/usr/lib/gcc/x86_64-linux-gnu/13/crtendS.o]
+          arg [/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crtn.o] ==> obj [/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crtn.o]
+        collapse obj [/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o] ==> [/usr/lib/x86_64-linux-gnu/Scrt1.o]
+        collapse obj [/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crti.o] ==> [/usr/lib/x86_64-linux-gnu/crti.o]
+        collapse obj [/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crtn.o] ==> [/usr/lib/x86_64-linux-gnu/crtn.o]
+        collapse library dir [/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib/../lib] ==> [/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib]
+        collapse library dir [/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib/../lib] ==> [/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib]
+        collapse library dir [/usr/lib/gcc/x86_64-linux-gnu/13] ==> [/usr/lib/gcc/x86_64-linux-gnu/13]
+        collapse library dir [/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu] ==> [/usr/lib/x86_64-linux-gnu]
+        collapse library dir [/usr/lib/gcc/x86_64-linux-gnu/13/../../../../lib] ==> [/usr/lib]
+        collapse library dir [/lib/x86_64-linux-gnu] ==> [/lib/x86_64-linux-gnu]
+        collapse library dir [/lib/../lib] ==> [/lib]
+        collapse library dir [/usr/lib/x86_64-linux-gnu] ==> [/usr/lib/x86_64-linux-gnu]
+        collapse library dir [/usr/lib/../lib] ==> [/usr/lib]
+        collapse library dir [/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib] ==> [/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib]
+        collapse library dir [/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib] ==> [/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib]
+        collapse library dir [/usr/lib/gcc/x86_64-linux-gnu/13/../../..] ==> [/usr/lib]
+        implicit libs: [gcc;gcc_s;c;gcc;gcc_s]
+        implicit objs: [/usr/lib/x86_64-linux-gnu/Scrt1.o;/usr/lib/x86_64-linux-gnu/crti.o;/usr/lib/gcc/x86_64-linux-gnu/13/crtbeginS.o;/usr/lib/gcc/x86_64-linux-gnu/13/crtendS.o;/usr/lib/x86_64-linux-gnu/crtn.o]
+        implicit dirs: [/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib;/usr/lib/gcc/x86_64-linux-gnu/13;/usr/lib/x86_64-linux-gnu;/usr/lib;/lib/x86_64-linux-gnu;/lib]
+        implicit fwks: []
+      
+      
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.28/Modules/FindOpenMP.cmake:219 (try_compile)"
+      - "/usr/share/cmake-3.28/Modules/FindOpenMP.cmake:486 (_OPENMP_GET_FLAGS)"
+      - "CMakeLists.txt:40 (find_package)"
+    description: "Detecting C OpenMP compiler info"
+    directories:
+      source: "/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-2PVmhq"
+      binary: "/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-2PVmhq"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_POSITION_INDEPENDENT_CODE: "ON"
+    buildResult:
+      variable: "OpenMP_COMPILE_RESULT_C_fopenmp"
+      cached: true
+      stdout: |
+        Change Dir: '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-2PVmhq'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_ff7f8/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_ff7f8.dir/build.make CMakeFiles/cmTC_ff7f8.dir/build
+        gmake[1]: ingresso nella directory «/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-2PVmhq»
+        Building C object CMakeFiles/cmTC_ff7f8.dir/OpenMPTryFlag.c.o
+        /usr/bin/cc   -fopenmp -v -std=gnu2x -fPIE -o CMakeFiles/cmTC_ff7f8.dir/OpenMPTryFlag.c.o -c /home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-2PVmhq/OpenMPTryFlag.c
+        Using built-in specs.
+        COLLECT_GCC=/usr/bin/cc
+        OFFLOAD_TARGET_NAMES=nvptx-none:amdgcn-amdhsa
+        OFFLOAD_TARGET_DEFAULT=1
+        Target: x86_64-linux-gnu
+        Configured with: ../src/configure -v --with-pkgversion='Ubuntu 13.3.0-6ubuntu2~24.04' --with-bugurl=file:///usr/share/doc/gcc-13/README.Bugs --enable-languages=c,ada,c++,go,d,fortran,objc,obj-c++,m2 --prefix=/usr --with-gcc-major-version-only --program-suffix=-13 --program-prefix=x86_64-linux-gnu- --enable-shared --enable-linker-build-id --libexecdir=/usr/libexec --without-included-gettext --enable-threads=posix --libdir=/usr/lib --enable-nls --enable-bootstrap --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --with-default-libstdcxx-abi=new --enable-libstdcxx-backtrace --enable-gnu-unique-object --disable-vtable-verify --enable-plugin --enable-default-pie --with-system-zlib --enable-libphobos-checking=release --with-target-system-zlib=auto --enable-objc-gc=auto --enable-multiarch --disable-werror --enable-cet --with-arch-32=i686 --with-abi=m64 --with-multilib-list=m32,m64,mx32 --enable-multilib --with-tune=generic --enable-offload-targets=nvptx-none=/build/gcc-13-fG75Ri/gcc-13-13.3.0/debian/tmp-nvptx/usr,amdgcn-amdhsa=/build/gcc-13-fG75Ri/gcc-13-13.3.0/debian/tmp-gcn/usr --enable-offload-defaulted --without-cuda-driver --enable-checking=release --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu --with-build-config=bootstrap-lto-lean --enable-link-serialization=2
+        Thread model: posix
+        Supported LTO compression algorithms: zlib zstd
+        gcc version 13.3.0 (Ubuntu 13.3.0-6ubuntu2~24.04) 
+        COLLECT_GCC_OPTIONS='-fopenmp' '-v' '-std=gnu2x' '-fPIE' '-o' 'CMakeFiles/cmTC_ff7f8.dir/OpenMPTryFlag.c.o' '-c' '-mtune=generic' '-march=x86-64' '-pthread' '-dumpdir' 'CMakeFiles/cmTC_ff7f8.dir/'
+         /usr/libexec/gcc/x86_64-linux-gnu/13/cc1 -quiet -v -imultiarch x86_64-linux-gnu -D_REENTRANT /home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-2PVmhq/OpenMPTryFlag.c -quiet -dumpdir CMakeFiles/cmTC_ff7f8.dir/ -dumpbase OpenMPTryFlag.c.c -dumpbase-ext .c -mtune=generic -march=x86-64 -std=gnu2x -version -fopenmp -fPIE -fasynchronous-unwind-tables -fstack-protector-strong -Wformat -Wformat-security -fstack-clash-protection -fcf-protection -o /tmp/ccCAe6jw.s
+        GNU C2X (Ubuntu 13.3.0-6ubuntu2~24.04) version 13.3.0 (x86_64-linux-gnu)
+        	compiled by GNU C version 13.3.0, GMP version 6.3.0, MPFR version 4.2.1, MPC version 1.3.1, isl version isl-0.26-GMP
+        
+        GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
+        ignoring duplicate directory "/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/include"
+        ignoring nonexistent directory "/usr/local/include/x86_64-linux-gnu"
+        ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/13/include-fixed/x86_64-linux-gnu"
+        ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/13/include-fixed"
+        ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/13/../../../../x86_64-linux-gnu/include"
+        #include "..." search starts here:
+        #include <...> search starts here:
+         /opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/include
+         .
+         /usr/lib/gcc/x86_64-linux-gnu/13/include
+         /usr/local/include
+         /usr/include/x86_64-linux-gnu
+         /usr/include
+        End of search list.
+        Compiler executable checksum: 38987c28e967c64056a6454abdef726e
+        COLLECT_GCC_OPTIONS='-fopenmp' '-v' '-std=gnu2x' '-fPIE' '-o' 'CMakeFiles/cmTC_ff7f8.dir/OpenMPTryFlag.c.o' '-c' '-mtune=generic' '-march=x86-64' '-pthread' '-dumpdir' 'CMakeFiles/cmTC_ff7f8.dir/'
+         as -v --64 -o CMakeFiles/cmTC_ff7f8.dir/OpenMPTryFlag.c.o /tmp/ccCAe6jw.s
+        versione di GNU assembler 2.42 (x86_64-linux-gnu) utilizzando la versione BFD (GNU Binutils for Ubuntu) 2.42
+        COMPILER_PATH=/usr/libexec/gcc/x86_64-linux-gnu/13/:/usr/libexec/gcc/x86_64-linux-gnu/13/:/usr/libexec/gcc/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/13/:/usr/lib/gcc/x86_64-linux-gnu/
+        LIBRARY_PATH=/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib/../lib/:/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib/../lib/:/usr/lib/gcc/x86_64-linux-gnu/13/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../../lib/:/lib/x86_64-linux-gnu/:/lib/../lib/:/usr/lib/x86_64-linux-gnu/:/usr/lib/../lib/:/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib/:/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib/:./:/usr/lib/gcc/x86_64-linux-gnu/13/../../../:/lib/:/usr/lib/
+        COLLECT_GCC_OPTIONS='-fopenmp' '-v' '-std=gnu2x' '-fPIE' '-o' 'CMakeFiles/cmTC_ff7f8.dir/OpenMPTryFlag.c.o' '-c' '-mtune=generic' '-march=x86-64' '-pthread' '-dumpdir' 'CMakeFiles/cmTC_ff7f8.dir/OpenMPTryFlag.c.'
+        Linking C executable cmTC_ff7f8
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_ff7f8.dir/link.txt --verbose=1
+        /usr/bin/cc  -fopenmp -v CMakeFiles/cmTC_ff7f8.dir/OpenMPTryFlag.c.o -o cmTC_ff7f8  -v 
+        Using built-in specs.
+        COLLECT_GCC=/usr/bin/cc
+        COLLECT_LTO_WRAPPER=/usr/libexec/gcc/x86_64-linux-gnu/13/lto-wrapper
+        OFFLOAD_TARGET_NAMES=nvptx-none:amdgcn-amdhsa
+        OFFLOAD_TARGET_DEFAULT=1
+        Target: x86_64-linux-gnu
+        Configured with: ../src/configure -v --with-pkgversion='Ubuntu 13.3.0-6ubuntu2~24.04' --with-bugurl=file:///usr/share/doc/gcc-13/README.Bugs --enable-languages=c,ada,c++,go,d,fortran,objc,obj-c++,m2 --prefix=/usr --with-gcc-major-version-only --program-suffix=-13 --program-prefix=x86_64-linux-gnu- --enable-shared --enable-linker-build-id --libexecdir=/usr/libexec --without-included-gettext --enable-threads=posix --libdir=/usr/lib --enable-nls --enable-bootstrap --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --with-default-libstdcxx-abi=new --enable-libstdcxx-backtrace --enable-gnu-unique-object --disable-vtable-verify --enable-plugin --enable-default-pie --with-system-zlib --enable-libphobos-checking=release --with-target-system-zlib=auto --enable-objc-gc=auto --enable-multiarch --disable-werror --enable-cet --with-arch-32=i686 --with-abi=m64 --with-multilib-list=m32,m64,mx32 --enable-multilib --with-tune=generic --enable-offload-targets=nvptx-none=/build/gcc-13-fG75Ri/gcc-13-13.3.0/debian/tmp-nvptx/usr,amdgcn-amdhsa=/build/gcc-13-fG75Ri/gcc-13-13.3.0/debian/tmp-gcn/usr --enable-offload-defaulted --without-cuda-driver --enable-checking=release --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu --with-build-config=bootstrap-lto-lean --enable-link-serialization=2
+        Thread model: posix
+        Supported LTO compression algorithms: zlib zstd
+        gcc version 13.3.0 (Ubuntu 13.3.0-6ubuntu2~24.04) 
+        COMPILER_PATH=/usr/libexec/gcc/x86_64-linux-gnu/13/:/usr/libexec/gcc/x86_64-linux-gnu/13/:/usr/libexec/gcc/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/13/:/usr/lib/gcc/x86_64-linux-gnu/
+        LIBRARY_PATH=/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib/../lib/:/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib/../lib/:/usr/lib/gcc/x86_64-linux-gnu/13/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../../lib/:/lib/x86_64-linux-gnu/:/lib/../lib/:/usr/lib/x86_64-linux-gnu/:/usr/lib/../lib/:/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib/:/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib/:./:/usr/lib/gcc/x86_64-linux-gnu/13/../../../:/lib/:/usr/lib/
+        Reading specs from /usr/lib/gcc/x86_64-linux-gnu/13/libgomp.spec
+        COLLECT_GCC_OPTIONS='-fopenmp' '-v' '-o' 'cmTC_ff7f8' '-v' '-mtune=generic' '-march=x86-64' '-pthread' '-dumpdir' 'cmTC_ff7f8.'
+         /usr/libexec/gcc/x86_64-linux-gnu/13/collect2 -plugin /usr/libexec/gcc/x86_64-linux-gnu/13/liblto_plugin.so -plugin-opt=/usr/libexec/gcc/x86_64-linux-gnu/13/lto-wrapper -plugin-opt=-fresolution=/tmp/cc1AfHDE.res -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lpthread -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s --build-id --eh-frame-hdr -m elf_x86_64 --hash-style=gnu --as-needed -dynamic-linker /lib64/ld-linux-x86-64.so.2 -pie -z now -z relro -o cmTC_ff7f8 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crti.o /usr/lib/gcc/x86_64-linux-gnu/13/crtbeginS.o /usr/lib/gcc/x86_64-linux-gnu/13/crtoffloadbegin.o -L/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib/../lib -L/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib/../lib -L/usr/lib/gcc/x86_64-linux-gnu/13 -L/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/13/../../../../lib -L/lib/x86_64-linux-gnu -L/lib/../lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib/../lib -L/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib -L/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib -L. -L/usr/lib/gcc/x86_64-linux-gnu/13/../../.. CMakeFiles/cmTC_ff7f8.dir/OpenMPTryFlag.c.o -lgomp -lgcc --push-state --as-needed -lgcc_s --pop-state -lpthread -lc -lgcc --push-state --as-needed -lgcc_s --pop-state /usr/lib/gcc/x86_64-linux-gnu/13/crtendS.o /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crtn.o /usr/lib/gcc/x86_64-linux-gnu/13/crtoffloadend.o
+        COLLECT_GCC_OPTIONS='-fopenmp' '-v' '-o' 'cmTC_ff7f8' '-v' '-mtune=generic' '-march=x86-64' '-pthread' '-dumpdir' 'cmTC_ff7f8.'
+        gmake[1]: uscita dalla directory «/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-2PVmhq»
+        
+      exitCode: 0
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake-3.28/Modules/FindOpenMP.cmake:262 (message)"
+      - "/usr/share/cmake-3.28/Modules/FindOpenMP.cmake:486 (_OPENMP_GET_FLAGS)"
+      - "CMakeLists.txt:40 (find_package)"
+    message: |
+      Parsed C OpenMP implicit link information from above output:
+        link line regex: [^( *|.*[/\\])(ld|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\\]+-)?ld|collect2)[^/\\]*( |$)]
+        ignore line: [Change Dir: '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-2PVmhq']
+        ignore line: []
+        ignore line: [Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_ff7f8/fast]
+        ignore line: [/usr/bin/gmake  -f CMakeFiles/cmTC_ff7f8.dir/build.make CMakeFiles/cmTC_ff7f8.dir/build]
+        ignore line: [gmake[1]: ingresso nella directory «/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-2PVmhq»]
+        ignore line: [Building C object CMakeFiles/cmTC_ff7f8.dir/OpenMPTryFlag.c.o]
+        ignore line: [/usr/bin/cc   -fopenmp -v -std=gnu2x -fPIE -o CMakeFiles/cmTC_ff7f8.dir/OpenMPTryFlag.c.o -c /home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-2PVmhq/OpenMPTryFlag.c]
+        ignore line: [Using built-in specs.]
+        ignore line: [COLLECT_GCC=/usr/bin/cc]
+        ignore line: [OFFLOAD_TARGET_NAMES=nvptx-none:amdgcn-amdhsa]
+        ignore line: [OFFLOAD_TARGET_DEFAULT=1]
+        ignore line: [Target: x86_64-linux-gnu]
+        ignore line: [Configured with: ../src/configure -v --with-pkgversion='Ubuntu 13.3.0-6ubuntu2~24.04' --with-bugurl=file:///usr/share/doc/gcc-13/README.Bugs --enable-languages=c ada c++ go d fortran objc obj-c++ m2 --prefix=/usr --with-gcc-major-version-only --program-suffix=-13 --program-prefix=x86_64-linux-gnu- --enable-shared --enable-linker-build-id --libexecdir=/usr/libexec --without-included-gettext --enable-threads=posix --libdir=/usr/lib --enable-nls --enable-bootstrap --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --with-default-libstdcxx-abi=new --enable-libstdcxx-backtrace --enable-gnu-unique-object --disable-vtable-verify --enable-plugin --enable-default-pie --with-system-zlib --enable-libphobos-checking=release --with-target-system-zlib=auto --enable-objc-gc=auto --enable-multiarch --disable-werror --enable-cet --with-arch-32=i686 --with-abi=m64 --with-multilib-list=m32 m64 mx32 --enable-multilib --with-tune=generic --enable-offload-targets=nvptx-none=/build/gcc-13-fG75Ri/gcc-13-13.3.0/debian/tmp-nvptx/usr amdgcn-amdhsa=/build/gcc-13-fG75Ri/gcc-13-13.3.0/debian/tmp-gcn/usr --enable-offload-defaulted --without-cuda-driver --enable-checking=release --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu --with-build-config=bootstrap-lto-lean --enable-link-serialization=2]
+        ignore line: [Thread model: posix]
+        ignore line: [Supported LTO compression algorithms: zlib zstd]
+        ignore line: [gcc version 13.3.0 (Ubuntu 13.3.0-6ubuntu2~24.04) ]
+        ignore line: [COLLECT_GCC_OPTIONS='-fopenmp' '-v' '-std=gnu2x' '-fPIE' '-o' 'CMakeFiles/cmTC_ff7f8.dir/OpenMPTryFlag.c.o' '-c' '-mtune=generic' '-march=x86-64' '-pthread' '-dumpdir' 'CMakeFiles/cmTC_ff7f8.dir/']
+        ignore line: [ /usr/libexec/gcc/x86_64-linux-gnu/13/cc1 -quiet -v -imultiarch x86_64-linux-gnu -D_REENTRANT /home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-2PVmhq/OpenMPTryFlag.c -quiet -dumpdir CMakeFiles/cmTC_ff7f8.dir/ -dumpbase OpenMPTryFlag.c.c -dumpbase-ext .c -mtune=generic -march=x86-64 -std=gnu2x -version -fopenmp -fPIE -fasynchronous-unwind-tables -fstack-protector-strong -Wformat -Wformat-security -fstack-clash-protection -fcf-protection -o /tmp/ccCAe6jw.s]
+        ignore line: [GNU C2X (Ubuntu 13.3.0-6ubuntu2~24.04) version 13.3.0 (x86_64-linux-gnu)]
+        ignore line: [	compiled by GNU C version 13.3.0  GMP version 6.3.0  MPFR version 4.2.1  MPC version 1.3.1  isl version isl-0.26-GMP]
+        ignore line: []
+        ignore line: [GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072]
+        ignore line: [ignoring duplicate directory "/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/include"]
+        ignore line: [ignoring nonexistent directory "/usr/local/include/x86_64-linux-gnu"]
+        ignore line: [ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/13/include-fixed/x86_64-linux-gnu"]
+        ignore line: [ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/13/include-fixed"]
+        ignore line: [ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/13/../../../../x86_64-linux-gnu/include"]
+        ignore line: [#include "..." search starts here:]
+        ignore line: [#include <...> search starts here:]
+        ignore line: [ /opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/include]
+        ignore line: [ .]
+        ignore line: [ /usr/lib/gcc/x86_64-linux-gnu/13/include]
+        ignore line: [ /usr/local/include]
+        ignore line: [ /usr/include/x86_64-linux-gnu]
+        ignore line: [ /usr/include]
+        ignore line: [End of search list.]
+        ignore line: [Compiler executable checksum: 38987c28e967c64056a6454abdef726e]
+        ignore line: [COLLECT_GCC_OPTIONS='-fopenmp' '-v' '-std=gnu2x' '-fPIE' '-o' 'CMakeFiles/cmTC_ff7f8.dir/OpenMPTryFlag.c.o' '-c' '-mtune=generic' '-march=x86-64' '-pthread' '-dumpdir' 'CMakeFiles/cmTC_ff7f8.dir/']
+        ignore line: [ as -v --64 -o CMakeFiles/cmTC_ff7f8.dir/OpenMPTryFlag.c.o /tmp/ccCAe6jw.s]
+        ignore line: [versione di GNU assembler 2.42 (x86_64-linux-gnu) utilizzando la versione BFD (GNU Binutils for Ubuntu) 2.42]
+        ignore line: [COMPILER_PATH=/usr/libexec/gcc/x86_64-linux-gnu/13/:/usr/libexec/gcc/x86_64-linux-gnu/13/:/usr/libexec/gcc/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/13/:/usr/lib/gcc/x86_64-linux-gnu/]
+        ignore line: [LIBRARY_PATH=/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib/../lib/:/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib/../lib/:/usr/lib/gcc/x86_64-linux-gnu/13/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../../lib/:/lib/x86_64-linux-gnu/:/lib/../lib/:/usr/lib/x86_64-linux-gnu/:/usr/lib/../lib/:/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib/:/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib/:./:/usr/lib/gcc/x86_64-linux-gnu/13/../../../:/lib/:/usr/lib/]
+        ignore line: [COLLECT_GCC_OPTIONS='-fopenmp' '-v' '-std=gnu2x' '-fPIE' '-o' 'CMakeFiles/cmTC_ff7f8.dir/OpenMPTryFlag.c.o' '-c' '-mtune=generic' '-march=x86-64' '-pthread' '-dumpdir' 'CMakeFiles/cmTC_ff7f8.dir/OpenMPTryFlag.c.']
+        ignore line: [Linking C executable cmTC_ff7f8]
+        ignore line: [/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_ff7f8.dir/link.txt --verbose=1]
+        ignore line: [/usr/bin/cc  -fopenmp -v CMakeFiles/cmTC_ff7f8.dir/OpenMPTryFlag.c.o -o cmTC_ff7f8  -v ]
+        ignore line: [Using built-in specs.]
+        ignore line: [COLLECT_GCC=/usr/bin/cc]
+        ignore line: [COLLECT_LTO_WRAPPER=/usr/libexec/gcc/x86_64-linux-gnu/13/lto-wrapper]
+        ignore line: [OFFLOAD_TARGET_NAMES=nvptx-none:amdgcn-amdhsa]
+        ignore line: [OFFLOAD_TARGET_DEFAULT=1]
+        ignore line: [Target: x86_64-linux-gnu]
+        ignore line: [Configured with: ../src/configure -v --with-pkgversion='Ubuntu 13.3.0-6ubuntu2~24.04' --with-bugurl=file:///usr/share/doc/gcc-13/README.Bugs --enable-languages=c ada c++ go d fortran objc obj-c++ m2 --prefix=/usr --with-gcc-major-version-only --program-suffix=-13 --program-prefix=x86_64-linux-gnu- --enable-shared --enable-linker-build-id --libexecdir=/usr/libexec --without-included-gettext --enable-threads=posix --libdir=/usr/lib --enable-nls --enable-bootstrap --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --with-default-libstdcxx-abi=new --enable-libstdcxx-backtrace --enable-gnu-unique-object --disable-vtable-verify --enable-plugin --enable-default-pie --with-system-zlib --enable-libphobos-checking=release --with-target-system-zlib=auto --enable-objc-gc=auto --enable-multiarch --disable-werror --enable-cet --with-arch-32=i686 --with-abi=m64 --with-multilib-list=m32 m64 mx32 --enable-multilib --with-tune=generic --enable-offload-targets=nvptx-none=/build/gcc-13-fG75Ri/gcc-13-13.3.0/debian/tmp-nvptx/usr amdgcn-amdhsa=/build/gcc-13-fG75Ri/gcc-13-13.3.0/debian/tmp-gcn/usr --enable-offload-defaulted --without-cuda-driver --enable-checking=release --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu --with-build-config=bootstrap-lto-lean --enable-link-serialization=2]
+        ignore line: [Thread model: posix]
+        ignore line: [Supported LTO compression algorithms: zlib zstd]
+        ignore line: [gcc version 13.3.0 (Ubuntu 13.3.0-6ubuntu2~24.04) ]
+        ignore line: [COMPILER_PATH=/usr/libexec/gcc/x86_64-linux-gnu/13/:/usr/libexec/gcc/x86_64-linux-gnu/13/:/usr/libexec/gcc/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/13/:/usr/lib/gcc/x86_64-linux-gnu/]
+        ignore line: [LIBRARY_PATH=/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib/../lib/:/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib/../lib/:/usr/lib/gcc/x86_64-linux-gnu/13/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../../lib/:/lib/x86_64-linux-gnu/:/lib/../lib/:/usr/lib/x86_64-linux-gnu/:/usr/lib/../lib/:/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib/:/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib/:./:/usr/lib/gcc/x86_64-linux-gnu/13/../../../:/lib/:/usr/lib/]
+        ignore line: [Reading specs from /usr/lib/gcc/x86_64-linux-gnu/13/libgomp.spec]
+        ignore line: [COLLECT_GCC_OPTIONS='-fopenmp' '-v' '-o' 'cmTC_ff7f8' '-v' '-mtune=generic' '-march=x86-64' '-pthread' '-dumpdir' 'cmTC_ff7f8.']
+        link line: [ /usr/libexec/gcc/x86_64-linux-gnu/13/collect2 -plugin /usr/libexec/gcc/x86_64-linux-gnu/13/liblto_plugin.so -plugin-opt=/usr/libexec/gcc/x86_64-linux-gnu/13/lto-wrapper -plugin-opt=-fresolution=/tmp/cc1AfHDE.res -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lpthread -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s --build-id --eh-frame-hdr -m elf_x86_64 --hash-style=gnu --as-needed -dynamic-linker /lib64/ld-linux-x86-64.so.2 -pie -z now -z relro -o cmTC_ff7f8 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crti.o /usr/lib/gcc/x86_64-linux-gnu/13/crtbeginS.o /usr/lib/gcc/x86_64-linux-gnu/13/crtoffloadbegin.o -L/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib/../lib -L/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib/../lib -L/usr/lib/gcc/x86_64-linux-gnu/13 -L/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/13/../../../../lib -L/lib/x86_64-linux-gnu -L/lib/../lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib/../lib -L/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib -L/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib -L. -L/usr/lib/gcc/x86_64-linux-gnu/13/../../.. CMakeFiles/cmTC_ff7f8.dir/OpenMPTryFlag.c.o -lgomp -lgcc --push-state --as-needed -lgcc_s --pop-state -lpthread -lc -lgcc --push-state --as-needed -lgcc_s --pop-state /usr/lib/gcc/x86_64-linux-gnu/13/crtendS.o /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crtn.o /usr/lib/gcc/x86_64-linux-gnu/13/crtoffloadend.o]
+          arg [/usr/libexec/gcc/x86_64-linux-gnu/13/collect2] ==> ignore
+          arg [-plugin] ==> ignore
+          arg [/usr/libexec/gcc/x86_64-linux-gnu/13/liblto_plugin.so] ==> ignore
+          arg [-plugin-opt=/usr/libexec/gcc/x86_64-linux-gnu/13/lto-wrapper] ==> ignore
+          arg [-plugin-opt=-fresolution=/tmp/cc1AfHDE.res] ==> ignore
+          arg [-plugin-opt=-pass-through=-lgcc] ==> ignore
+          arg [-plugin-opt=-pass-through=-lgcc_s] ==> ignore
+          arg [-plugin-opt=-pass-through=-lpthread] ==> ignore
+          arg [-plugin-opt=-pass-through=-lc] ==> ignore
+          arg [-plugin-opt=-pass-through=-lgcc] ==> ignore
+          arg [-plugin-opt=-pass-through=-lgcc_s] ==> ignore
+          arg [--build-id] ==> ignore
+          arg [--eh-frame-hdr] ==> ignore
+          arg [-m] ==> ignore
+          arg [elf_x86_64] ==> ignore
+          arg [--hash-style=gnu] ==> ignore
+          arg [--as-needed] ==> ignore
+          arg [-dynamic-linker] ==> ignore
+          arg [/lib64/ld-linux-x86-64.so.2] ==> ignore
+          arg [-pie] ==> ignore
+          arg [-znow] ==> ignore
+          arg [-zrelro] ==> ignore
+          arg [-o] ==> ignore
+          arg [cmTC_ff7f8] ==> ignore
+          arg [-L/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib/../lib] ==> dir [/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib/../lib]
+          arg [-L/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib/../lib] ==> dir [/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib/../lib]
+          arg [-L/usr/lib/gcc/x86_64-linux-gnu/13] ==> dir [/usr/lib/gcc/x86_64-linux-gnu/13]
+          arg [-L/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu] ==> dir [/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu]
+          arg [-L/usr/lib/gcc/x86_64-linux-gnu/13/../../../../lib] ==> dir [/usr/lib/gcc/x86_64-linux-gnu/13/../../../../lib]
+          arg [-L/lib/x86_64-linux-gnu] ==> dir [/lib/x86_64-linux-gnu]
+          arg [-L/lib/../lib] ==> dir [/lib/../lib]
+          arg [-L/usr/lib/x86_64-linux-gnu] ==> dir [/usr/lib/x86_64-linux-gnu]
+          arg [-L/usr/lib/../lib] ==> dir [/usr/lib/../lib]
+          arg [-L/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib] ==> dir [/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib]
+          arg [-L/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib] ==> dir [/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib]
+          arg [-L.] ==> ignore
+          arg [-L/usr/lib/gcc/x86_64-linux-gnu/13/../../..] ==> dir [/usr/lib/gcc/x86_64-linux-gnu/13/../../..]
+          arg [CMakeFiles/cmTC_ff7f8.dir/OpenMPTryFlag.c.o] ==> ignore
+          arg [-lgomp] ==> lib [gomp]
+          arg [-lgcc] ==> lib [gcc]
+          arg [--push-state] ==> ignore
+          arg [--as-needed] ==> ignore
+          arg [-lgcc_s] ==> lib [gcc_s]
+          arg [--pop-state] ==> ignore
+          arg [-lpthread] ==> lib [pthread]
+          arg [-lc] ==> lib [c]
+          arg [-lgcc] ==> lib [gcc]
+          arg [--push-state] ==> ignore
+          arg [--as-needed] ==> ignore
+          arg [-lgcc_s] ==> lib [gcc_s]
+          arg [--pop-state] ==> ignore
+        collapse library dir [/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib/../lib] ==> [/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib]
+        collapse library dir [/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib/../lib] ==> [/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib]
+        collapse library dir [/usr/lib/gcc/x86_64-linux-gnu/13] ==> [/usr/lib/gcc/x86_64-linux-gnu/13]
+        collapse library dir [/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu] ==> [/usr/lib/x86_64-linux-gnu]
+        collapse library dir [/usr/lib/gcc/x86_64-linux-gnu/13/../../../../lib] ==> [/usr/lib]
+        collapse library dir [/lib/x86_64-linux-gnu] ==> [/lib/x86_64-linux-gnu]
+        collapse library dir [/lib/../lib] ==> [/lib]
+        collapse library dir [/usr/lib/x86_64-linux-gnu] ==> [/usr/lib/x86_64-linux-gnu]
+        collapse library dir [/usr/lib/../lib] ==> [/usr/lib]
+        collapse library dir [/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib] ==> [/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib]
+        collapse library dir [/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib] ==> [/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib]
+        collapse library dir [/usr/lib/gcc/x86_64-linux-gnu/13/../../..] ==> [/usr/lib]
+        implicit libs: [gomp;gcc;gcc_s;pthread;c;gcc;gcc_s]
+        implicit objs: []
+        implicit dirs: [/opt/AMD/aocl/aocl-linux-aocc-5.0.0/aocc/lib;/usr/lib/gcc/x86_64-linux-gnu/13;/usr/lib/x86_64-linux-gnu;/usr/lib;/lib/x86_64-linux-gnu;/lib]
+        implicit fwks: []
+      
+      
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.28/Modules/FindOpenMP.cmake:420 (try_compile)"
+      - "/usr/share/cmake-3.28/Modules/FindOpenMP.cmake:560 (_OPENMP_GET_SPEC_DATE)"
+      - "CMakeLists.txt:40 (find_package)"
+    description: "Detecting C OpenMP version"
+    directories:
+      source: "/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-wLXllC"
+      binary: "/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-wLXllC"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_POSITION_INDEPENDENT_CODE: "ON"
+    buildResult:
+      variable: "OpenMP_SPECTEST_C_"
+      cached: true
+      stdout: |
+        Change Dir: '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-wLXllC'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_c937f/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_c937f.dir/build.make CMakeFiles/cmTC_c937f.dir/build
+        gmake[1]: ingresso nella directory «/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-wLXllC»
+        Building C object CMakeFiles/cmTC_c937f.dir/OpenMPCheckVersion.c.o
+        /usr/bin/cc   -fopenmp -std=gnu2x -fPIE -o CMakeFiles/cmTC_c937f.dir/OpenMPCheckVersion.c.o -c /home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-wLXllC/OpenMPCheckVersion.c
+        Linking C executable cmTC_c937f
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_c937f.dir/link.txt --verbose=1
+        /usr/bin/cc  -fopenmp CMakeFiles/cmTC_c937f.dir/OpenMPCheckVersion.c.o -o cmTC_c937f 
+        gmake[1]: uscita dalla directory «/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-wLXllC»
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckSourceCompiles.cmake:101 (try_compile)"
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckCompilerFlag.cmake:18 (cmake_check_source_compiles)"
+      - "/usr/share/cmake-3.28/Modules/CheckCCompilerFlag.cmake:51 (cmake_check_compiler_flag)"
+      - "CMakeLists.txt:33 (check_c_compiler_flag)"
+      - "CMakeLists.txt:56 (add_compiler_flag_if_supported)"
+    checks:
+      - "Performing Test HAVE_FLAG__fsanitize_undefined"
+    directories:
+      source: "/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-mwAxpR"
+      binary: "/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-mwAxpR"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_POSITION_INDEPENDENT_CODE: "ON"
+    buildResult:
+      variable: "HAVE_FLAG__fsanitize_undefined"
+      cached: true
+      stdout: |
+        Change Dir: '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-mwAxpR'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_c748a/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_c748a.dir/build.make CMakeFiles/cmTC_c748a.dir/build
+        gmake[1]: Entering directory '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-mwAxpR'
+        Building C object CMakeFiles/cmTC_c748a.dir/src.c.o
+        /usr/bin/cc -DHAVE_FLAG__fsanitize_undefined  -std=gnu2x -fPIE   -fsanitize=undefined -o CMakeFiles/cmTC_c748a.dir/src.c.o -c /home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-mwAxpR/src.c
+        Linking C executable cmTC_c748a
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_c748a.dir/link.txt --verbose=1
+        /usr/bin/cc CMakeFiles/cmTC_c748a.dir/src.c.o -o cmTC_c748a 
+        gmake[1]: Leaving directory '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-mwAxpR'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckSourceCompiles.cmake:101 (try_compile)"
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckCompilerFlag.cmake:18 (cmake_check_source_compiles)"
+      - "/usr/share/cmake-3.28/Modules/CheckCCompilerFlag.cmake:51 (cmake_check_compiler_flag)"
+      - "CMakeLists.txt:33 (check_c_compiler_flag)"
+      - "CMakeLists.txt:57 (add_compiler_flag_if_supported)"
+    checks:
+      - "Performing Test HAVE_FLAG__fsanitize_signed_integer_overflow"
+    directories:
+      source: "/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-fn0NdX"
+      binary: "/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-fn0NdX"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_POSITION_INDEPENDENT_CODE: "ON"
+    buildResult:
+      variable: "HAVE_FLAG__fsanitize_signed_integer_overflow"
+      cached: true
+      stdout: |
+        Change Dir: '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-fn0NdX'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_f8ba0/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_f8ba0.dir/build.make CMakeFiles/cmTC_f8ba0.dir/build
+        gmake[1]: Entering directory '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-fn0NdX'
+        Building C object CMakeFiles/cmTC_f8ba0.dir/src.c.o
+        /usr/bin/cc -DHAVE_FLAG__fsanitize_signed_integer_overflow  -std=gnu2x -fPIE   -fsanitize=signed-integer-overflow -o CMakeFiles/cmTC_f8ba0.dir/src.c.o -c /home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-fn0NdX/src.c
+        Linking C executable cmTC_f8ba0
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_f8ba0.dir/link.txt --verbose=1
+        /usr/bin/cc CMakeFiles/cmTC_f8ba0.dir/src.c.o -o cmTC_f8ba0 
+        gmake[1]: Leaving directory '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-fn0NdX'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckSourceCompiles.cmake:101 (try_compile)"
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckCompilerFlag.cmake:18 (cmake_check_source_compiles)"
+      - "/usr/share/cmake-3.28/Modules/CheckCCompilerFlag.cmake:51 (cmake_check_compiler_flag)"
+      - "CMakeLists.txt:33 (check_c_compiler_flag)"
+      - "CMakeLists.txt:72 (add_compiler_flag_if_supported)"
+    checks:
+      - "Performing Test HAVE_FLAG__mavx512vpopcntdq"
+    directories:
+      source: "/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-9OB5mO"
+      binary: "/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-9OB5mO"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_POSITION_INDEPENDENT_CODE: "ON"
+    buildResult:
+      variable: "HAVE_FLAG__mavx512vpopcntdq"
+      cached: true
+      stdout: |
+        Change Dir: '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-9OB5mO'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_5b1c3/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_5b1c3.dir/build.make CMakeFiles/cmTC_5b1c3.dir/build
+        gmake[1]: Entering directory '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-9OB5mO'
+        Building C object CMakeFiles/cmTC_5b1c3.dir/src.c.o
+        /usr/bin/cc -DHAVE_FLAG__mavx512vpopcntdq  -std=gnu2x -fPIE   -mavx512vpopcntdq -o CMakeFiles/cmTC_5b1c3.dir/src.c.o -c /home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-9OB5mO/src.c
+        Linking C executable cmTC_5b1c3
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_5b1c3.dir/link.txt --verbose=1
+        /usr/bin/cc CMakeFiles/cmTC_5b1c3.dir/src.c.o -o cmTC_5b1c3 
+        gmake[1]: Leaving directory '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-9OB5mO'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckSourceCompiles.cmake:101 (try_compile)"
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckCompilerFlag.cmake:18 (cmake_check_source_compiles)"
+      - "/usr/share/cmake-3.28/Modules/CheckCCompilerFlag.cmake:51 (cmake_check_compiler_flag)"
+      - "CMakeLists.txt:33 (check_c_compiler_flag)"
+      - "CMakeLists.txt:72 (add_compiler_flag_if_supported)"
+    checks:
+      - "Performing Test HAVE_FLAG__mavx512bitalg"
+    directories:
+      source: "/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-BJip8B"
+      binary: "/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-BJip8B"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_POSITION_INDEPENDENT_CODE: "ON"
+    buildResult:
+      variable: "HAVE_FLAG__mavx512bitalg"
+      cached: true
+      stdout: |
+        Change Dir: '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-BJip8B'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_70f5b/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_70f5b.dir/build.make CMakeFiles/cmTC_70f5b.dir/build
+        gmake[1]: Entering directory '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-BJip8B'
+        Building C object CMakeFiles/cmTC_70f5b.dir/src.c.o
+        /usr/bin/cc -DHAVE_FLAG__mavx512bitalg  -std=gnu2x -fPIE   -mavx512bitalg -o CMakeFiles/cmTC_70f5b.dir/src.c.o -c /home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-BJip8B/src.c
+        Linking C executable cmTC_70f5b
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_70f5b.dir/link.txt --verbose=1
+        /usr/bin/cc CMakeFiles/cmTC_70f5b.dir/src.c.o -o cmTC_70f5b 
+        gmake[1]: Leaving directory '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-BJip8B'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckSourceCompiles.cmake:101 (try_compile)"
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckCompilerFlag.cmake:18 (cmake_check_source_compiles)"
+      - "/usr/share/cmake-3.28/Modules/CheckCCompilerFlag.cmake:51 (cmake_check_compiler_flag)"
+      - "CMakeLists.txt:33 (check_c_compiler_flag)"
+      - "CMakeLists.txt:72 (add_compiler_flag_if_supported)"
+    checks:
+      - "Performing Test HAVE_FLAG__mavx512vnni"
+    directories:
+      source: "/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-wKYniM"
+      binary: "/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-wKYniM"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_POSITION_INDEPENDENT_CODE: "ON"
+    buildResult:
+      variable: "HAVE_FLAG__mavx512vnni"
+      cached: true
+      stdout: |
+        Change Dir: '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-wKYniM'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_f9de9/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_f9de9.dir/build.make CMakeFiles/cmTC_f9de9.dir/build
+        gmake[1]: Entering directory '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-wKYniM'
+        Building C object CMakeFiles/cmTC_f9de9.dir/src.c.o
+        /usr/bin/cc -DHAVE_FLAG__mavx512vnni  -std=gnu2x -fPIE   -mavx512vnni -o CMakeFiles/cmTC_f9de9.dir/src.c.o -c /home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-wKYniM/src.c
+        Linking C executable cmTC_f9de9
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_f9de9.dir/link.txt --verbose=1
+        /usr/bin/cc CMakeFiles/cmTC_f9de9.dir/src.c.o -o cmTC_f9de9 
+        gmake[1]: Leaving directory '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-wKYniM'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckSourceCompiles.cmake:101 (try_compile)"
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckCompilerFlag.cmake:18 (cmake_check_source_compiles)"
+      - "/usr/share/cmake-3.28/Modules/CheckCCompilerFlag.cmake:51 (cmake_check_compiler_flag)"
+      - "CMakeLists.txt:33 (check_c_compiler_flag)"
+      - "CMakeLists.txt:72 (add_compiler_flag_if_supported)"
+    checks:
+      - "Performing Test HAVE_FLAG__mavx512vbmi2"
+    directories:
+      source: "/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-BBtJis"
+      binary: "/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-BBtJis"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_POSITION_INDEPENDENT_CODE: "ON"
+    buildResult:
+      variable: "HAVE_FLAG__mavx512vbmi2"
+      cached: true
+      stdout: |
+        Change Dir: '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-BBtJis'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_311c3/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_311c3.dir/build.make CMakeFiles/cmTC_311c3.dir/build
+        gmake[1]: Entering directory '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-BBtJis'
+        Building C object CMakeFiles/cmTC_311c3.dir/src.c.o
+        /usr/bin/cc -DHAVE_FLAG__mavx512vbmi2  -std=gnu2x -fPIE   -mavx512vbmi2 -o CMakeFiles/cmTC_311c3.dir/src.c.o -c /home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-BBtJis/src.c
+        Linking C executable cmTC_311c3
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_311c3.dir/link.txt --verbose=1
+        /usr/bin/cc CMakeFiles/cmTC_311c3.dir/src.c.o -o cmTC_311c3 
+        gmake[1]: Leaving directory '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-BBtJis'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckSourceCompiles.cmake:101 (try_compile)"
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckCompilerFlag.cmake:18 (cmake_check_source_compiles)"
+      - "/usr/share/cmake-3.28/Modules/CheckCCompilerFlag.cmake:51 (cmake_check_compiler_flag)"
+      - "CMakeLists.txt:33 (check_c_compiler_flag)"
+      - "CMakeLists.txt:72 (add_compiler_flag_if_supported)"
+    checks:
+      - "Performing Test HAVE_FLAG__mavx512vbmi"
+    directories:
+      source: "/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-gAKwNQ"
+      binary: "/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-gAKwNQ"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_POSITION_INDEPENDENT_CODE: "ON"
+    buildResult:
+      variable: "HAVE_FLAG__mavx512vbmi"
+      cached: true
+      stdout: |
+        Change Dir: '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-gAKwNQ'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_eb78c/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_eb78c.dir/build.make CMakeFiles/cmTC_eb78c.dir/build
+        gmake[1]: Entering directory '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-gAKwNQ'
+        Building C object CMakeFiles/cmTC_eb78c.dir/src.c.o
+        /usr/bin/cc -DHAVE_FLAG__mavx512vbmi  -std=gnu2x -fPIE   -mavx512vbmi -o CMakeFiles/cmTC_eb78c.dir/src.c.o -c /home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-gAKwNQ/src.c
+        Linking C executable cmTC_eb78c
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_eb78c.dir/link.txt --verbose=1
+        /usr/bin/cc CMakeFiles/cmTC_eb78c.dir/src.c.o -o cmTC_eb78c 
+        gmake[1]: Leaving directory '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-gAKwNQ'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckSourceCompiles.cmake:101 (try_compile)"
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckCompilerFlag.cmake:18 (cmake_check_source_compiles)"
+      - "/usr/share/cmake-3.28/Modules/CheckCCompilerFlag.cmake:51 (cmake_check_compiler_flag)"
+      - "CMakeLists.txt:33 (check_c_compiler_flag)"
+      - "CMakeLists.txt:72 (add_compiler_flag_if_supported)"
+    checks:
+      - "Performing Test HAVE_FLAG__mavx512ifma"
+    directories:
+      source: "/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-3Xdw1p"
+      binary: "/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-3Xdw1p"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_POSITION_INDEPENDENT_CODE: "ON"
+    buildResult:
+      variable: "HAVE_FLAG__mavx512ifma"
+      cached: true
+      stdout: |
+        Change Dir: '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-3Xdw1p'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_d9bf4/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_d9bf4.dir/build.make CMakeFiles/cmTC_d9bf4.dir/build
+        gmake[1]: Entering directory '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-3Xdw1p'
+        Building C object CMakeFiles/cmTC_d9bf4.dir/src.c.o
+        /usr/bin/cc -DHAVE_FLAG__mavx512ifma  -std=gnu2x -fPIE   -mavx512ifma -o CMakeFiles/cmTC_d9bf4.dir/src.c.o -c /home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-3Xdw1p/src.c
+        Linking C executable cmTC_d9bf4
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_d9bf4.dir/link.txt --verbose=1
+        /usr/bin/cc CMakeFiles/cmTC_d9bf4.dir/src.c.o -o cmTC_d9bf4 
+        gmake[1]: Leaving directory '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-3Xdw1p'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckSourceCompiles.cmake:101 (try_compile)"
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckCompilerFlag.cmake:18 (cmake_check_source_compiles)"
+      - "/usr/share/cmake-3.28/Modules/CheckCCompilerFlag.cmake:51 (cmake_check_compiler_flag)"
+      - "CMakeLists.txt:33 (check_c_compiler_flag)"
+      - "CMakeLists.txt:72 (add_compiler_flag_if_supported)"
+    checks:
+      - "Performing Test HAVE_FLAG__mavx512cd"
+    directories:
+      source: "/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-zecODK"
+      binary: "/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-zecODK"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_POSITION_INDEPENDENT_CODE: "ON"
+    buildResult:
+      variable: "HAVE_FLAG__mavx512cd"
+      cached: true
+      stdout: |
+        Change Dir: '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-zecODK'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_2580b/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_2580b.dir/build.make CMakeFiles/cmTC_2580b.dir/build
+        gmake[1]: Entering directory '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-zecODK'
+        Building C object CMakeFiles/cmTC_2580b.dir/src.c.o
+        /usr/bin/cc -DHAVE_FLAG__mavx512cd  -std=gnu2x -fPIE   -mavx512cd -o CMakeFiles/cmTC_2580b.dir/src.c.o -c /home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-zecODK/src.c
+        Linking C executable cmTC_2580b
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_2580b.dir/link.txt --verbose=1
+        /usr/bin/cc CMakeFiles/cmTC_2580b.dir/src.c.o -o cmTC_2580b 
+        gmake[1]: Leaving directory '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-zecODK'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckSourceCompiles.cmake:101 (try_compile)"
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckCompilerFlag.cmake:18 (cmake_check_source_compiles)"
+      - "/usr/share/cmake-3.28/Modules/CheckCCompilerFlag.cmake:51 (cmake_check_compiler_flag)"
+      - "CMakeLists.txt:33 (check_c_compiler_flag)"
+      - "CMakeLists.txt:72 (add_compiler_flag_if_supported)"
+    checks:
+      - "Performing Test HAVE_FLAG__mavx512dq"
+    directories:
+      source: "/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-eyDxt9"
+      binary: "/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-eyDxt9"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_POSITION_INDEPENDENT_CODE: "ON"
+    buildResult:
+      variable: "HAVE_FLAG__mavx512dq"
+      cached: true
+      stdout: |
+        Change Dir: '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-eyDxt9'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_41005/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_41005.dir/build.make CMakeFiles/cmTC_41005.dir/build
+        gmake[1]: Entering directory '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-eyDxt9'
+        Building C object CMakeFiles/cmTC_41005.dir/src.c.o
+        /usr/bin/cc -DHAVE_FLAG__mavx512dq  -std=gnu2x -fPIE   -mavx512dq -o CMakeFiles/cmTC_41005.dir/src.c.o -c /home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-eyDxt9/src.c
+        Linking C executable cmTC_41005
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_41005.dir/link.txt --verbose=1
+        /usr/bin/cc CMakeFiles/cmTC_41005.dir/src.c.o -o cmTC_41005 
+        gmake[1]: Leaving directory '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-eyDxt9'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckSourceCompiles.cmake:101 (try_compile)"
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckCompilerFlag.cmake:18 (cmake_check_source_compiles)"
+      - "/usr/share/cmake-3.28/Modules/CheckCCompilerFlag.cmake:51 (cmake_check_compiler_flag)"
+      - "CMakeLists.txt:33 (check_c_compiler_flag)"
+      - "CMakeLists.txt:72 (add_compiler_flag_if_supported)"
+    checks:
+      - "Performing Test HAVE_FLAG__mavx512bw"
+    directories:
+      source: "/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-SJNhbz"
+      binary: "/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-SJNhbz"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_POSITION_INDEPENDENT_CODE: "ON"
+    buildResult:
+      variable: "HAVE_FLAG__mavx512bw"
+      cached: true
+      stdout: |
+        Change Dir: '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-SJNhbz'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_6f45d/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_6f45d.dir/build.make CMakeFiles/cmTC_6f45d.dir/build
+        gmake[1]: Entering directory '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-SJNhbz'
+        Building C object CMakeFiles/cmTC_6f45d.dir/src.c.o
+        /usr/bin/cc -DHAVE_FLAG__mavx512bw  -std=gnu2x -fPIE   -mavx512bw -o CMakeFiles/cmTC_6f45d.dir/src.c.o -c /home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-SJNhbz/src.c
+        Linking C executable cmTC_6f45d
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_6f45d.dir/link.txt --verbose=1
+        /usr/bin/cc CMakeFiles/cmTC_6f45d.dir/src.c.o -o cmTC_6f45d 
+        gmake[1]: Leaving directory '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-SJNhbz'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckSourceCompiles.cmake:101 (try_compile)"
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckCompilerFlag.cmake:18 (cmake_check_source_compiles)"
+      - "/usr/share/cmake-3.28/Modules/CheckCCompilerFlag.cmake:51 (cmake_check_compiler_flag)"
+      - "CMakeLists.txt:33 (check_c_compiler_flag)"
+      - "CMakeLists.txt:72 (add_compiler_flag_if_supported)"
+    checks:
+      - "Performing Test HAVE_FLAG__mavx512vl"
+    directories:
+      source: "/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-w1QsXp"
+      binary: "/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-w1QsXp"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_POSITION_INDEPENDENT_CODE: "ON"
+    buildResult:
+      variable: "HAVE_FLAG__mavx512vl"
+      cached: true
+      stdout: |
+        Change Dir: '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-w1QsXp'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_854ad/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_854ad.dir/build.make CMakeFiles/cmTC_854ad.dir/build
+        gmake[1]: Entering directory '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-w1QsXp'
+        Building C object CMakeFiles/cmTC_854ad.dir/src.c.o
+        /usr/bin/cc -DHAVE_FLAG__mavx512vl  -std=gnu2x -fPIE   -mavx512vl -o CMakeFiles/cmTC_854ad.dir/src.c.o -c /home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-w1QsXp/src.c
+        Linking C executable cmTC_854ad
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_854ad.dir/link.txt --verbose=1
+        /usr/bin/cc CMakeFiles/cmTC_854ad.dir/src.c.o -o cmTC_854ad 
+        gmake[1]: Leaving directory '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-w1QsXp'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckSourceCompiles.cmake:101 (try_compile)"
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckCompilerFlag.cmake:18 (cmake_check_source_compiles)"
+      - "/usr/share/cmake-3.28/Modules/CheckCCompilerFlag.cmake:51 (cmake_check_compiler_flag)"
+      - "CMakeLists.txt:33 (check_c_compiler_flag)"
+      - "CMakeLists.txt:72 (add_compiler_flag_if_supported)"
+    checks:
+      - "Performing Test HAVE_FLAG__mavx512f"
+    directories:
+      source: "/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-bcmPN5"
+      binary: "/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-bcmPN5"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_POSITION_INDEPENDENT_CODE: "ON"
+    buildResult:
+      variable: "HAVE_FLAG__mavx512f"
+      cached: true
+      stdout: |
+        Change Dir: '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-bcmPN5'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_b9038/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_b9038.dir/build.make CMakeFiles/cmTC_b9038.dir/build
+        gmake[1]: Entering directory '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-bcmPN5'
+        Building C object CMakeFiles/cmTC_b9038.dir/src.c.o
+        /usr/bin/cc -DHAVE_FLAG__mavx512f  -std=gnu2x -fPIE   -mavx512f -o CMakeFiles/cmTC_b9038.dir/src.c.o -c /home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-bcmPN5/src.c
+        Linking C executable cmTC_b9038
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_b9038.dir/link.txt --verbose=1
+        /usr/bin/cc CMakeFiles/cmTC_b9038.dir/src.c.o -o cmTC_b9038 
+        gmake[1]: Leaving directory '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-bcmPN5'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckSourceCompiles.cmake:101 (try_compile)"
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckCompilerFlag.cmake:18 (cmake_check_source_compiles)"
+      - "/usr/share/cmake-3.28/Modules/CheckCCompilerFlag.cmake:51 (cmake_check_compiler_flag)"
+      - "CMakeLists.txt:33 (check_c_compiler_flag)"
+      - "CMakeLists.txt:72 (add_compiler_flag_if_supported)"
+    checks:
+      - "Performing Test HAVE_FLAG__mfma"
+    directories:
+      source: "/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-BHqtzU"
+      binary: "/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-BHqtzU"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_POSITION_INDEPENDENT_CODE: "ON"
+    buildResult:
+      variable: "HAVE_FLAG__mfma"
+      cached: true
+      stdout: |
+        Change Dir: '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-BHqtzU'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_eb8b9/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_eb8b9.dir/build.make CMakeFiles/cmTC_eb8b9.dir/build
+        gmake[1]: Entering directory '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-BHqtzU'
+        Building C object CMakeFiles/cmTC_eb8b9.dir/src.c.o
+        /usr/bin/cc -DHAVE_FLAG__mfma  -std=gnu2x -fPIE   -mfma -o CMakeFiles/cmTC_eb8b9.dir/src.c.o -c /home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-BHqtzU/src.c
+        Linking C executable cmTC_eb8b9
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_eb8b9.dir/link.txt --verbose=1
+        /usr/bin/cc CMakeFiles/cmTC_eb8b9.dir/src.c.o -o cmTC_eb8b9 
+        gmake[1]: Leaving directory '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-BHqtzU'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckSourceCompiles.cmake:101 (try_compile)"
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckCompilerFlag.cmake:18 (cmake_check_source_compiles)"
+      - "/usr/share/cmake-3.28/Modules/CheckCCompilerFlag.cmake:51 (cmake_check_compiler_flag)"
+      - "CMakeLists.txt:33 (check_c_compiler_flag)"
+      - "CMakeLists.txt:72 (add_compiler_flag_if_supported)"
+    checks:
+      - "Performing Test HAVE_FLAG__mavx2"
+    directories:
+      source: "/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-GCkxrY"
+      binary: "/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-GCkxrY"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_POSITION_INDEPENDENT_CODE: "ON"
+    buildResult:
+      variable: "HAVE_FLAG__mavx2"
+      cached: true
+      stdout: |
+        Change Dir: '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-GCkxrY'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_55799/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_55799.dir/build.make CMakeFiles/cmTC_55799.dir/build
+        gmake[1]: Entering directory '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-GCkxrY'
+        Building C object CMakeFiles/cmTC_55799.dir/src.c.o
+        /usr/bin/cc -DHAVE_FLAG__mavx2  -std=gnu2x -fPIE   -mavx2 -o CMakeFiles/cmTC_55799.dir/src.c.o -c /home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-GCkxrY/src.c
+        Linking C executable cmTC_55799
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_55799.dir/link.txt --verbose=1
+        /usr/bin/cc CMakeFiles/cmTC_55799.dir/src.c.o -o cmTC_55799 
+        gmake[1]: Leaving directory '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-GCkxrY'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckSourceCompiles.cmake:101 (try_compile)"
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckCompilerFlag.cmake:18 (cmake_check_source_compiles)"
+      - "/usr/share/cmake-3.28/Modules/CheckCCompilerFlag.cmake:51 (cmake_check_compiler_flag)"
+      - "CMakeLists.txt:33 (check_c_compiler_flag)"
+      - "CMakeLists.txt:72 (add_compiler_flag_if_supported)"
+    checks:
+      - "Performing Test HAVE_FLAG__mavx"
+    directories:
+      source: "/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-iIyRJS"
+      binary: "/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-iIyRJS"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_POSITION_INDEPENDENT_CODE: "ON"
+    buildResult:
+      variable: "HAVE_FLAG__mavx"
+      cached: true
+      stdout: |
+        Change Dir: '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-iIyRJS'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_7dfce/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_7dfce.dir/build.make CMakeFiles/cmTC_7dfce.dir/build
+        gmake[1]: Entering directory '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-iIyRJS'
+        Building C object CMakeFiles/cmTC_7dfce.dir/src.c.o
+        /usr/bin/cc -DHAVE_FLAG__mavx  -std=gnu2x -fPIE   -mavx -o CMakeFiles/cmTC_7dfce.dir/src.c.o -c /home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-iIyRJS/src.c
+        Linking C executable cmTC_7dfce
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_7dfce.dir/link.txt --verbose=1
+        /usr/bin/cc CMakeFiles/cmTC_7dfce.dir/src.c.o -o cmTC_7dfce 
+        gmake[1]: Leaving directory '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-iIyRJS'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckSourceCompiles.cmake:101 (try_compile)"
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckCompilerFlag.cmake:18 (cmake_check_source_compiles)"
+      - "/usr/share/cmake-3.28/Modules/CheckCCompilerFlag.cmake:51 (cmake_check_compiler_flag)"
+      - "CMakeLists.txt:33 (check_c_compiler_flag)"
+      - "CMakeLists.txt:72 (add_compiler_flag_if_supported)"
+    checks:
+      - "Performing Test HAVE_FLAG__msse4.2"
+    directories:
+      source: "/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-xslOFS"
+      binary: "/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-xslOFS"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_POSITION_INDEPENDENT_CODE: "ON"
+    buildResult:
+      variable: "HAVE_FLAG__msse4.2"
+      cached: true
+      stdout: |
+        Change Dir: '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-xslOFS'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_f12ff/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_f12ff.dir/build.make CMakeFiles/cmTC_f12ff.dir/build
+        gmake[1]: Entering directory '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-xslOFS'
+        Building C object CMakeFiles/cmTC_f12ff.dir/src.c.o
+        /usr/bin/cc   -std=gnu2x -fPIE   -DHAVE_FLAG__msse4.2 -msse4.2 -o CMakeFiles/cmTC_f12ff.dir/src.c.o -c /home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-xslOFS/src.c
+        <command-line>: warning: ISO C99 requires whitespace after the macro name
+        Linking C executable cmTC_f12ff
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_f12ff.dir/link.txt --verbose=1
+        /usr/bin/cc CMakeFiles/cmTC_f12ff.dir/src.c.o -o cmTC_f12ff 
+        gmake[1]: Leaving directory '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-xslOFS'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckSourceCompiles.cmake:101 (try_compile)"
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckCompilerFlag.cmake:18 (cmake_check_source_compiles)"
+      - "/usr/share/cmake-3.28/Modules/CheckCCompilerFlag.cmake:51 (cmake_check_compiler_flag)"
+      - "CMakeLists.txt:33 (check_c_compiler_flag)"
+      - "CMakeLists.txt:72 (add_compiler_flag_if_supported)"
+    checks:
+      - "Performing Test HAVE_FLAG__msse4.1"
+    directories:
+      source: "/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-UJRAHf"
+      binary: "/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-UJRAHf"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_POSITION_INDEPENDENT_CODE: "ON"
+    buildResult:
+      variable: "HAVE_FLAG__msse4.1"
+      cached: true
+      stdout: |
+        Change Dir: '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-UJRAHf'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_88509/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_88509.dir/build.make CMakeFiles/cmTC_88509.dir/build
+        gmake[1]: Entering directory '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-UJRAHf'
+        Building C object CMakeFiles/cmTC_88509.dir/src.c.o
+        /usr/bin/cc   -std=gnu2x -fPIE   -DHAVE_FLAG__msse4.1 -msse4.1 -o CMakeFiles/cmTC_88509.dir/src.c.o -c /home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-UJRAHf/src.c
+        <command-line>: warning: ISO C99 requires whitespace after the macro name
+        Linking C executable cmTC_88509
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_88509.dir/link.txt --verbose=1
+        /usr/bin/cc CMakeFiles/cmTC_88509.dir/src.c.o -o cmTC_88509 
+        gmake[1]: Leaving directory '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-UJRAHf'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckSourceCompiles.cmake:101 (try_compile)"
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckCompilerFlag.cmake:18 (cmake_check_source_compiles)"
+      - "/usr/share/cmake-3.28/Modules/CheckCCompilerFlag.cmake:51 (cmake_check_compiler_flag)"
+      - "CMakeLists.txt:33 (check_c_compiler_flag)"
+      - "CMakeLists.txt:72 (add_compiler_flag_if_supported)"
+    checks:
+      - "Performing Test HAVE_FLAG__mssse3"
+    directories:
+      source: "/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-aeP6XH"
+      binary: "/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-aeP6XH"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_POSITION_INDEPENDENT_CODE: "ON"
+    buildResult:
+      variable: "HAVE_FLAG__mssse3"
+      cached: true
+      stdout: |
+        Change Dir: '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-aeP6XH'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_5bbfc/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_5bbfc.dir/build.make CMakeFiles/cmTC_5bbfc.dir/build
+        gmake[1]: Entering directory '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-aeP6XH'
+        Building C object CMakeFiles/cmTC_5bbfc.dir/src.c.o
+        /usr/bin/cc -DHAVE_FLAG__mssse3  -std=gnu2x -fPIE   -mssse3 -o CMakeFiles/cmTC_5bbfc.dir/src.c.o -c /home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-aeP6XH/src.c
+        Linking C executable cmTC_5bbfc
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_5bbfc.dir/link.txt --verbose=1
+        /usr/bin/cc CMakeFiles/cmTC_5bbfc.dir/src.c.o -o cmTC_5bbfc 
+        gmake[1]: Leaving directory '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-aeP6XH'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckSourceCompiles.cmake:101 (try_compile)"
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckCompilerFlag.cmake:18 (cmake_check_source_compiles)"
+      - "/usr/share/cmake-3.28/Modules/CheckCCompilerFlag.cmake:51 (cmake_check_compiler_flag)"
+      - "CMakeLists.txt:33 (check_c_compiler_flag)"
+      - "CMakeLists.txt:72 (add_compiler_flag_if_supported)"
+    checks:
+      - "Performing Test HAVE_FLAG__msse3"
+    directories:
+      source: "/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-QBdfu6"
+      binary: "/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-QBdfu6"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_POSITION_INDEPENDENT_CODE: "ON"
+    buildResult:
+      variable: "HAVE_FLAG__msse3"
+      cached: true
+      stdout: |
+        Change Dir: '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-QBdfu6'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_2384f/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_2384f.dir/build.make CMakeFiles/cmTC_2384f.dir/build
+        gmake[1]: Entering directory '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-QBdfu6'
+        Building C object CMakeFiles/cmTC_2384f.dir/src.c.o
+        /usr/bin/cc -DHAVE_FLAG__msse3  -std=gnu2x -fPIE   -msse3 -o CMakeFiles/cmTC_2384f.dir/src.c.o -c /home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-QBdfu6/src.c
+        Linking C executable cmTC_2384f
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_2384f.dir/link.txt --verbose=1
+        /usr/bin/cc CMakeFiles/cmTC_2384f.dir/src.c.o -o cmTC_2384f 
+        gmake[1]: Leaving directory '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-QBdfu6'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckSourceCompiles.cmake:101 (try_compile)"
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckCompilerFlag.cmake:18 (cmake_check_source_compiles)"
+      - "/usr/share/cmake-3.28/Modules/CheckCCompilerFlag.cmake:51 (cmake_check_compiler_flag)"
+      - "CMakeLists.txt:33 (check_c_compiler_flag)"
+      - "CMakeLists.txt:72 (add_compiler_flag_if_supported)"
+    checks:
+      - "Performing Test HAVE_FLAG__msse2"
+    directories:
+      source: "/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-iOV4R8"
+      binary: "/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-iOV4R8"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_POSITION_INDEPENDENT_CODE: "ON"
+    buildResult:
+      variable: "HAVE_FLAG__msse2"
+      cached: true
+      stdout: |
+        Change Dir: '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-iOV4R8'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_b1878/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_b1878.dir/build.make CMakeFiles/cmTC_b1878.dir/build
+        gmake[1]: Entering directory '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-iOV4R8'
+        Building C object CMakeFiles/cmTC_b1878.dir/src.c.o
+        /usr/bin/cc -DHAVE_FLAG__msse2  -std=gnu2x -fPIE   -msse2 -o CMakeFiles/cmTC_b1878.dir/src.c.o -c /home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-iOV4R8/src.c
+        Linking C executable cmTC_b1878
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_b1878.dir/link.txt --verbose=1
+        /usr/bin/cc CMakeFiles/cmTC_b1878.dir/src.c.o -o cmTC_b1878 
+        gmake[1]: Leaving directory '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-iOV4R8'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckSourceCompiles.cmake:101 (try_compile)"
+      - "/usr/share/cmake-3.28/Modules/Internal/CheckCompilerFlag.cmake:18 (cmake_check_source_compiles)"
+      - "/usr/share/cmake-3.28/Modules/CheckCCompilerFlag.cmake:51 (cmake_check_compiler_flag)"
+      - "CMakeLists.txt:33 (check_c_compiler_flag)"
+      - "CMakeLists.txt:87 (add_compiler_flag_if_supported)"
+    checks:
+      - "Performing Test HAVE_FLAG__march_native"
+    directories:
+      source: "/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-8EdblQ"
+      binary: "/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-8EdblQ"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_POSITION_INDEPENDENT_CODE: "ON"
+    buildResult:
+      variable: "HAVE_FLAG__march_native"
+      cached: true
+      stdout: |
+        Change Dir: '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-8EdblQ'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_298d8/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_298d8.dir/build.make CMakeFiles/cmTC_298d8.dir/build
+        gmake[1]: Entering directory '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-8EdblQ'
+        Building C object CMakeFiles/cmTC_298d8.dir/src.c.o
+        /usr/bin/cc -DHAVE_FLAG__march_native  -std=gnu2x -fPIE   -march=native -o CMakeFiles/cmTC_298d8.dir/src.c.o -c /home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-8EdblQ/src.c
+        Linking C executable cmTC_298d8
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_298d8.dir/link.txt --verbose=1
+        /usr/bin/cc CMakeFiles/cmTC_298d8.dir/src.c.o -o cmTC_298d8 
+        gmake[1]: Leaving directory '/home/p4o1o/Documenti/LinearGeneticProgramming/build_test/CMakeFiles/CMakeScratch/TryCompile-8EdblQ'
+        
+      exitCode: 0
+...
