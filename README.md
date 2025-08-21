@@ -78,59 +78,6 @@ docker-compose --profile test up lgp-test
 
 **Virtual Machine**: 87 specialized instructions, dual-type registers (4 int + 4 float), flexible memory model (ROM/RAM).
 
-## Quick Start
-
-**Python** (recommended) - See [Python Documentation](lgp/README.md):
-```python
-import lgp
-import numpy as np
-
-X = np.random.uniform(-2, 2, (100, 1))
-y = X[:, 0]**2 + 3*X[:, 0] + 1
-
-instruction_set = lgp.InstructionSet([
-    lgp.Operation.ADD_F, lgp.Operation.MUL_F, lgp.Operation.POW,
-    lgp.Operation.LOAD_ROM_F, lgp.Operation.STORE_RAM_F
-])
-
-lgp_input = lgp.LGPInput.from_numpy(X, y, instruction_set, ram_size=5)
-pop, evals, gens, best_idx = lgp.evolve(
-    lgp_input, fitness=lgp.MSE(), 
-    selection=lgp.Tournament(tournament_size=4),
-    initialization=lgp.UniquePopulation(pop_size=200, minsize=5, maxsize=25),
-    target=1e-6, generations=50, verbose=1
-)
-
-best = pop.get(best_idx)
-print(f"Best fitness: {best.fitness:.6e}")
-best.print_program()
-```
-
-**C** (maximum performance) - See [C Documentation](src/README.md):
-```c
-#include "src/evolution.h"
-#include "src/psb2.h"
-
-int main() {
-    random_init_all(42);
-    struct Operation ops[] = {OP_ADD_F, OP_MUL_F, OP_LOAD_ROM_F, OP_STORE_RAM_F};
-    struct InstructionSet instr_set = {.size = 4, .op = ops};
-    struct LGPInput input = vector_distance(&instr_set, 2, 100);
-    
-    const struct LGPOptions options = {
-        .fitness = MSE, .selection = tournament,
-        .initialization_func = unique_population,
-        .init_params = {.pop_size = 200, .minsize = 5, .maxsize = 25},
-        .target = 1e-6, .generations = 50, .verbose = 1
-    };
-    
-    struct LGPResult result = evolve(&input, &options);
-    printf("Best fitness: %e
-", result.pop.individual[result.best_individ].fitness);
-    return 0;
-}
-```
-
 ## 🎯 Key Features
 
 - **Multiple Selection Methods**: Tournament, elitism, roulette wheel, fitness sharing
@@ -176,10 +123,14 @@ lgp_input = lgp.LGPInput.from_numpy(X, y, instruction_set, ram_size=5)
 population, evaluations, generations, best_idx = lgp.evolve(
     lgp_input,
     fitness=lgp.MSE(),
-    selection=lgp.Tournament(tournament_size=4),
-    initialization=lgp.UniquePopulation(pop_size=200, minsize=5, maxsize=25),
-    target=1e-6,
-    generations=50,
+    selection=lgp.Tournament(4),
+    initialization=lgp.UniquePopulation(150, 8, 30),  # pop_size, min_len, max_len
+    target=0.05,  # Terminate if MSE < 0.05
+    mutation_prob=0.8,
+    crossover_prob=0.95,
+    max_clock=8000,
+    max_individ_len=20,
+    generations=80,
     verbose=1
 )
 
@@ -204,10 +155,27 @@ int main() {
     
     // Configure and run evolution
     const struct LGPOptions options = {
-        .fitness = MSE, .selection = tournament,
-        .initialization_func = unique_population,
-        .init_params = {.pop_size = 200, .minsize = 5, .maxsize = 25},
-        .target = 1e-6, .generations = 50, .verbose = 1
+        .fitness = MSE,
+		.fitness_param = (struct FitnessParams) {
+			.start = 0,
+			.end = 1,
+		},
+		.selection = tournament,
+		.select_param = (union SelectionParams) {.size = 3},
+		.initialization_func = unique_population,
+		.init_params = (struct InitializationParams) {
+			.pop_size = 1000,
+			.minsize = 2,
+			.maxsize = 5
+		},
+		.target = 1e-27,
+		.mutation_prob = 0.76,
+		.max_mutation_len = 5,
+		.crossover_prob = 0.95,
+		.max_clock = 5000,
+		.max_individ_len = 50,
+		.generations = 10,
+		.verbose = 1
     };
     
     struct LGPResult result = evolve(&input, &options);
