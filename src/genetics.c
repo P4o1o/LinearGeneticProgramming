@@ -216,7 +216,7 @@ uint64_t xxhash_program(const struct Program *const prog){
                 __m128i data = _mm_load_si128((__m128i*)(input));
                 small_acc1 = sse2_xxh_roll(small_acc1, data);
                 input += 2;
-                __m128i data = _mm_load_si128((__m128i*)(input));
+                data = _mm_load_si128((__m128i*)(input));
                 small_acc2 = sse2_xxh_roll(small_acc2, data);
                 input += 2;
             }
@@ -230,7 +230,7 @@ uint64_t xxhash_program(const struct Program *const prog){
                 uint64x2_t data = vld1q_u64(input);
                 small_acc1 = neon_xxh_roll(small_acc1, data);
                 input += 2;
-                uint64x2_t data = vld1q_u64(input);
+                data = vld1q_u64(input);
                 small_acc2 = neon_xxh_roll(small_acc2, data);
                 input += 2;
             }
