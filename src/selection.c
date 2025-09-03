@@ -264,7 +264,7 @@ void tournament_##TYPE(struct Population * initial, const union SelectionParams 
 	uint64_t small_tourn = initial->size % params->size; \
 	struct Population res = { .size = tournaments + (small_tourn != 0) }; \
     ASSERT(res.size > 0); \
-	res.individual = (struct Individual*) aligned_alloc(VECT_ALIGNMENT, sizeof(struct Individual) * res.size); \
+	res.individual = (struct Individual*) malloc(sizeof(struct Individual) * res.size); \
 	if (res.individual == NULL){ \
 		MALLOC_FAIL; \
     } \
@@ -306,7 +306,7 @@ void fitness_sharing_tournament_##TYPE(struct Population * initial, const union 
 	uint64_t small_tourn = initial->size % params->fs_params.select_factor.size; \
 	struct Population res = { .size = tournaments + (small_tourn != 0) }; \
     ASSERT(res.size > 0); \
-	res.individual = (struct Individual*) aligned_alloc(VECT_ALIGNMENT, sizeof(struct Individual) * res.size); \
+	res.individual = (struct Individual*) malloc(sizeof(struct Individual) * res.size); \
 	if (res.individual == NULL){ \
 		MALLOC_FAIL; \
     } \
@@ -383,7 +383,7 @@ static inline struct DoubleCouple get_info_roulette_MINIMIZE(struct Population *
 #define DECLARE_roulette(TYPE) \
 void roulette_##TYPE(struct Population * initial, UNUSED_ATTRIBUTE const union SelectionParams *const params){ \
     struct Population res; \
-	res.individual = (struct Individual*) aligned_alloc(VECT_ALIGNMENT, initial->size * sizeof(struct Individual)); \
+	res.individual = (struct Individual*) malloc(initial->size * sizeof(struct Individual)); \
     if(res.individual == NULL){ \
         MALLOC_FAIL; \
     } \
@@ -454,7 +454,7 @@ static inline struct DoubleCouple get_info_fitness_sharing_roulette_MINIMIZE(dou
 #define DECLARE_fitness_sharing_roulette(TYPE) \
 void fitness_sharing_roulette_##TYPE(struct Population * initial, const union SelectionParams *const params){ \
     struct Population res; \
-	res.individual = (struct Individual*) aligned_alloc(VECT_ALIGNMENT, initial->size * sizeof(struct Individual)); \
+	res.individual = (struct Individual*) malloc(initial->size * sizeof(struct Individual)); \
     if(res.individual == NULL){ \
         MALLOC_FAIL; \
     } \
@@ -520,7 +520,7 @@ static inline double * slot_sizes_roulette_MINIMIZE(const struct Population *con
 void roulette_##TYPE(struct Population * initial, const union SelectionParams *const params){ \
     struct Population res; \
 	res.size = new_size->size; \
-	res.individual = (struct Individual*) aligned_alloc(VECT_ALIGNMENT, new_size->size * sizeof(struct Individual)); \
+	res.individual = (struct Individual*) malloc(new_size->size * sizeof(struct Individual)); \
     if(res.individual == NULL) \
         MALLOC_FAIL; \
     shuffle_population(initial, *mse); \
