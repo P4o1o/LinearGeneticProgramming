@@ -64,10 +64,6 @@ Thank you for your interest in contributing to the Linear Genetic Programming (L
 Here are some areas where contributions are needed:
 
 - [ ] Complete support for multi-objective evolution.
-- [ ] Test on various operating systems and hardware:
-  - Linux (e.g., Ryzen 9700X with 64GB, i5-825U with 8GB).
-  - Windows (e.g., i5-825U with 8GB).
-- [ ] Expand and improve CI/CD tests.
 - [ ] Add features to the Python interface.
 - [ ] Enhance the virtual machine:
   - Implement new instructions (e.g., vectorized, GPU-based).
