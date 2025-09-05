@@ -109,3 +109,23 @@ struct LGPResult unique_population(const struct LGPInput *const in, const struct
     struct LGPResult res = {.generations = 0, .pop = pop, .evaluations = pop.size};
     return res;
 }
+
+struct LGPMultiResult rand_multipopulation(const struct LGPInput *const in, const struct InitializationParams *const params, const struct MultiFitness *const multifitness, const uint64_t max_clock) {
+    ASSERT(params->pop_size > 0);
+    ASSERT(0 < params->minsize);
+    ASSERT(params->minsize <= params->maxsize);
+	struct MultiPopulation pop = {.size = params->pop_size};
+	pop.individual = (struct MultiIndividual *) malloc(sizeof(struct MultiIndividual) * pop.size);
+	if (pop.individual == NULL) {
+		MALLOC_FAIL;
+	}
+#pragma omp parallel for schedule(dynamic,1) num_threads(NUMBER_OF_OMP_THREADS)
+	for (uint64_t i = 0; i < pop.size; i++) {
+        struct Program prog = rand_program(in, params->minsize, params->maxsize);
+        ASSERT(params->minsize <= prog.size);
+        ASSERT(prog.size <= params->maxsize);
+		pop.individual[i] = (struct MultiIndividual){ .prog = prog, .fitness = eval_multifitness(in, &pop.individual[i].prog, max_clock, multifitness)};
+	}
+    struct LGPMultiResult res = {.generations = 0, .pop = pop, .evaluations = pop.size};
+	return res;
+}

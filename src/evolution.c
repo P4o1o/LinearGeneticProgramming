@@ -232,7 +232,7 @@ struct LGPResult evolve(const struct LGPInput *const in, const struct LGPOptions
     }
     uint64_t winner = best_individ(&pop, args->fitness.type);
     if(args->verbose)
-		printf("Generation 0, best_mse %lf, population_size %ld\n", pop.individual[winner].fitness, pop.size);
+		printf("Generation 0, Best Individual (%s): %lf, Population Size %ld, Evaluations %ld\n", args->fitness.name, pop.individual[winner].fitness, pop.size, evaluations);
     if(args->fitness.type == MINIMIZE){
         if (pop.individual[winner].fitness <= args->target){
             struct LGPResult res = {.evaluations = evaluations, .pop = pop, .generations = 0, .best_individ = winner};
@@ -358,6 +358,178 @@ struct LGPResult evolve(const struct LGPInput *const in, const struct LGPOptions
         printf("DEBUG C: best_individ prog.content = %p\n", (void*)pop.individual[winner].prog.content);
     #endif
     const struct LGPResult res = {.evaluations = evaluations, .pop = pop, .generations = gen, .best_individ = winner};
+    return res;
+}
+
+uint64_t best_multiindivid(const struct MultiPopulation *const pop, const struct MultiFitness fitness){
+    ASSERT(pop->size > 0);
+    return 0;
+}
+
+struct LGPMultiResult multi_evolve(const struct LGPInput *const in, const struct LGPMultiOptions *const args){
+    ASSERT(args->init_params.minsize > 0);
+    ASSERT(args->init_params.minsize <= args->init_params.maxsize);
+    ASSERT(args->init_params.maxsize <= args->max_individ_len);
+    ASSERT(in->rom_size > 0);
+    ASSERT(in->input_num > 0);
+    ASSERT(args->mutation_prob > 0.0);
+    ASSERT(args->crossover_prob > 0.0);
+    double mut_int;
+    const double mut_frac = modf(args->mutation_prob, &mut_int);
+    const uint64_t mut_times = (uint64_t) mut_int;
+    const prob mut_prob = PROBABILITY(mut_frac);
+    double cross_int;
+    const double cross_frac = modf(args->crossover_prob, &cross_int);
+    const uint64_t cross_times = (uint64_t) cross_int;
+	const prob cross_prob = PROBABILITY(cross_frac);
+    uint64_t evaluations = 0;
+    // POPULATION INITIALIZATION
+    struct MultiPopulation pop;
+    if(args->initialization_func != NULL){
+        struct LGPMultiResult res = args->initialization_func(in, &(args->init_params), &(args->fitness), args->max_clock);
+        evaluations = res.evaluations;
+        pop = res.pop;
+        pop.fitness_size = args->fitness.size;
+    }else{
+        pop = args->initial_pop;
+    }
+    uint64_t winner = best_multiindivid(&pop, args->fitness);
+    if(args->verbose)
+		printf("Generation 0, Population Size %ld, Evaluations %ld\n", pop.size, evaluations);
+    uint64_t target = 1;
+    for(uint64_t i = 0; i < args->fitness.size; i++){
+        if(args->fitness.functions[i].type == MINIMIZE){
+            if (pop.individual[winner].fitness[i] > args->target[i]){
+            target = 0;
+            }
+        }else if(args->fitness.functions[i].type == MAXIMIZE){
+            if(pop.individual[winner].fitness[i] < args->target[i]){
+                target = 0;
+            }
+        }
+    }
+    if(target){
+        struct LGPMultiResult res = {.evaluations = evaluations, .pop = pop, .generations = 0, .best_individ = winner};
+        return res;
+    }
+    // GENERATIONS LOOP
+    uint64_t buffer_size = pop.size;
+    uint64_t gen;
+    for(gen = 1; gen <= args->generations; gen++){
+        // SELECTION
+        args->selection.function(&pop, &(args->select_param));
+        ASSERT(pop.size > 0);
+        // EVOLUTION
+        uint64_t oldsize = pop.size;
+        uint64_t max_pop_size = oldsize * (mut_times + 1 + 2 * (cross_times + 1) + 1);
+        if(buffer_size < max_pop_size){
+            pop.individual  = (struct MultiIndividual *) realloc(pop.individual, sizeof(struct MultiIndividual) * max_pop_size);
+            if (pop.individual == NULL){
+                MALLOC_FAIL;
+            }
+            buffer_size = max_pop_size;
+        }
+        uint64_t last_program = pop.size - 1;
+#pragma omp parallel for schedule(dynamic,1) num_threads(NUMBER_OF_OMP_THREADS)
+        for(uint64_t i = 0; i < oldsize; i++){
+            ASSERT(pop.individual[i].prog.size > 0);
+            // MUTATION
+            for(uint64_t j = 0; j < mut_times; j++){
+                const struct Program child = mutation(in, &(pop.individual[i].prog), args->max_mutation_len, args->max_individ_len);
+                ASSERT(child.size > 0);
+                const struct MultiIndividual mutated = {.prog = child, .fitness = eval_multifitness(in, &child, args->max_clock, &args->fitness)};
+                uint64_t index;
+#pragma omp atomic capture
+                    index = ++last_program;
+                pop.individual[index] = mutated;
+                    
+                
+            }
+            if (WILL_HAPPEN(mut_prob)){
+                const struct Program child = mutation(in, &(pop.individual[i].prog), args->max_mutation_len, args->max_individ_len);
+                ASSERT(child.size > 0);
+                const struct MultiIndividual mutated = {.prog = child, .fitness = eval_multifitness(in, &child, args->max_clock, &args->fitness)};
+                uint64_t index;
+#pragma omp atomic capture
+                    index = ++last_program;
+                pop.individual[index] = mutated;
+            }
+            // CROSSOVER
+            for(uint64_t j = 0; j < cross_times; j++){
+                const uint64_t mate = RAND_UPTO(oldsize - 1);
+                ASSERT(pop.individual[mate].prog.size > 0);
+                const struct ProgramCouple children = crossover(&(pop.individual[i].prog), &(pop.individual[mate].prog), args->max_individ_len);
+                ASSERT(children.prog[0].size > 0);
+                ASSERT(children.prog[1].size > 0);
+                const struct MultiIndividual child1 = {.prog = children.prog[0], .fitness = eval_multifitness(in, &children.prog[0], args->max_clock, &args->fitness)};
+                const struct MultiIndividual child2 = {.prog = children.prog[1], .fitness = eval_multifitness(in, &children.prog[1], args->max_clock, &args->fitness)};
+                uint64_t index;
+#pragma omp atomic capture
+                    index = ++last_program;
+                pop.individual[index] = child1;
+#pragma omp atomic capture
+                    index = ++last_program;
+                pop.individual[index] = child2;
+            }
+            if (WILL_HAPPEN(cross_prob)){
+                const uint64_t mate = RAND_UPTO(oldsize - 1);
+                ASSERT(pop.individual[mate].prog.size > 0);
+                const struct ProgramCouple children = crossover(&(pop.individual[i].prog), &(pop.individual[mate].prog), args->max_individ_len);
+                ASSERT(children.prog[0].size > 0);
+                ASSERT(children.prog[1].size > 0);
+                const struct MultiIndividual child1 = {.prog = children.prog[0], .fitness = eval_multifitness(in, &children.prog[0], args->max_clock, &args->fitness)};
+                const struct MultiIndividual child2 = {.prog = children.prog[1], .fitness = eval_multifitness(in, &children.prog[1], args->max_clock, &args->fitness)};
+                uint64_t index;
+#pragma omp atomic capture
+                    index = ++last_program;
+                pop.individual[index] = child1;
+#pragma omp atomic capture
+                    index = ++last_program;
+                pop.individual[index] = child2;
+            }
+        }
+        pop.size = last_program + 1;
+        evaluations += (pop.size - oldsize);
+        winner = best_multiindivid(&pop, args->fitness);
+        if(args->verbose)
+            if(gen % args->verbose == 0)
+                printf("Generation %ld, Population Size %ld, Evaluations %ld\n", gen, pop.size, evaluations);
+        uint64_t istarget = 1;
+    for(uint64_t i = 0; i < args->fitness.size; i++){
+        if(args->fitness.functions[i].type == MINIMIZE){
+            if (pop.individual[winner].fitness[i] > args->target[i]){
+                istarget = 0;
+            }
+        }else if(args->fitness.functions[i].type == MAXIMIZE){
+            if(pop.individual[winner].fitness[i] < args->target[i]){
+                istarget = 0;
+            }
+        }
+    }
+    if(istarget){
+        struct LGPMultiResult res = {.evaluations = evaluations, .pop = pop, .generations = 0, .best_individ = winner};
+        return res;
+    }
+    }
+    gen -= 1; // the loop will stop at when res.generations = args->generations + 1; but only args->generations generations were applied
+    #if LGP_DEBUG == 1
+        // DEBUG: Print memory addresses and values before return
+        printf("DEBUG C: pop.individual = %p, pop.size = %lu\n", (void*)pop.individual, pop.size);
+        printf("DEBUG C: sizeof(Individual) = %lu\n", sizeof(struct MultiIndividual));
+        printf("DEBUG C: sizeof(Program) = %lu\n", sizeof(struct Program));
+        printf("DEBUG C: sizeof(double) = %lu\n", sizeof(double));
+        printf("DEBUG C: sizeof(Instruction*) = %lu\n", sizeof(struct Instruction*));
+        printf("DEBUG C: sizeof(uint64_t) = %lu\n", sizeof(uint64_t));
+        printf("DEBUG C: offsetof(Individual, prog) = %lu\n", offsetof(struct MultiIndividual, prog));
+        printf("DEBUG C: offsetof(Individual, fitness) = %lu\n", offsetof(struct MultiIndividual, fitness));
+        printf("DEBUG C: offsetof(Program, content) = %lu\n", offsetof(struct Program, content));
+        printf("DEBUG C: offsetof(Program, size) = %lu\n", offsetof(struct Program, size));
+        printf("DEBUG C: best_individ index = %lu\n", winner);
+        printf("DEBUG C: best_individ fitness = %f\n", pop.individual[winner].fitness);
+        printf("DEBUG C: best_individ prog.size = %lu\n", pop.individual[winner].prog.size);
+        printf("DEBUG C: best_individ prog.content = %p\n", (void*)pop.individual[winner].prog.content);
+    #endif
+    const struct LGPMultiResult res = {.evaluations = evaluations, .pop = pop, .generations = gen, .best_individ = winner};
     return res;
 }
 

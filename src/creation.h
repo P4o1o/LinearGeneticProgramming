@@ -18,6 +18,8 @@ struct LGPResult rand_population(const struct LGPInput *const in, const struct I
 
 typedef struct LGPMultiResult (*multi_initialization_fn)(const struct LGPInput *const, const struct InitializationParams *const, const struct MultiFitness *const, const uint64_t);
 
+struct LGPMultiResult rand_multipopulation(const struct LGPInput *const in, const struct InitializationParams *const params, const struct MultiFitness *const multifitness, const uint64_t max_clock);
+
 
 // used in unique_population
 

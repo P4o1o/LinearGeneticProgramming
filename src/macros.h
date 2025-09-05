@@ -74,6 +74,9 @@
 
 // C89, C90, C99
 #if !defined(__STDC_VERSION__) || __STDC_VERSION__ < 201112L
+    #if __STDC_VERSION__ < 199901L
+        #define _Pragma(x) 
+    #endif
     #if defined(_MSC_VER)
         #define NORETURN_ATTRIBUTE __declspec(noreturn)
         #define alignas(n) __declspec(align(n))

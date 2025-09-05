@@ -39,7 +39,7 @@ static inline double eval_fitness(
     return finalize(&accumulator, params, result_size, in->input_num, prog->size);
 }
 
-double *eval_multifitness(const struct LGPInput *const in, const struct Program *const prog, const uint64_t max_clock, struct MultiFitness * const fitness){
+double *eval_multifitness(const struct LGPInput *const in, const struct Program *const prog, const uint64_t max_clock, const struct MultiFitness * const fitness){
     ASSERT(prog->size > 0);
     ASSERT(in->ram_size > 0);
     ASSERT(in->input_num > 0);

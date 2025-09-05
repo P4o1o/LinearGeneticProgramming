@@ -34,6 +34,7 @@ struct MultiIndividual{
 struct MultiPopulation{
 	struct MultiIndividual *individual;
     uint64_t size;
+	uint64_t fitness_size;
 };
 
 struct InstructionSet{

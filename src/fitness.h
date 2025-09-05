@@ -195,7 +195,7 @@ struct MultiFitness {
     const uint64_t size;                // numero di fitness
 };
 
-double *eval_multifitness(const struct LGPInput *const in, const struct Program *const prog, const uint64_t max_clock, struct MultiFitness * const fitness);
+double *eval_multifitness(const struct LGPInput *const in, const struct Program *const prog, const uint64_t max_clock, const struct MultiFitness * const fitness);
 
 extern const struct Fitness MSE;
 extern const struct Fitness RMSE;
