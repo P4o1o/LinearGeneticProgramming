@@ -104,9 +104,9 @@ extern const uint64_t INSTR_NUM_WRAPPER;
 
 #define INSTRUCTION(name, code, regs, addr, change) I_##name = code,
 enum InstrCode
-#if defined(C2X_SUPPORTED)
-	: uint8_t
-#endif
+	#if defined(C2X_SUPPORTED)
+		: uint8_t
+	#endif
 {
 	INSTR_MACRO
 };
@@ -122,13 +122,14 @@ struct Operation {
 
 extern const struct Operation INSTRSET[INSTR_NUM];
 
-#define INSTRUCTION(name, code, regs, addr, change) \
-extern const struct Operation OP_##name;
+#define INSTRUCTION(name, code, regs, addr, change) extern const struct Operation OP_##name;
 INSTR_MACRO
 #undef INSTRUCTION
 
 #define REG_NUM 4
 #define FREG_NUM 4
+#define VIREG_NUM 8
+#define VFREG_NUM 8
 
 struct Instruction{
     uint8_t op;

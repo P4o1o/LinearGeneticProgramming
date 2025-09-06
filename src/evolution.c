@@ -70,7 +70,7 @@ static inline struct Program mutation(const struct LGPInput *const in, const str
     ASSERT(size > mutated.size);
     mutated.content = aligned_alloc(VECT_ALIGNMENT, sizeof(struct Instruction) * size);
     if (mutated.content == NULL) {
-        MALLOC_FAIL;
+        MALLOC_FAIL_THREADSAFE(sizeof(struct Instruction) * size);
     }
     for(uint64_t i = 0; i < start; i++) {
         struct Instruction instr = parent->content[i];
@@ -134,7 +134,7 @@ static inline struct ProgramCouple crossover(const struct Program *const father,
     ASSERT(size_first > first.size);
     first.content = aligned_alloc(VECT_ALIGNMENT, sizeof(struct Instruction) * size_first);
     if(first.content == NULL) {
-        MALLOC_FAIL;
+        MALLOC_FAIL_THREADSAFE(sizeof(struct Instruction) * size_first);
     }
     for(uint64_t i = 0; i < start_f; i++) {
         struct Instruction instr = father->content[i];
@@ -174,7 +174,7 @@ static inline struct ProgramCouple crossover(const struct Program *const father,
     ASSERT(size_second > second.size);
     second.content = aligned_alloc(VECT_ALIGNMENT, sizeof(struct Instruction) * size_second);
     if(second.content == NULL) {
-        MALLOC_FAIL;
+        MALLOC_FAIL_THREADSAFE(sizeof(struct Instruction) * size_second);
     }
     for(uint64_t i = 0; i < start_m; i++) {
         struct Instruction instr = mother->content[i];
@@ -258,7 +258,7 @@ struct LGPResult evolve(const struct LGPInput *const in, const struct LGPOptions
         if(buffer_size < max_pop_size){
             pop.individual  = (struct Individual *) realloc(pop.individual, sizeof(struct Individual) * max_pop_size);
             if (pop.individual == NULL){
-                MALLOC_FAIL;
+                MALLOC_FAIL(sizeof(struct Individual) * max_pop_size);
             }
             buffer_size = max_pop_size;
         }
@@ -425,7 +425,7 @@ struct LGPMultiResult multi_evolve(const struct LGPInput *const in, const struct
         if(buffer_size < max_pop_size){
             pop.individual  = (struct MultiIndividual *) realloc(pop.individual, sizeof(struct MultiIndividual) * max_pop_size);
             if (pop.individual == NULL){
-                MALLOC_FAIL;
+                MALLOC_FAIL(sizeof(struct MultiIndividual) * max_pop_size);
             }
             buffer_size = max_pop_size;
         }

@@ -15,7 +15,7 @@ static inline struct Program rand_program(const struct LGPInput *const in, const
     ASSERT(size > res.size);
     res.content = aligned_alloc(VECT_ALIGNMENT, sizeof(struct Instruction) * size);
     if (res.content == NULL) {
-        MALLOC_FAIL;
+        MALLOC_FAIL(sizeof(struct Instruction) * size);
     }
     ASSERT(minsize <= res.size);
     ASSERT(res.size <= maxsize);
@@ -35,7 +35,7 @@ struct LGPResult rand_population(const struct LGPInput *const in, const struct I
 	struct Population pop = {.size = params->pop_size};
 	pop.individual = (struct Individual *) malloc(sizeof(struct Individual) * pop.size);
 	if (pop.individual == NULL) {
-		MALLOC_FAIL;
+		    MALLOC_FAIL(sizeof(struct Individual) * pop.size);
 	}
 #pragma omp parallel for schedule(dynamic,1) num_threads(NUMBER_OF_OMP_THREADS)
 	for (uint64_t i = 0; i < pop.size; i++) {
@@ -62,13 +62,13 @@ struct LGPResult unique_population(const struct LGPInput *const in, const struct
 	struct Population pop = {.size = params->pop_size};
     pop.individual = (struct Individual *) malloc(sizeof(struct Individual) * pop.size);
 	if (pop.individual == NULL) {
-		MALLOC_FAIL;
+		MALLOC_FAIL(sizeof(struct Individual) * pop.size);
 	}
     struct ProgramSet progmap = {.capacity = next_power_of_two(params->pop_size), .size = 0};
     uint64_t mask = progmap.capacity - 1;
     progmap.table = (struct ProgramSetNode *) malloc(sizeof(struct ProgramSetNode) * progmap.capacity);
     if(progmap.table == NULL){
-        MALLOC_FAIL;
+        MALLOC_FAIL(sizeof(struct ProgramSetNode) * progmap.capacity);
     }
     memset(progmap.table, 0, sizeof(struct ProgramSetNode) * progmap.capacity);
 #pragma omp parallel for schedule(dynamic,1) num_threads(NUMBER_OF_OMP_THREADS)
@@ -117,7 +117,7 @@ struct LGPMultiResult rand_multipopulation(const struct LGPInput *const in, cons
 	struct MultiPopulation pop = {.size = params->pop_size};
 	pop.individual = (struct MultiIndividual *) malloc(sizeof(struct MultiIndividual) * pop.size);
 	if (pop.individual == NULL) {
-		MALLOC_FAIL;
+		MALLOC_FAIL(sizeof(struct MultiIndividual) * pop.size);
 	}
 #pragma omp parallel for schedule(dynamic,1) num_threads(NUMBER_OF_OMP_THREADS)
 	for (uint64_t i = 0; i < pop.size; i++) {

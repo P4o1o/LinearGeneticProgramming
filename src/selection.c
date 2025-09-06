@@ -4,7 +4,7 @@ static inline double edit_distance(const struct Program *const prog1, const stru
 	uint64_t row_len = prog2->size + 1;
 	double *table = malloc((prog1->size + 1) * row_len * sizeof(double));
 	if(table == NULL)
-		MALLOC_FAIL_THREADSAFE;
+		MALLOC_FAIL_THREADSAFE(sizeof(double) * (prog1->size + 1) * row_len);
 	for(uint64_t j = 0; j <= prog2->size; j++){
 		table[j] = (double) j;
 	}
@@ -43,7 +43,7 @@ static inline double edit_distance(const struct Program *const prog1, const stru
 static inline double *distances_table(const struct Population *const pop){
 	double *distance_tab = malloc(sizeof(double) * ((size_t) pop->size) * ((size_t) pop->size));
 	if(distance_tab == NULL)
-		MALLOC_FAIL;
+		MALLOC_FAIL(sizeof(double) * ((size_t) pop->size) * ((size_t) pop->size));
 #pragma omp parallel for collapse(2) num_threads(NUMBER_OF_OMP_THREADS)
 	for(uint64_t i = 0; i < pop->size; i++){
 		for(uint64_t j = i; j < pop->size; j++){
@@ -63,7 +63,7 @@ static inline double *fitness_sharing_##NAME(struct Population *const initial, c
 	double * dtab = distances_table(initial); \
 	double *res = malloc(sizeof(double) * initial->size); \
 	if(res == NULL) \
-		MALLOC_FAIL; \
+		MALLOC_FAIL(sizeof(double) * initial->size); \
     _Pragma("omp parallel for schedule(static, 1) num_threads(NUMBER_OF_OMP_THREADS)") \
 	for(uint64_t i = 0; i < initial->size; i++){ \
 		double sharing = 0.0; \
@@ -104,7 +104,7 @@ static inline void merge_sort_##NAME(struct Population *pop) { \
 		{ \
 			struct Individual *temp_pop = (struct Individual *) malloc( 2 * width * sizeof(struct Individual)); \
 			if (temp_pop == NULL) { \
-                MALLOC_FAIL_THREADSAFE; \
+                MALLOC_FAIL_THREADSAFE(sizeof(struct Individual) * 2 * width); \
 			} \
             _Pragma("omp for") \
 			for (uint64_t i = 0; i < pop->size; i += 2 * width) { \
@@ -155,7 +155,7 @@ static inline void fitness_sharing_merge_sort_##NAME(struct Population *pop, con
 		{ \
 			struct Individual *temp_pop = (struct Individual *) malloc( 2 * width * sizeof(struct Individual)); \
 			if (temp_pop == NULL) { \
-                MALLOC_FAIL_THREADSAFE; \
+                MALLOC_FAIL_THREADSAFE(sizeof(struct Individual) * 2 * width); \
 			} \
             _Pragma("omp for") \
 			for (uint64_t i = 0; i < pop->size; i += 2 * width) { \
@@ -266,7 +266,7 @@ void tournament_##TYPE(struct Population * initial, const union SelectionParams 
     ASSERT(res.size > 0); \
 	res.individual = (struct Individual*) malloc(sizeof(struct Individual) * res.size); \
 	if (res.individual == NULL){ \
-		MALLOC_FAIL; \
+		MALLOC_FAIL(sizeof(struct Individual) * res.size); \
     } \
     _Pragma("omp parallel for schedule(static,1) num_threads(NUMBER_OF_OMP_THREADS)") \
     for (uint64_t i = 0; i < tournaments; i++) { \
@@ -308,7 +308,7 @@ void fitness_sharing_tournament_##TYPE(struct Population * initial, const union 
     ASSERT(res.size > 0); \
 	res.individual = (struct Individual*) malloc(sizeof(struct Individual) * res.size); \
 	if (res.individual == NULL){ \
-		MALLOC_FAIL; \
+		MALLOC_FAIL(sizeof(struct Individual) * res.size); \
     } \
     double *fs = fitness_sharing_##TYPE(initial, params); \
     _Pragma("omp parallel for schedule(static,1) num_threads(NUMBER_OF_OMP_THREADS)") \
@@ -385,7 +385,7 @@ void roulette_##TYPE(struct Population * initial, UNUSED_ATTRIBUTE const union S
     struct Population res; \
 	res.individual = (struct Individual*) malloc(initial->size * sizeof(struct Individual)); \
     if(res.individual == NULL){ \
-        MALLOC_FAIL; \
+        MALLOC_FAIL(sizeof(struct Individual) * initial->size); \
     } \
 	const struct DoubleCouple maxmin = get_info_roulette_##TYPE(initial); \
     if(maxmin.val[0] == maxmin.val[1]){ \
@@ -456,7 +456,7 @@ void fitness_sharing_roulette_##TYPE(struct Population * initial, const union Se
     struct Population res; \
 	res.individual = (struct Individual*) malloc(initial->size * sizeof(struct Individual)); \
     if(res.individual == NULL){ \
-        MALLOC_FAIL; \
+        MALLOC_FAIL(sizeof(struct Individual) * initial->size); \
     } \
     double *fs = fitness_sharing_##TYPE(initial, params); \
 	const struct DoubleCouple maxmin = get_info_fitness_sharing_roulette_##TYPE(fs, initial->size); \
@@ -503,7 +503,7 @@ void fitness_sharing_roulette_##TYPE(struct Population * initial, const union Se
 static inline double * slot_sizes_roulette_MAXIMIZE(const struct Population *const pop){
     double *res = malloc(sizeof(double) * pop->size);
     if(res == NULL)
-        MALLOC_FAIL;
+        MALLOC_FAIL(sizeof(double) * pop->size);
 
     return res;
 }
@@ -511,7 +511,7 @@ static inline double * slot_sizes_roulette_MAXIMIZE(const struct Population *con
 static inline double * slot_sizes_roulette_MINIMIZE(const struct Population *const pop){
     double *res = malloc(sizeof(double) * pop->size);
     if(res == NULL)
-        MALLOC_FAIL;
+        MALLOC_FAIL(sizeof(double) * pop->size);
 
     return res;
 }
@@ -522,7 +522,7 @@ void roulette_##TYPE(struct Population * initial, const union SelectionParams *c
 	res.size = new_size->size; \
 	res.individual = (struct Individual*) malloc(new_size->size * sizeof(struct Individual)); \
     if(res.individual == NULL) \
-        MALLOC_FAIL; \
+        MALLOC_FAIL(sizeof(struct Individual) * new_size->size); \
     shuffle_population(initial, *mse); \
 	double *slots = slot_sizes_roulette_##TYPE(initial); \
     free(slots); \

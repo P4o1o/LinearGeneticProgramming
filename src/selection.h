@@ -3,6 +3,7 @@
 
 #include "genetics.h"
 #include "fitness.h"
+#include "logger.h"
 
 struct FitnessSharingParams{ // parameters for selections based on fitness sharing
     const double alpha;

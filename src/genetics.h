@@ -67,7 +67,7 @@ struct LGPMultiResult{
 
 struct Instruction rand_instruction(const struct LGPInput *const in, const uint64_t prog_size);
 
-#define HASH_SEED 0ULL
+#define HASH_SEED 0x5ab26229f0294a21ULL
 
 unsigned int equal_program(const struct Program *const prog1, const struct Program *const prog2);
 uint64_t xxhash_program(const struct Program *const prog);

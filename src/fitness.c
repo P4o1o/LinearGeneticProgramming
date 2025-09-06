@@ -18,7 +18,7 @@ static inline double eval_fitness(
     vm.program = prog->content;
     vm.ram = malloc(sizeof(union Memblock) * in->ram_size);
     if (vm.ram == NULL) {
-        MALLOC_FAIL_THREADSAFE;
+        MALLOC_FAIL_THREADSAFE(sizeof(union Memblock) * in->ram_size);
     }
     uint64_t result_size = params->end - params->start;
     ASSERT(result_size <= in->ram_size);
@@ -48,14 +48,14 @@ double *eval_multifitness(const struct LGPInput *const in, const struct Program 
     vm.program = prog->content;
     vm.ram = malloc(sizeof(union Memblock) * in->ram_size);
     if (vm.ram == NULL) {
-        MALLOC_FAIL_THREADSAFE;
+        MALLOC_FAIL_THREADSAFE(sizeof(union Memblock) * in->ram_size);
     }
     uint64_t result_size = fitness->params->end - fitness->params->start;
     ASSERT(result_size <= in->ram_size);
     union FitnessStepResult *accumulator = malloc(sizeof(union FitnessStepResult) * fitness->size);
     if (accumulator == NULL) {
         free(vm.ram);
-        MALLOC_FAIL_THREADSAFE;
+        MALLOC_FAIL_THREADSAFE(sizeof(union FitnessStepResult) * fitness->size);
     }
     for (uint64_t i = 0; i < fitness->size; i++) {
         accumulator[i] = fitness->functions[i].init_acc(in->input_num, result_size, &fitness->params[i]);
@@ -80,7 +80,7 @@ double *eval_multifitness(const struct LGPInput *const in, const struct Program 
     free(vm.ram);
     double *results = malloc(sizeof(double) * fitness->size);
     if (results == NULL) {
-        MALLOC_FAIL_THREADSAFE;
+        MALLOC_FAIL_THREADSAFE(sizeof(double) * fitness->size);
     }
     for (uint64_t j = 0; j < fitness->size; j++) {
         results[j] = fitness->functions[j].finalize(&accumulator[j], &fitness->params[j], result_size, in->input_num, prog->size);
@@ -114,7 +114,7 @@ union FitnessStepResult init_acc_r_2(const uint64_t inputnum, const uint64_t res
 		}
 	};
 	if(res.r_2.means == NULL || res.r_2.real_vals == NULL){
-		MALLOC_FAIL_THREADSAFE;
+		MALLOC_FAIL_THREADSAFE(sizeof(double) * (ressize + ressize * inputnum));
 	}
 	for(uint64_t i = 0; i < ressize; i++){
 		res.r_2.means[i] = 0.0;
@@ -133,7 +133,7 @@ inline union FitnessStepResult pearson_init_acc(UNUSED_ATTRIBUTE const uint64_t 
         }
     };
     if (result.pearson.sum_x == NULL || result.pearson.sum_y == NULL || result.pearson.sum_xy == NULL || result.pearson.sum_x2 == NULL || result.pearson.sum_y2 == NULL) {
-        MALLOC_FAIL_THREADSAFE;
+        MALLOC_FAIL_THREADSAFE(sizeof(double) * 5 * ressize);
     }
     memset(result.pearson.sum_x, 0, ressize * sizeof(double));
     memset(result.pearson.sum_y, 0, ressize * sizeof(double));
@@ -147,7 +147,7 @@ inline union FitnessStepResult vect_f64_init_acc(UNUSED_ATTRIBUTE const uint64_t
         .vect_f64 = malloc(ressize * sizeof(double))
     };
     if (result.vect_f64 == NULL) {
-        MALLOC_FAIL_THREADSAFE;
+        MALLOC_FAIL_THREADSAFE(sizeof(double) * ressize);
     }
     memset(result.vect_f64, 0, ressize * sizeof(double));
     return result;
@@ -1041,7 +1041,7 @@ double r_squared(const struct LGPInput *const in, const struct Program *const pr
     vm.ram = malloc(sizeof(union Memblock) * delta);
     double *means = malloc(sizeof(double) * (delta));
     if (vm.ram == NULL || means == NULL) {
-        MALLOC_FAIL_THREADSAFE;
+        MALLOC_FAIL_THREADSAFE(sizeof(union Memblock) * delta + sizeof(double) * (delta));
     }
     memset(means, 0, sizeof(double) * (delta));
     for(uint64_t i = 0; i < in->input_num; i++){
@@ -1130,7 +1130,7 @@ double adversarial_perturbation_sensibility(const struct LGPInput *const in, con
     vm.ram = malloc(sizeof(union Memblock) * in->ram_size);
     union Memblock *altered_rom = malloc(sizeof(union Memblock) * in->rom_size);
     if (vm.ram == NULL || altered_rom == NULL) {
-        MALLOC_FAIL_THREADSAFE;
+        MALLOC_FAIL_THREADSAFE(sizeof(union Memblock) * in->ram_size + sizeof(union Memblock) * in->rom_size);
     }
     for(uint64_t i = 0; i < in->input_num; i++){
         memset(&(vm.core), 0, sizeof(struct Core));

@@ -1,5 +1,7 @@
 #include "logger.h"
 
+static uint64_t log_counter = 0;
+
 NORETURN_ATTRIBUTE inline void log_error_exit(const char* error_message, const char* file, const size_t line){
     time_t now;
     time(&now);
@@ -8,7 +10,7 @@ NORETURN_ATTRIBUTE inline void log_error_exit(const char* error_message, const c
     timeinfo = localtime(&now);
     strftime(actualtime, 20, "%Y-%m-%d %H:%M:%S", timeinfo);
     FILE *logfile = fopen(LOG_FILE, "a");
-    fprintf(logfile, "[%s] ERROR: %s in file: %s, at line %ld\n", actualtime, error_message, file, line);
+    fprintf(logfile, "%d [%s] ERROR: %s in file: %s, at line %ld\n", log_counter++, actualtime, error_message, file, line);
     fclose(logfile);
     exit(-1);
 }
