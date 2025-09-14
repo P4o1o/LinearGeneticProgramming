@@ -1,6 +1,7 @@
 from .base import Structure, POINTER, c_uint64, c_uint, c_double, c_void_p, Tuple, Optional, ctypes, liblgp
 from .genetics import LGPInput, LGPResult, Population
-from .fitness import MSE, Fitness, FitnessFunction, FitnessParams
+from .fitness import Fitness, FitnessFunction, FitnessParams
+from .fitness.regression import MSE
 from .selection import SelectionFunction, SelectionParams, Selection, Tournament
 from .creation import InitializationParams, Initialization, UniquePopulation
 

@@ -1,3 +1,17 @@
+"""
+Linear Genetic Programming - Fitness Module
+
+This module provides Python bindings for the LGP fitness functions.
+The underlying C implementation is now organized into modular components:
+- fitness/interface.h/c: Core structures, enums, and eval_fitness functions
+- fitness/regression.h/c: MSE, RMSE, MAE, R², Pearson correlation, etc.
+- fitness/classification.h/c: Accuracy, F1-score, Cohen's kappa, etc.  
+- fitness/probabilistic.h/c: Cross-entropy, Brier score, hinge loss, etc.
+- fitness/advanced.h/c: Adversarial perturbation sensitivity, Value-at-Risk, etc.
+
+All functions remain accessible through the main fitness.h header for compatibility.
+"""
+
 from typing import override
 from .vm import Program
 from .base import Structure, Union, c_uint64, POINTER, c_uint, c_double, c_char_p, c_void_p, IntEnum, ctypes, liblgp
@@ -320,6 +334,47 @@ class BrierScore(Fitness):
         super().__init__(FitnessFunction.in_dll(liblgp, "BRIER_SCORE"), FitnessParams(start, end))
 
 
+# Clustering fitness functions
+class SilhouetteScore(Fitness):
+    def __init__(self, start: int = 0, end: int = 0):
+        super().__init__(FitnessFunction.in_dll(liblgp, "SILHOUETTE_SCORE"), FitnessParams(start, end))
+
+
+class Inertia(Fitness):
+    def __init__(self, start: int = 0, end: int = 0):
+        super().__init__(FitnessFunction.in_dll(liblgp, "INERTIA"), FitnessParams(start, end))
+
+
+class AdjustedRandIndex(Fitness):
+    def __init__(self, start: int = 0, end: int = 0):
+        super().__init__(FitnessFunction.in_dll(liblgp, "ADJUSTED_RAND_INDEX"), FitnessParams(start, end))
+
+
+class CalinskiHarabaszIndex(Fitness):
+    def __init__(self, start: int = 0, end: int = 0):
+        super().__init__(FitnessFunction.in_dll(liblgp, "CALINSKI_HARABASZ_INDEX"), FitnessParams(start, end))
+
+
+class DaviesBouldinIndex(Fitness):
+    def __init__(self, start: int = 0, end: int = 0):
+        super().__init__(FitnessFunction.in_dll(liblgp, "DAVIES_BOULDIN_INDEX"), FitnessParams(start, end))
+
+
+class DunnIndex(Fitness):
+    def __init__(self, start: int = 0, end: int = 0):
+        super().__init__(FitnessFunction.in_dll(liblgp, "DUNN_INDEX"), FitnessParams(start, end))
+
+
+class FuzzyPartitionCoefficient(Fitness):
+    def __init__(self, start: int = 0, end: int = 0):
+        super().__init__(FitnessFunction.in_dll(liblgp, "FUZZY_PARTITION_COEFFICIENT"), FitnessParams(start, end))
+
+
+class FuzzyPartitionEntropy(Fitness):
+    def __init__(self, start: int = 0, end: int = 0):
+        super().__init__(FitnessFunction.in_dll(liblgp, "FUZZY_PARTITION_ENTROPY"), FitnessParams(start, end))
+
+
 __all__ = ['FitnessParams', 'FitnessType', 'FitnessFunction', 'Fitness', 
            'MSE', 'RMSE', 'LengthPenalizedMSE', 'ClockPenalizedMSE', 'MAE', 'Accuracy', 'F1Score',
            'MAPE', 'SymmetricMAPE', 'LogCosh', 'WorstCaseError', 'HuberLoss', 'RSquared', 
@@ -327,4 +382,6 @@ __all__ = ['FitnessParams', 'FitnessType', 'FitnessFunction', 'Fitness',
            'GMean', 'FBetaScore', 'BinaryCrossEntropy', 'GaussianLogLikelihood', 
            'MatthewsCorrelation', 'HingeLoss', 'CohensKappa', 'AdversarialPerturbationSensitivity', 
            'ConditionalValueAtRisk', 'StrictAccuracy', 'BinaryAccuracy', 'StrictBinaryAccuracy', 
-           'StrictThresholdAccuracy', 'BrierScore']
+           'StrictThresholdAccuracy', 'BrierScore', 'SilhouetteScore', 'Inertia', 
+           'AdjustedRandIndex', 'CalinskiHarabaszIndex', 'DaviesBouldinIndex', 'DunnIndex', 
+           'FuzzyPartitionCoefficient', 'FuzzyPartitionEntropy']

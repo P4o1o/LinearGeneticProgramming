@@ -4,6 +4,7 @@
 #include "genetics.h"
 #include "selection.h"
 #include "creation.h"
+#include "fitness/interface.h"
 #if LGP_DEBUG == 1
 	#include <stddef.h>  // for offsetof
 #endif

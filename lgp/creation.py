@@ -1,4 +1,4 @@
-from lgp.fitness import Fitness
+from lgp.fitness.interface import Fitness
 from lgp.genetics import LGPInput, LGPResult
 from .base import Structure, POINTER, c_uint64, c_void_p, ctypes, liblgp
 

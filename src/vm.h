@@ -8,7 +8,7 @@
 #include "macros.h"
 #include "prob.h"
 
-#define INSTR_NUM 87
+#define INSTR_NUM 97
 
 extern const uint64_t INSTR_NUM_WRAPPER;
 
@@ -28,78 +28,88 @@ extern const uint64_t INSTR_NUM_WRAPPER;
 	INSTRUCTION(CMOV_NEXIST, 	12,		2, 	0,	0) \
 	INSTRUCTION(CMOV_ODD, 		13,		2,	0,	0) \
 	INSTRUCTION(CMOV_EVEN, 		14,		2,	0,	0) \
-	INSTRUCTION(MOV_I,   		15,		1,	1,	0) \
-	INSTRUCTION(JMP,    		16,		0,	3,	1) /*JMP instructions must be numbered from JMP to JMP_ODD*/ \
-	INSTRUCTION(JMP_Z,     		17,		0,	3,	1) \
-	INSTRUCTION(JMP_NZ,   		18,		0,	3,	1) \
-	INSTRUCTION(JMP_L,     		19,		0,	3,	1) \
-	INSTRUCTION(JMP_G,     		20,		0,	3,	1) \
-	INSTRUCTION(JMP_LE,    		21,		0,	3,	1) \
-	INSTRUCTION(JMP_GE,    		22,		0,	3,	1) \
-	INSTRUCTION(JMP_EXIST, 		23,		0, 	3,	1) \
-	INSTRUCTION(JMP_NEXIST,		24,		0, 	3,	1) \
-	INSTRUCTION(JMP_EVEN,  		25,		0,	3,	1) \
-	INSTRUCTION(JMP_ODD,   		26,		0,	3,	1) /*JMP instructions must be numbered from JMP to JMP_ODD*/ \
-	INSTRUCTION(CLC,    		27,		0,	0,	1) \
-	INSTRUCTION(CMP,    		28,		2,	0,	1) \
-	INSTRUCTION(TEST,   		29,		1,	0,	1) \
-	INSTRUCTION(ADD,    		30,		3,	0,	0) \
-	INSTRUCTION(SUB,    		31,		3,	0,	0) \
-	INSTRUCTION(MUL,    		32,		3,	0,	0) \
-	INSTRUCTION(DIV,    		33,		3,	0,	0) \
-	INSTRUCTION(MOD,    		34,		3,	0,	0) \
-	INSTRUCTION(INC,    		35,		1,	0,	0) \
-	INSTRUCTION(DEC,    		36,		1,	0,	0) \
-	INSTRUCTION(AND,   			37,		3,	0,	0) \
-	INSTRUCTION(OR,     		38,		3,	0,	0) \
-	INSTRUCTION(XOR,    		39,		3,	0,	0) \
-	INSTRUCTION(NOT,    		40,		2,	0,	0) \
-	INSTRUCTION(SHL,    		41,		3,	0,	0) \
-	INSTRUCTION(SHR,    		42,		3,	0,	0) \
-	INSTRUCTION(CAST,   		43,		2,	0,	0) \
-	INSTRUCTION(NOP,    		44,		0,	0,	0) \
-	INSTRUCTION(LOAD_RAM_F,  	45,		1,	2,	0) \
-	INSTRUCTION(LOAD_ROM_F,  	46,		1,	4,	0) \
-	INSTRUCTION(STORE_RAM_F, 	47,		1,	2,	2) \
-	INSTRUCTION(MOV_F,   		48,		2,	0,	0) \
-	INSTRUCTION(CMOV_Z_F,  		49,		2,	0,	0) \
-	INSTRUCTION(CMOV_NZ_F, 		50,		2,	0,	0) \
-	INSTRUCTION(CMOV_L_F,  		51,		2,	0,	0) \
-	INSTRUCTION(CMOV_G_F,  		52,		2,	0,	0) \
-	INSTRUCTION(CMOV_LE_F, 		53,		2,	0,	0) \
-	INSTRUCTION(CMOV_GE_F, 		54,		2,	0,	0) \
-	INSTRUCTION(MOV_I_F,  		55,		1,	5,	0) \
-	INSTRUCTION(CMOV_EXIST_F, 	56,		2, 	0,	0) \
-	INSTRUCTION(CMOV_NEXIST_F,	57,		2, 	0,	0) \
-	INSTRUCTION(CMOV_ODD_F, 	58,		2,	0,	0) \
-	INSTRUCTION(CMOV_EVEN_F, 	59,		2,	0,	0) \
-	INSTRUCTION(CMP_F,   		60,		2,	0,	1) \
-	INSTRUCTION(TEST_F,  		61,		1,	0,	1) \
-	INSTRUCTION(ADD_F,   		62,		3,	0,	0) \
-	INSTRUCTION(SUB_F,   		63,		3,	0,	0) \
-	INSTRUCTION(MUL_F,   		64,		3,	0,	0) \
-	INSTRUCTION(DIV_F,   		65,		3,	0,	0) \
-	INSTRUCTION(SQRT,   		66,		2,	0,	0) \
-	INSTRUCTION(POW,    		67,		3,	0,	0) \
-	INSTRUCTION(EXP,    		68,		2,	0,	0) \
-	INSTRUCTION(LN,     		69,		2,	0,	0) \
-	INSTRUCTION(LOG,    		70,		2,	0,	0) \
-	INSTRUCTION(LOG10,  		71,		2,	0,	0) \
-	INSTRUCTION(COS,    		72,		2,	0,	0) \
-	INSTRUCTION(SIN,    		73,		2,	0,	0) \
-	INSTRUCTION(TAN,    		74,		2,	0,	0) \
-	INSTRUCTION(ACOS,   		75,		2,	0,	0) \
-	INSTRUCTION(ASIN,   		76,		2,	0,	0) \
-	INSTRUCTION(ATAN,   		77,		2,	0,	0) \
-	INSTRUCTION(COSH,   		78,		2,	0,	0) \
-	INSTRUCTION(SINH,   		79,		2,	0,	0) \
-	INSTRUCTION(TANH,   		80,		2,	0,	0) \
-	INSTRUCTION(ACOSH,  		81,		2,	0,	0) \
-	INSTRUCTION(ASINH,  		82,		2,	0,	0) \
-	INSTRUCTION(ATANH,  		83,		2,	0,	0) \
-	INSTRUCTION(CAST_F,  		84,		2,	0,	0) \
-	INSTRUCTION(RAND,   		85,		1,	0,	0) \
-	INSTRUCTION(ROUND,   		86,		2,	0,	0) 
+	INSTRUCTION(CMOV_OVERFLOW,	15,		2,	0,	0) \
+	INSTRUCTION(CMOV_ZERODIV,	16,		2,	0,	0) \
+	INSTRUCTION(MOV_I,   		17,		1,	1,	0) \
+	INSTRUCTION(JMP,    		18,		0,	3,	1) /*JMP instructions must be numbered from JMP to JMP_ODD*/ \
+	INSTRUCTION(JMP_Z,     		19,		0,	3,	1) \
+	INSTRUCTION(JMP_NZ,   		20,		0,	3,	1) \
+	INSTRUCTION(JMP_L,     		21,		0,	3,	1) \
+	INSTRUCTION(JMP_G,     		22,		0,	3,	1) \
+	INSTRUCTION(JMP_LE,    		23,		0,	3,	1) \
+	INSTRUCTION(JMP_GE,    		24,		0,	3,	1) \
+	INSTRUCTION(JMP_EXIST, 		25,		0, 	3,	1) \
+	INSTRUCTION(JMP_NEXIST,		26,		0, 	3,	1) \
+	INSTRUCTION(JMP_EVEN,  		27,		0,	3,	1) \
+	INSTRUCTION(JMP_OVERFLOW,	28,		0,	3,	1) \
+	INSTRUCTION(JMP_ZERODIV,	29,		0,	3,	1) \
+	INSTRUCTION(JMP_ODD,   		30,		0,	3,	1) /*JMP instructions must be numbered from JMP to JMP_ODD*/ \
+	INSTRUCTION(CLC,    		31,		0,	0,	1) \
+	INSTRUCTION(CMP,    		32,		2,	0,	1) \
+	INSTRUCTION(TEST,   		33,		1,	0,	1) \
+	INSTRUCTION(ADD,    		34,		3,	0,	0) \
+	INSTRUCTION(SUB,    		35,		3,	0,	0) \
+	INSTRUCTION(MUL,    		36,		3,	0,	0) \
+	INSTRUCTION(DIV,    		37,		3,	0,	0) \
+	INSTRUCTION(MOD,    		38,		3,	0,	0) \
+	INSTRUCTION(INC,    		39,		1,	0,	0) \
+	INSTRUCTION(DEC,    		40,		1,	0,	0) \
+	INSTRUCTION(AND,   			41,		3,	0,	0) \
+	INSTRUCTION(OR,     		42,		3,	0,	0) \
+	INSTRUCTION(XOR,    		43,		3,	0,	0) \
+	INSTRUCTION(NOT,    		44,		2,	0,	0) \
+	INSTRUCTION(SHL,    		45,		3,	0,	0) \
+	INSTRUCTION(SHR,    		46,		3,	0,	0) \
+	INSTRUCTION(CAST,   		47,		2,	0,	0) \
+	INSTRUCTION(NOP,    		48,		0,	0,	0) \
+	INSTRUCTION(LOAD_RAM_F,  	49,		1,	2,	0) \
+	INSTRUCTION(LOAD_ROM_F,  	50,		1,	4,	0) \
+	INSTRUCTION(STORE_RAM_F, 	51,		1,	2,	2) \
+	INSTRUCTION(MOV_F,   		52,		2,	0,	0) \
+	INSTRUCTION(CMOV_Z_F,  		53,		2,	0,	0) \
+	INSTRUCTION(CMOV_NZ_F, 		54,		2,	0,	0) \
+	INSTRUCTION(CMOV_L_F,  		55,		2,	0,	0) \
+	INSTRUCTION(CMOV_G_F,  		56,		2,	0,	0) \
+	INSTRUCTION(CMOV_LE_F, 		57,		2,	0,	0) \
+	INSTRUCTION(CMOV_GE_F, 		58,		2,	0,	0) \
+	INSTRUCTION(MOV_I_F,  		59,		1,	5,	0) \
+	INSTRUCTION(CMOV_EXIST_F, 	60,		2, 	0,	0) \
+	INSTRUCTION(CMOV_NEXIST_F,	61,		2, 	0,	0) \
+	INSTRUCTION(CMOV_ODD_F, 	62,		2,	0,	0) \
+	INSTRUCTION(CMOV_EVEN_F, 	63,		2,	0,	0) \
+	INSTRUCTION(CMOV_OVERFLOW_F,64,		2,	0,	0) \
+	INSTRUCTION(CMOV_ZERODIV_F,	65,		2,	0,	0) \
+	INSTRUCTION(CMP_F,   		66,		2,	0,	1) \
+	INSTRUCTION(TEST_F,  		67,		1,	0,	1) \
+	INSTRUCTION(ADD_F,   		68,		3,	0,	0) \
+	INSTRUCTION(SUB_F,   		69,		3,	0,	0) \
+	INSTRUCTION(MUL_F,   		70,		3,	0,	0) \
+	INSTRUCTION(DIV_F,   		71,		3,	0,	0) \
+	INSTRUCTION(SQRT,   		72,		2,	0,	0) \
+	INSTRUCTION(POW,    		73,		3,	0,	0) \
+	INSTRUCTION(EXP,    		74,		2,	0,	0) \
+	INSTRUCTION(LN,     		75,		2,	0,	0) \
+	INSTRUCTION(LOG,    		76,		2,	0,	0) \
+	INSTRUCTION(LOG10,  		77,		2,	0,	0) \
+	INSTRUCTION(COS,    		78,		2,	0,	0) \
+	INSTRUCTION(SIN,    		79,		2,	0,	0) \
+	INSTRUCTION(TAN,    		80,		2,	0,	0) \
+	INSTRUCTION(ACOS,   		81,		2,	0,	0) \
+	INSTRUCTION(ASIN,   		82,		2,	0,	0) \
+	INSTRUCTION(ATAN,   		83,		2,	0,	0) \
+	INSTRUCTION(COSH,   		84,		2,	0,	0) \
+	INSTRUCTION(SINH,   		85,		2,	0,	0) \
+	INSTRUCTION(TANH,   		86,		2,	0,	0) \
+	INSTRUCTION(ACOSH,  		87,		2,	0,	0) \
+	INSTRUCTION(ASINH,  		88,		2,	0,	0) \
+	INSTRUCTION(ATANH,  		89,		2,	0,	0) \
+	INSTRUCTION(CAST_F,  		90,		2,	0,	0) \
+	INSTRUCTION(RAND,   		91,		1,	0,	0) \
+	INSTRUCTION(ROUND,   		92,		2,	0,	0) \
+	INSTRUCTION(MUL_S,   		93,		3,	0,	0) \
+	INSTRUCTION(DIV_S,   		94,		3,	0,	0) \
+	INSTRUCTION(ABS,   			95,		2,	0,	0) \
+	INSTRUCTION(ABS_F,   		96,		2,	0,	0) 
 
 
 #define INSTRUCTION(name, code, regs, addr, change) I_##name = code,
@@ -147,6 +157,8 @@ struct FlagReg{
     unsigned negative : 1;
     unsigned zero : 1;
 	unsigned exist : 1;
+	unsigned int_overflow : 1;
+	unsigned zero_div : 1;
 };
 
 struct Core {

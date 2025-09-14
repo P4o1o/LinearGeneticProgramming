@@ -90,7 +90,7 @@ def example_polynomial_regression():
     try:
         population, evaluations, generations, best_idx = lgp.evolve(
             lgp_input,
-            fitness=lgp.MSE(),
+            fitness=lgp.fitness.regression.MSE(),
             selection=lgp.Tournament(4),
             initialization=lgp.UniquePopulation(150, 8, 30),  # pop_size, min_len, max_len
             target=0.05,  # Terminate if MSE < 0.05
@@ -221,7 +221,7 @@ def example_simple_regression():
         print("🧬 Starting evolution...")
         population, evaluations, generations, best_idx = lgp.evolve(
             lgp_input,
-            fitness=lgp.MSE(),
+            fitness=lgp.fitness.regression.MSE(),
             selection=lgp.Tournament(3),
             initialization=lgp.UniquePopulation(80, 4, 20),
             target=0.01,
@@ -259,10 +259,10 @@ def example_fitness_assessment():
     
     # Fitness for regression
     print("📊 Regression fitness functions:")
-    mse = lgp.MSE()
-    rmse = lgp.RMSE()
-    mae = lgp.MAE()
-    r2 = lgp.RSquared()
+    mse = lgp.fitness.regression.MSE()
+    rmse = lgp.fitness.regression.RMSE()
+    mae = lgp.fitness.regression.MAE()
+    r2 = lgp.fitness.regression.RSquared()
     
     print(f"   ✓ MSE: {type(mse).__name__}")
     print(f"   ✓ RMSE: {type(rmse).__name__}")
@@ -279,9 +279,9 @@ def example_fitness_assessment():
     
     # Fitness for classification
     print("\n🎯 Classification fitness functions:")
-    accuracy = lgp.Accuracy()
-    f1 = lgp.F1Score()
-    balanced_acc = lgp.BalancedAccuracy()
+    accuracy = lgp.fitness.classification.Accuracy()
+    f1 = lgp.fitness.classification.F1Score()
+    balanced_acc = lgp.fitness.classification.BalancedAccuracy()
     
     print(f"   ✓ Accuracy: {type(accuracy).__name__}")
     print(f"   ✓ F1 Score: {type(f1).__name__}")
@@ -426,7 +426,7 @@ def example_complete_evolution():
         
         result = lgp.evolve(
             lgp_input=lgp_input,
-            fitness=lgp.MSE(),
+            fitness=lgp.fitness.regression.MSE(),
             selection=lgp.Tournament(tournament_size=3),
             initialization=lgp.UniquePopulation(50, 3, 15),  # pop_size=50, min_len=3, max_len=15
             target=1e-4,              # Terminate if MSE < 0.0001
@@ -534,7 +534,7 @@ def example_classification_evolution():
         
         result = lgp.evolve(
             lgp_input=lgp_input,
-            fitness=lgp.Accuracy(),  # Maximize accuracy
+            fitness=lgp.fitness.classification.Accuracy(),  # Maximize accuracy
             selection=lgp.Tournament(tournament_size=4),
             initialization=lgp.UniquePopulation(40, 4, 20),  # Smaller population for classification
             target=0.95,              # Terminate if accuracy > 95%
@@ -629,7 +629,7 @@ def example_advanced_math_evolution():
         
         result = lgp.evolve(
             lgp_input=lgp_input,
-            fitness=lgp.RMSE(),  # Root Mean Square Error
+            fitness=lgp.fitness.regression.RMSE(),  # Root Mean Square Error
             selection=lgp.Elitism(elite_size=8),  # Preserve the best
             initialization=lgp.UniquePopulation(60, 5, 25),
             target=0.1,   # RMSE target

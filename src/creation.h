@@ -2,7 +2,7 @@
 #define CREATION_H_INCLUDED
 
 #include "genetics.h"
-#include "fitness.h"
+#include "fitness/interface.h"
 
 struct InitializationParams{
 	const uint64_t pop_size; // size of the initial Population

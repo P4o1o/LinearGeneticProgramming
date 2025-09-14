@@ -214,9 +214,17 @@ For each instance:
 - **Size constraints**: `ram_size >= res_size` always required
 - **Result extraction**: Programs write results to `ram[0]` through `ram[res_size-1]`
 
-### Fitness Functions (`fitness.h`, `fitness.c`)
+### Fitness Functions (Modular Organization)
 
-The library provides **33 specialized fitness evaluation functions** for different machine learning problems. Each function has specific data type requirements and optimization objectives.
+The library provides **33+ specialized fitness evaluation functions** organized in a modular structure within the `src/fitness/` directory for better maintainability and logical organization.
+
+#### Module Organization
+
+**`fitness/interface.h`, `fitness/interface.c`**: Core structures, enums, and evaluation functions
+**`fitness/regression.h`, `fitness/regression.c`**: Regression metrics (MSE, RMSE, MAE, R-squared, etc.)
+**`fitness/classification.h`, `fitness/classification.c`**: Classification metrics (Accuracy, F1-score, etc.)  
+**`fitness/probabilistic.h`, `fitness/probabilistic.c`**: Probabilistic metrics (Cross-entropy, likelihood, etc.)
+**`fitness/advanced.h`, `fitness/advanced.c`**: Advanced metrics (Risk measures, robustness metrics)
 
 #### Function Categories and Data Type Requirements
 
@@ -224,7 +232,7 @@ The library provides **33 specialized fitness evaluation functions** for differe
 
 #### Regression Functions (MINIMIZE - lower values are better)
 
-**Basic Error Metrics (expect floating-point outputs)**:
+**Basic Error Metrics (expect floating-point outputs)** - `fitness/regression.h`:
 ```c
 double mse(const struct LGPInput *in, const struct Program *prog, uint64_t max_clock, const struct FitnessParams *params);
 double rmse(const struct LGPInput *in, const struct Program *prog, uint64_t max_clock, const struct FitnessParams *params);
@@ -294,7 +302,7 @@ double strict_threshold_accuracy(const struct LGPInput *in, const struct Program
 - **Requirement**: `params->fact.threshold >= 0.0` (tolerance value)
 - **Usage**: Classification with numerical tolerance
 
-**Sign-Bit Binary Classification (MAXIMIZE)**:
+**Sign-Bit Binary Classification (MAXIMIZE)** - `fitness/classification.h`:
 ```c
 double f1_score(const struct LGPInput *in, const struct Program *prog, uint64_t max_clock, const struct FitnessParams *params);
 double balanced_accuracy(const struct LGPInput *in, const struct Program *prog, uint64_t max_clock, const struct FitnessParams *params);
@@ -306,7 +314,7 @@ double cohens_kappa(const struct LGPInput *in, const struct Program *prog, uint6
 - **Encoding**: Negative integers = class 0/false, positive integers = class 1/true
 - **Metrics**: Advanced binary classification measures handling class imbalance
 
-#### Probabilistic Functions
+#### Probabilistic Functions - `fitness/probabilistic.h`
 
 ```c
 double binary_cross_entropy(const struct LGPInput *in, const struct Program *prog, uint64_t max_clock, const struct FitnessParams *params);
@@ -316,7 +324,7 @@ double brier_score(const struct LGPInput *in, const struct Program *prog, uint64
 - **Targets**: Usually binary (0.0 or 1.0) but can be probability distributions
 - **Binary cross-entropy**: Requires `params->fact.tolerance > 0.0` for numerical stability
 
-#### Specialized Functions
+#### Advanced Functions - `fitness/advanced.h`
 
 ```c
 double conditional_value_at_risk(const struct LGPInput *in, const struct Program *prog, uint64_t max_clock, const struct FitnessParams *params);

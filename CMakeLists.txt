@@ -86,7 +86,7 @@ if(NOT HAVE_FLAG__march_native)
 endif()
 
 # Source files
-file(GLOB SOURCES "src/*.c")
+file(GLOB SOURCES "src/*.c" "src/fitness/*.c")
 
 # Platform-specific libraries
 set(PLATFORM_LIBS)

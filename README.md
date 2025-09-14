@@ -122,7 +122,7 @@ instruction_set = lgp.InstructionSet([
 lgp_input = lgp.LGPInput.from_numpy(X, y, instruction_set, ram_size=5)
 population, evaluations, generations, best_idx = lgp.evolve(
     lgp_input,
-    fitness=lgp.MSE(),
+    fitness=lgp.fitness.regression.MSE(),
     selection=lgp.Tournament(4),
     initialization=lgp.UniquePopulation(150, 8, 30),  # pop_size, min_len, max_len
     target=0.05,  # Terminate if MSE < 0.05

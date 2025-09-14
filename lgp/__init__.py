@@ -21,7 +21,9 @@ from .fitness import (
     PinballLoss, PearsonCorrelation, ThresholdAccuracy, BalancedAccuracy,
     GMean, FBetaScore, BinaryCrossEntropy, GaussianLogLikelihood,
     MatthewsCorrelation, HingeLoss, CohensKappa, AdversarialPerturbationSensitivity,
-    ConditionalValueAtRisk
+    ConditionalValueAtRisk, SilhouetteScore, Inertia, AdjustedRandIndex,
+    CalinskiHarabaszIndex, DaviesBouldinIndex, DunnIndex, FuzzyPartitionCoefficient,
+    FuzzyPartitionEntropy
 )
 
 # Selection methods
@@ -60,7 +62,9 @@ __all__ = [
     'PinballLoss', 'PearsonCorrelation', 'ThresholdAccuracy', 'BalancedAccuracy',
     'GMean', 'FBetaScore', 'BinaryCrossEntropy', 'GaussianLogLikelihood',
     'MatthewsCorrelation', 'HingeLoss', 'CohensKappa', 'AdversarialPerturbationSensitivity',
-    'ConditionalValueAtRisk',
+    'ConditionalValueAtRisk', 'SilhouetteScore', 'Inertia', 'AdjustedRandIndex',
+    'CalinskiHarabaszIndex', 'DaviesBouldinIndex', 'DunnIndex', 'FuzzyPartitionCoefficient',
+    'FuzzyPartitionEntropy',
     
     # Selection
     'Selection', 'Tournament', 'Elitism', 'PercentualElitism', 'Roulette',

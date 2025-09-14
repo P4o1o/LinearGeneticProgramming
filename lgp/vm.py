@@ -71,6 +71,8 @@ class Operation(Enum):
     CMOV_NEXIST = OperationStruct.in_dll(liblgp, "OP_CMOV_NEXIST")
     CMOV_ODD = OperationStruct.in_dll(liblgp, "OP_CMOV_ODD")
     CMOV_EVEN = OperationStruct.in_dll(liblgp, "OP_CMOV_EVEN")
+    CMOV_OVERFLOW = OperationStruct.in_dll(liblgp, "OP_CMOV_OVERFLOW")
+    CMOV_ZERODIV = OperationStruct.in_dll(liblgp, "OP_CMOV_ZERODIV")
     MOV_I = OperationStruct.in_dll(liblgp, "OP_MOV_I")
     JMP = OperationStruct.in_dll(liblgp, "OP_JMP")
     JMP_Z = OperationStruct.in_dll(liblgp, "OP_JMP_Z")
@@ -82,6 +84,8 @@ class Operation(Enum):
     JMP_EXIST = OperationStruct.in_dll(liblgp, "OP_JMP_EXIST")
     JMP_NEXIST = OperationStruct.in_dll(liblgp, "OP_JMP_NEXIST")
     JMP_EVEN = OperationStruct.in_dll(liblgp, "OP_JMP_EVEN")
+    JMP_OVERFLOW = OperationStruct.in_dll(liblgp, "OP_JMP_OVERFLOW")
+    JMP_ZERODIV = OperationStruct.in_dll(liblgp, "OP_JMP_ZERODIV")
     JMP_ODD = OperationStruct.in_dll(liblgp, "OP_JMP_ODD")
     CLC = OperationStruct.in_dll(liblgp, "OP_CLC")
     CMP = OperationStruct.in_dll(liblgp, "OP_CMP")
@@ -116,6 +120,8 @@ class Operation(Enum):
     CMOV_NEXIST_F = OperationStruct.in_dll(liblgp, "OP_CMOV_NEXIST_F")
     CMOV_ODD_F = OperationStruct.in_dll(liblgp, "OP_CMOV_ODD_F")
     CMOV_EVEN_F = OperationStruct.in_dll(liblgp, "OP_CMOV_EVEN_F")
+    CMOV_OVERFLOW_F = OperationStruct.in_dll(liblgp, "OP_CMOV_OVERFLOW_F")
+    CMOV_ZERODIV_F = OperationStruct.in_dll(liblgp, "OP_CMOV_ZERODIV_F")
     CMP_F = OperationStruct.in_dll(liblgp, "OP_CMP_F")
     TEST_F = OperationStruct.in_dll(liblgp, "OP_TEST_F")
     ADD_F = OperationStruct.in_dll(liblgp, "OP_ADD_F")
@@ -143,6 +149,10 @@ class Operation(Enum):
     CAST_F = OperationStruct.in_dll(liblgp, "OP_CAST_F")
     RAND = OperationStruct.in_dll(liblgp, "OP_RAND")
     ROUND = OperationStruct.in_dll(liblgp, "OP_ROUND")
+    MUL_S = OperationStruct.in_dll(liblgp, "OP_MUL_S")
+    DIV_S = OperationStruct.in_dll(liblgp, "OP_DIV_S")
+    ABS = OperationStruct.in_dll(liblgp, "OP_ABS")
+    ABS_F = OperationStruct.in_dll(liblgp, "OP_ABS_F")
     
     @property
     def name(self) -> str:

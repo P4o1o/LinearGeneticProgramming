@@ -361,7 +361,7 @@ struct LGPResult evolve(const struct LGPInput *const in, const struct LGPOptions
     return res;
 }
 
-uint64_t best_multiindivid(const struct MultiPopulation *const pop, const struct MultiFitness fitness){
+uint64_t best_multiindivid(const struct MultiPopulation *const pop, UNUSED_ATTRIBUTE const struct MultiFitness fitness){
     ASSERT(pop->size > 0);
     return 0;
 }

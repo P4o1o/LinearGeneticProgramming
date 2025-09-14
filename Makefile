@@ -97,7 +97,7 @@ endif
 ARCH_OPT := $(or $(call test_flag,-march=native),$(call test_flag,-mtune=native))
 
 # Base compiler flags
-BASE_FLAGS := -O3 -Wall -Wextra -DOMP_NUM_THREADS=$(THREADS) -DLGP_DEBUG=$(DEBUG) $(C_STD)
+BASE_FLAGS := -O3 -Wall -Wextra -Werror -DOMP_NUM_THREADS=$(THREADS) -DLGP_DEBUG=$(DEBUG) $(C_STD)
 ifeq ($(DEBUG),1)
     BASE_FLAGS += -g -ggdb3 -fsanitize=undefined -fsanitize=signed-integer-overflow
 endif
@@ -109,8 +109,13 @@ LDFLAGS := $(EXTRA_LIBS) $(OPENMP_FLAG)
 # Directories and files
 SRCDIR := src
 BINDIR := bin
-SOURCES := $(wildcard $(SRCDIR)$(PATH_SEP)*.c)
-OBJECTS := $(patsubst $(SRCDIR)$(PATH_SEP)%.c,$(BINDIR)$(PATH_SEP)%.o,$(SOURCES))
+SOURCES := $(wildcard $(SRCDIR)$(PATH_SEP)*.c) $(wildcard $(SRCDIR)$(PATH_SEP)fitness$(PATH_SEP)*.c)
+# Convert fitness/*.c to fitness_*.o to avoid subdirectories in bin/
+SOURCES_MAIN := $(wildcard $(SRCDIR)$(PATH_SEP)*.c)
+SOURCES_FITNESS := $(wildcard $(SRCDIR)$(PATH_SEP)fitness$(PATH_SEP)*.c)
+OBJECTS_MAIN := $(patsubst $(SRCDIR)$(PATH_SEP)%.c,$(BINDIR)$(PATH_SEP)%.o,$(SOURCES_MAIN))
+OBJECTS_FITNESS := $(patsubst $(SRCDIR)$(PATH_SEP)fitness$(PATH_SEP)%.c,$(BINDIR)$(PATH_SEP)fitness_%.o,$(SOURCES_FITNESS))
+OBJECTS := $(OBJECTS_MAIN) $(OBJECTS_FITNESS)
 
 # Targets
 .PHONY: all clean info python test
@@ -154,19 +159,17 @@ $(LIB_PREFIX)lgp$(LIB_EXT): $(OBJECTS)
 	@echo "Building Python library..."
 	$(CC) $(CFLAGS) -shared -fPIC -o $@ $(OBJECTS) $(LDFLAGS)
 
-# Compile object files
+# Compile object files from src/
 $(BINDIR)$(PATH_SEP)%.o: $(SRCDIR)$(PATH_SEP)%.c | $(BINDIR)
+	$(CC) $(CFLAGS) -fPIC -c $< -o $@
+
+# Compile object files from src/fitness/ with fitness_ prefix
+$(BINDIR)$(PATH_SEP)fitness_%.o: $(SRCDIR)$(PATH_SEP)fitness$(PATH_SEP)%.c | $(BINDIR)
 	$(CC) $(CFLAGS) -fPIC -c $< -o $@
 
 # Create bin directory
 $(BINDIR):
 	$(MKDIR) $(BINDIR)
-
-# Run tests
-test: all python
-	@echo "Running tests..."
-	@chmod +x test.sh 2>$(NULL_DEVICE) || true
-	@./test.sh
 
 # Clean
 clean:

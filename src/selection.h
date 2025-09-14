@@ -2,7 +2,7 @@
 #define SELECTION_H_INCLUDED
 
 #include "genetics.h"
-#include "fitness.h"
+#include "fitness/interface.h"
 #include "logger.h"
 
 struct FitnessSharingParams{ // parameters for selections based on fitness sharing

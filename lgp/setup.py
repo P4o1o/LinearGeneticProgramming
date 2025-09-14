@@ -2,7 +2,7 @@ from .base import POINTER, c_uint32, c_uint64, c_double, liblgp
 from .vm import Program
 from .genetics import LGPInput, InstructionSet, LGPResult, Population
 from .evolution import LGPOptions
-from .fitness import FitnessFunction, FitnessParams
+from .fitness.interface import FitnessFunction, FitnessParams
 from .creation import InitializationParams
 
 def setup_library():

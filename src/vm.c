@@ -87,6 +87,12 @@ uint64_t run_vm(struct VirtualMachine *env, const uint64_t clock_limit){
             case I_JMP_GE: // JGE
                 if (! env->core.flag.negative) env->core.prcount = addr;
             break;
+            case I_JMP_OVERFLOW:
+                if (env->core.flag.int_overflow) env->core.prcount = addr;
+            break;
+            case I_JMP_ZERODIV:
+                if (env->core.flag.zero_div) env->core.prcount = addr;
+            break;
             case I_JMP_ODD:
                 if (env->core.flag.odd) env->core.prcount = addr;
             break;
@@ -128,6 +134,12 @@ uint64_t run_vm(struct VirtualMachine *env, const uint64_t clock_limit){
             break;
             case I_CMOV_EVEN:
                 if (! env->core.flag.odd) env->core.reg[reg1] = env->core.reg[reg2];
+            break;
+            case I_CMOV_OVERFLOW:
+                if (env->core.flag.int_overflow) env->core.reg[reg1] = env->core.reg[reg2];
+            break;
+            case I_CMOV_ZERODIV:
+                if (env->core.flag.zero_div) env->core.reg[reg1] = env->core.reg[reg2];
             break;
             case I_LOAD_RAM: // LOAD
                 env->core.reg[reg1] = env->ram[addr].i64;
@@ -174,6 +186,12 @@ uint64_t run_vm(struct VirtualMachine *env, const uint64_t clock_limit){
             case I_CMOV_EVEN_F:
                 if (! env->core.flag.odd) env->core.freg[reg1] = env->core.freg[reg2];
             break;
+            case I_CMOV_OVERFLOW_F:
+                if (env->core.flag.int_overflow) env->core.freg[reg1] = env->core.freg[reg2];
+            break;
+            case I_CMOV_ZERODIV_F:
+                if (env->core.flag.zero_div) env->core.freg[reg1] = env->core.freg[reg2];
+            break;
             case I_LOAD_RAM_F: // LOAD
                 env->core.freg[reg1] = env->ram[addr].f64;
             break;
@@ -199,6 +217,8 @@ uint64_t run_vm(struct VirtualMachine *env, const uint64_t clock_limit){
             case I_DIV: // DIV
                 if(env->core.reg[reg3] != 0)
                     env->core.reg[reg1] = env->core.reg[reg2] / env->core.reg[reg3];
+                else
+                    env->core.flag.zero_div = 1;
             break;
             case I_ADD_F:  // ADDF
                 env->core.freg[reg1] = env->core.freg[reg2] + env->core.freg[reg3];
@@ -323,6 +343,26 @@ uint64_t run_vm(struct VirtualMachine *env, const uint64_t clock_limit){
             break;
             case I_RAND:
                 env->core.reg[reg1] = random();
+            break;
+            case I_MUL_S:  // MUL signed
+                imm = (env->core.reg[reg2] & 0x7FFFFFFFFFFFFFFF) * (env->core.reg[reg3] & 0x7FFFFFFFFFFFFFFF);
+                env->core.flag.int_overflow = imm >> 63;
+                env->core.reg[reg1] = ((env->core.reg[reg2] >> 63) ^ (env->core.reg[reg3] >> 63) << 63) & imm;
+            break;
+            case I_DIV_S:  // DIV signed
+                if((int64_t)env->core.reg[reg3] != 0){
+                    imm = (env->core.reg[reg2] & 0x7FFFFFFFFFFFFFFF) / (env->core.reg[reg3] & 0x7FFFFFFFFFFFFFFF);
+                    env->core.flag.int_overflow = imm >> 63;
+                    env->core.reg[reg1] = ((env->core.reg[reg2] >> 63) ^ (env->core.reg[reg3] >> 63) << 63) & imm;
+                } else {
+                    env->core.flag.zero_div = 1;
+                }
+            break;
+            case I_ABS:  // ABS
+                env->core.reg[reg1] = env->core.reg[reg2] & 0x7FFFFFFFFFFFFFFF;
+            break;
+            case I_ABS_F:  // ABS float
+                env->core.freg[reg1] = fabs(env->core.freg[reg2]);
             break;
             default:
                 ASSERT(0);

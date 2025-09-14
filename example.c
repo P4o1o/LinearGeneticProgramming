@@ -2,6 +2,7 @@
 #include "src/evolution.h"
 #include "src/psb2.h"
 #include "src/prob.h"
+#include "src/fitness/regression.h"
  
 
 static inline double get_time_sec(void) {

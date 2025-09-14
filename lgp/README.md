@@ -55,8 +55,8 @@ lgp_input = lgp.LGPInput.from_numpy(X, y, instruction_set, ram_size=5)
 # Configure and execute evolution
 population, evaluations, generations, best_idx = lgp.evolve(
     lgp_input,
-    fitness=lgp.MSE(),                              # Mean Squared Error
-    selection=lgp.Tournament(tournament_size=4),    # Tournament selection
+    fitness=lgp.fitness.regression.MSE(),              # Mean Squared Error
+    selection=lgp.Tournament(tournament_size=4),       # Tournament selection
     initialization=lgp.UniquePopulation(            # Ensure diversity
         pop_size=150, minsize=5, maxsize=25
     ),
@@ -193,7 +193,42 @@ instruction_set = lgp.InstructionSet(math_ops)
 - **Utility**: CAST (type conversion), NOP, RAND, ROUND
 
 ### Fitness Functions
-Comprehensive collection of 30+ fitness functions for regression and classification problems with different data type expectations and vectorial output support.
+Comprehensive collection of 30+ fitness functions organized in a modular structure for regression, classification, probabilistic modeling, and advanced metrics.
+
+#### Modular Organization
+The fitness functions are organized into logical modules for better code organization and easier navigation:
+
+```python
+# Regression metrics - continuous value prediction
+lgp.fitness.regression.MSE()           # Mean Squared Error
+lgp.fitness.regression.RMSE()          # Root Mean Squared Error  
+lgp.fitness.regression.MAE()           # Mean Absolute Error
+lgp.fitness.regression.RSquared()      # Coefficient of determination
+
+# Classification metrics - discrete class prediction
+lgp.fitness.classification.Accuracy()          # Classification accuracy
+lgp.fitness.classification.F1Score()           # F1-score (harmonic mean)
+lgp.fitness.classification.BalancedAccuracy()  # Balanced accuracy
+
+# Probabilistic metrics - uncertainty and probability modeling
+lgp.fitness.probabilistic.BinaryCrossEntropy()     # Log-loss for binary classification
+lgp.fitness.probabilistic.GaussianLogLikelihood()  # Maximum likelihood estimation
+lgp.fitness.probabilistic.BrierScore()             # Probability calibration
+
+# Advanced metrics - specialized applications
+lgp.fitness.advanced.ConditionalValueAtRisk()              # Risk management
+lgp.fitness.advanced.AdversarialPerturbationSensitivity()  # Robustness testing
+```
+
+#### Legacy Import Support
+For backward compatibility, all fitness functions are also available at the package level:
+
+```python
+# These are equivalent to the modular imports above
+import lgp
+mse = lgp.MSE()                    # Same as lgp.fitness.regression.MSE()
+accuracy = lgp.Accuracy()          # Same as lgp.fitness.classification.Accuracy()
+```
 
 #### Data Type Classifications
 Each fitness function expects specific data types and interprets program outputs differently:
@@ -220,30 +255,30 @@ Each fitness function expects specific data types and interprets program outputs
 #### Regression Functions (MINIMIZE) [FLOAT]
 ```python
 # Basic error metrics - expect any floating-point outputs
-fitness = lgp.MSE(start=0, end=1)                    # Mean Squared Error
-fitness = lgp.RMSE(start=0, end=2)                   # Root Mean Squared Error  
-fitness = lgp.MAE(start=0, end=1)                    # Mean Absolute Error
-fitness = lgp.MAPE(start=0, end=1)                   # Mean Absolute Percentage Error
-fitness = lgp.SYMMETRIC_MAPE(start=0, end=1)         # Symmetric MAPE variant
-fitness = lgp.LOGCOSH(start=0, end=1)                # Smooth approximation of MAE
-fitness = lgp.WORST_CASE_ERROR(start=0, end=1)       # Maximum error (robustness)
-fitness = lgp.HINGE_LOSS(start=0, end=1)             # SVM loss function
+fitness = lgp.fitness.regression.MSE(start=0, end=1)                    # Mean Squared Error
+fitness = lgp.fitness.regression.RMSE(start=0, end=2)                   # Root Mean Squared Error  
+fitness = lgp.fitness.regression.MAE(start=0, end=1)                    # Mean Absolute Error
+fitness = lgp.fitness.regression.MAPE(start=0, end=1)                   # Mean Absolute Percentage Error
+fitness = lgp.fitness.regression.SymmetricMAPE(start=0, end=1)          # Symmetric MAPE variant
+fitness = lgp.fitness.regression.LogCosh(start=0, end=1)                # Smooth approximation of MAE
+fitness = lgp.fitness.regression.WorstCaseError(start=0, end=1)         # Maximum error (robustness)
+fitness = lgp.fitness.probabilistic.HingeLoss(start=0, end=1)           # SVM loss function
 
 # Robust regression with parameters
-fitness = lgp.HUBER_LOSS(delta=1.5, start=0, end=1)  # Robust loss function
-fitness = lgp.PINBALL_LOSS(quantile=0.9, start=0, end=1)  # Quantile regression
-fitness = lgp.GAUSSIAN_LOG_LIKELIHOOD(sigma=1.0, start=0, end=1)  # MLE estimation
+fitness = lgp.fitness.regression.HuberLoss(delta=1.5, start=0, end=1)   # Robust loss function
+fitness = lgp.fitness.regression.PinballLoss(quantile=0.9, start=0, end=1)  # Quantile regression
+fitness = lgp.fitness.probabilistic.GaussianLogLikelihood(sigma=1.0, start=0, end=1)  # MLE estimation
 
 # Regularized variants for model complexity control
-fitness = lgp.LENGTH_PENALIZED_MSE(alpha=0.01, start=0, end=1)  # Penalize long programs
-fitness = lgp.CLOCK_PENALIZED_MSE(alpha=0.001, start=0, end=1)   # Penalize slow programs
+fitness = lgp.fitness.regression.LengthPenalizedMSE(alpha=0.01, start=0, end=1)  # Penalize long programs
+fitness = lgp.fitness.regression.ClockPenalizedMSE(alpha=0.001, start=0, end=1)   # Penalize slow programs
 ```
 
 #### Regression Functions (MAXIMIZE) [FLOAT]
 ```python
 # Correlation-based metrics - expect any floating-point outputs
-fitness = lgp.R_SQUARED(start=0, end=2)              # Coefficient of determination
-fitness = lgp.PEARSON_CORRELATION(start=0, end=1)    # Statistical correlation
+fitness = lgp.fitness.regression.RSquared(start=0, end=2)              # Coefficient of determination
+fitness = lgp.fitness.regression.PearsonCorrelation(start=0, end=1)    # Statistical correlation
 ```
 
 #### Classification Functions (MAXIMIZE) [INT]
@@ -251,10 +286,10 @@ fitness = lgp.PEARSON_CORRELATION(start=0, end=1)    # Statistical correlation
 # Integer-based classification with exact matching
 y_int = np.array([0, 1, 2, 1, 0], dtype=np.int64)   # Integer class labels
 
-fitness = lgp.ACCURACY(start=0, end=3)               # Per-label accuracy (multi-label)
-fitness = lgp.STRICT_ACCURACY(start=0, end=3)        # Exact vector match per sample
-fitness = lgp.BINARY_ACCURACY(start=0, end=1)        # Optimized binary classification
-fitness = lgp.STRICT_BINARY_ACCURACY(start=0, end=1) # Strict binary with exact matching
+fitness = lgp.fitness.classification.Accuracy(start=0, end=3)               # Per-label accuracy (multi-label)
+fitness = lgp.fitness.classification.StrictAccuracy(start=0, end=3)         # Exact vector match per sample
+fitness = lgp.fitness.classification.BinaryAccuracy(start=0, end=1)        # Optimized binary classification
+fitness = lgp.fitness.classification.StrictBinaryAccuracy(start=0, end=1) # Strict binary with exact matching
 ```
 
 #### Classification Functions (MAXIMIZE) [SIGN_BIT]
@@ -264,12 +299,12 @@ fitness = lgp.STRICT_BINARY_ACCURACY(start=0, end=1) # Strict binary with exact 
 y_bool = np.array([True, False, True, False, True])  # Original boolean data
 y_sign = np.where(y_bool, 1, -1).astype(np.int64)   # Convert to sign-bit encoding
 
-fitness = lgp.F1_SCORE(start=0, end=2)               # Harmonic mean of precision/recall
-fitness = lgp.F_BETA_SCORE(beta=2.0, start=0, end=1) # Weighted F-score
-fitness = lgp.BALANCED_ACCURACY(start=0, end=1)      # Handles class imbalance
-fitness = lgp.G_MEAN(start=0, end=1)                 # Geometric mean of sensitivity/specificity
-fitness = lgp.MATTHEWS_CORRELATION(start=0, end=1)   # Balanced metric for binary classification
-fitness = lgp.COHENS_KAPPA(start=0, end=1)           # Inter-rater agreement
+fitness = lgp.fitness.classification.F1Score(start=0, end=2)               # Harmonic mean of precision/recall
+fitness = lgp.fitness.classification.FBetaScore(beta=2.0, start=0, end=1)  # Weighted F-score
+fitness = lgp.fitness.classification.BalancedAccuracy(start=0, end=1)      # Handles class imbalance
+fitness = lgp.fitness.classification.GMean(start=0, end=1)                 # Geometric mean of sensitivity/specificity
+fitness = lgp.fitness.classification.MatthewsCorrelation(start=0, end=1)   # Balanced metric for binary classification
+fitness = lgp.fitness.classification.CohensKappa(start=0, end=1)           # Inter-rater agreement
 ```
 
 #### Classification Functions (MAXIMIZE) [FLOAT]
@@ -305,20 +340,20 @@ import numpy as np
 X_reg = np.random.randn(1000, 3)
 y_reg = X_reg[:, 0]**2 + np.sin(X_reg[:, 1])  # Any real numbers
 lgp_input_reg = lgp.LGPInput.from_numpy(X_reg, y_reg.reshape(-1, 1), instruction_set)
-fitness_reg = lgp.MSE(start=0, end=1)
+fitness_reg = lgp.fitness.regression.MSE(start=0, end=1)
 
 # SIGN_BIT binary classification example  
 X_bin = np.random.randn(1000, 3)
 y_bool = (X_bin[:, 0] + X_bin[:, 1] > 0)      # Boolean outcomes
 y_sign = np.where(y_bool, 1, -1).astype(np.int64).reshape(-1, 1)  # Sign-bit encoding
 lgp_input_bin = lgp.LGPInput.from_numpy(X_bin, y_sign, instruction_set)
-fitness_bin = lgp.F1_SCORE(start=0, end=1)
+fitness_bin = lgp.fitness.classification.F1Score(start=0, end=1)
 
 # INT discrete classification example
 X_cat = np.random.randn(1000, 3)  
 y_cat = np.random.choice([0, 1, 2], size=1000).astype(np.int64).reshape(-1, 1)  # Integer classes
 lgp_input_cat = lgp.LGPInput.from_numpy(X_cat, y_cat, instruction_set)
-fitness_cat = lgp.ACCURACY(start=0, end=1)
+fitness_cat = lgp.fitness.classification.Accuracy(start=0, end=1)
 
 # PROB probabilistic classification example
 X_prob = np.random.randn(1000, 3)
@@ -332,13 +367,13 @@ All fitness functions support configurable output ranges for multi-output proble
 
 ```python
 # Evaluate only first output (RAM position 0)
-fitness = lgp.MSE(start=0, end=1)
+fitness = lgp.fitness.regression.MSE(start=0, end=1)
 
 # Evaluate outputs at positions 0, 1, and 2
-fitness = lgp.MSE(start=0, end=3)
+fitness = lgp.fitness.regression.MSE(start=0, end=3)
 
 # Evaluate outputs at positions 2 and 3 (useful for multi-stage problems)
-fitness = lgp.MSE(start=2, end=4)
+fitness = lgp.fitness.regression.MSE(start=2, end=4)
 
 # Direct fitness evaluation on specific individual
 fitness_value = fitness(lgp_input, individual, max_clock=5000)
@@ -422,7 +457,7 @@ The main evolution function provides comprehensive control over the evolutionary
 ```python
 population, evaluations, generations, best_idx = lgp.evolve(
     lgp_input,                                       # Problem definition
-    fitness=lgp.MSE(),                              # Fitness function
+    fitness=lgp.fitness.regression.MSE(),           # Fitness function
     selection=lgp.Tournament(tournament_size=3),    # Selection method
     initialization=lgp.UniquePopulation(100, 5, 20), # Population initialization
     target=1e-6,                                    # Target fitness for early stop
@@ -482,7 +517,7 @@ y = np.column_stack([
 lgp_input = lgp.LGPInput.from_numpy(X, y, instruction_set, ram_size=8)
 
 # Configure fitness to evaluate both outputs
-fitness = lgp.MSE(start=0, end=2)  # Evaluate RAM positions 0 and 1
+fitness = lgp.fitness.regression.MSE(start=0, end=2)  # Evaluate RAM positions 0 and 1
 
 population, evaluations, generations, best_idx = lgp.evolve(
     lgp_input=lgp_input,
@@ -561,7 +596,7 @@ for problem_name, lgp_input in benchmark_problems:
     
     population, evaluations, generations, best_idx = lgp.evolve(
         lgp_input=lgp_input,
-        fitness=lgp.MSE(),
+        fitness=lgp.fitness.regression.MSE(),
         selection=lgp.Tournament(tournament_size=4),
         initialization=lgp.UniquePopulation(pop_size=200, minsize=5, maxsize=30),
         target=1e-5,
@@ -681,7 +716,7 @@ try:
     # Evolution with problematic parameters
     population, evaluations, generations, best_idx = lgp.evolve(
         lgp_input=lgp_input,
-        fitness=lgp.MSE(start=0, end=10),  # end > res_size
+        fitness=lgp.fitness.regression.MSE(start=0, end=10),  # end > res_size
         selection=lgp.Tournament(tournament_size=3),
         initialization=lgp.UniquePopulation(pop_size=50, minsize=2, maxsize=15),
         generations=30
