@@ -33,20 +33,20 @@ union FitnessStepResult init_acc_r_2(const uint64_t inputnum, const uint64_t res
 union FitnessStepResult pearson_init_acc(const uint64_t inputnum, const uint64_t ressize, const struct FitnessParams *const params);
 
 // REGRESSION COMBINE FUNCTION PROTOTYPES
-int sum_float(union FitnessStepResult *accumulator, const union FitnessStepResult *const step_result, const struct FitnessParams *const params, const uint64_t clocks);
-int sum_float_clock_pen(union FitnessStepResult *accumulator, const union FitnessStepResult *const step_result, const struct FitnessParams *const params, const uint64_t clocks);
-int max_float(union FitnessStepResult *accumulator, const union FitnessStepResult *const step_result, const struct FitnessParams *const params, const uint64_t clocks);
-int r_squared_combine(union FitnessStepResult *accumulator, const union FitnessStepResult *const step_result, const struct FitnessParams *const params, const uint64_t clocks);
-int pearson_combine(union FitnessStepResult *accumulator, const union FitnessStepResult *const step_result, const struct FitnessParams *const params, const uint64_t clocks);
+int sum_float(union FitnessStepResult *accumulator, const union FitnessStepResult *const step_result, const uint64_t clocks, const uint64_t input_num, const struct FitnessParams *const params);
+int sum_float_clock_pen(union FitnessStepResult *accumulator, const union FitnessStepResult *const step_result, const uint64_t clocks, const uint64_t input_num, const struct FitnessParams *const params);
+int max_float(union FitnessStepResult *accumulator, const union FitnessStepResult *const step_result, const uint64_t clocks, const uint64_t input_num, const struct FitnessParams *const params);
+int r_squared_combine(union FitnessStepResult *accumulator, const union FitnessStepResult *const step_result, const uint64_t clocks, const uint64_t input_num, const struct FitnessParams *const params);
+int pearson_combine(union FitnessStepResult *accumulator, const union FitnessStepResult *const step_result, const uint64_t clocks, const uint64_t input_num, const struct FitnessParams *const params);
 
 // REGRESSION FINALIZE FUNCTION PROTOTYPES
-double mean_input_and_dim(const union FitnessStepResult *const result, const struct FitnessParams *const params, const uint64_t inputnum, const uint64_t ressize, const uint64_t prog_size);
-double sqrt_mean_input_and_dim(const union FitnessStepResult *const result, const struct FitnessParams *const params, const uint64_t inputnum, const uint64_t ressize, const uint64_t prog_size);
-double percent_mean_input_and_dim(const union FitnessStepResult *const result, const struct FitnessParams *const params, const uint64_t inputnum, const uint64_t ressize, const uint64_t prog_size);
-double mean_input_and_dim_length_pen(const union FitnessStepResult *const result, const struct FitnessParams *const params, const uint64_t inputnum, const uint64_t ressize, const uint64_t prog_size);
-double max_over_ressize(const union FitnessStepResult *const result, const struct FitnessParams *const params, const uint64_t inputnum, const uint64_t ressize, const uint64_t prog_size);
-double r_squared_finalize(const union FitnessStepResult *const result, const struct FitnessParams *const params, const uint64_t inputnum, const uint64_t ressize, const uint64_t prog_size);
-double pearson_finalize(const union FitnessStepResult * const result, const struct FitnessParams *const params, const uint64_t inputnum, const uint64_t ressize, const uint64_t prog_size);
+double mean_input_and_dim(const union FitnessStepResult *const result, const struct LGPInput *const in, const uint64_t ressize, const uint64_t prog_size, const uint64_t input_num, const struct FitnessParams *const params);
+double sqrt_mean_input_and_dim(const union FitnessStepResult *const result, const struct LGPInput *const in, const uint64_t ressize, const uint64_t prog_size, const uint64_t input_num, const struct FitnessParams *const params);
+double percent_mean_input_and_dim(const union FitnessStepResult *const result, const struct LGPInput *const in, const uint64_t ressize, const uint64_t prog_size, const uint64_t input_num, const struct FitnessParams *const params);
+double mean_input_and_dim_length_pen(const union FitnessStepResult *const result, const struct LGPInput *const in, const uint64_t ressize, const uint64_t prog_size, const uint64_t input_num, const struct FitnessParams *const params);
+double max_over_ressize(const union FitnessStepResult *const result, const struct LGPInput *const in, const uint64_t ressize, const uint64_t prog_size, const uint64_t input_num, const struct FitnessParams *const params);
+double r_squared_finalize(const union FitnessStepResult *const result, const struct LGPInput *const in, const uint64_t ressize, const uint64_t prog_size, const uint64_t input_num, const struct FitnessParams *const params);
+double pearson_finalize(const union FitnessStepResult * const result, const struct LGPInput *const in, const uint64_t ressize, const uint64_t prog_size, const uint64_t input_num, const struct FitnessParams *const params);
 
 // UTILITY FUNCTION PROTOTYPES
 union FitnessStepResult return_info(const union Memblock *const result, const union Memblock *const actual, const uint64_t len, const struct FitnessParams *const params);

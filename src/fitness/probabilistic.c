@@ -54,7 +54,8 @@ inline union FitnessStepResult hinge_loss_step(const union Memblock *const resul
 
 // PROBABILISTIC FINALIZE FUNCTION IMPLEMENTATIONS
 
-inline double negative_mean_input_and_dim(const union FitnessStepResult *const result, UNUSED_ATTRIBUTE const struct FitnessParams *const params, const uint64_t inputnum, const uint64_t ressize, UNUSED_ATTRIBUTE const uint64_t prog_size){
+inline double negative_mean_input_and_dim(const union FitnessStepResult *const result, UNUSED_ATTRIBUTE const struct LGPInput *const in, const uint64_t ressize, UNUSED_ATTRIBUTE const uint64_t prog_size, UNUSED_ATTRIBUTE const uint64_t input_num, UNUSED_ATTRIBUTE const struct FitnessParams *const params){
+    uint64_t inputnum = in->input_num;
     return isfinite(result->total_f64) ? -(result->total_f64 / (double)(inputnum * ressize)) : -DBL_MAX;
 }
 

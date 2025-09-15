@@ -525,7 +525,6 @@ struct LGPMultiResult multi_evolve(const struct LGPInput *const in, const struct
         printf("DEBUG C: offsetof(Program, content) = %lu\n", offsetof(struct Program, content));
         printf("DEBUG C: offsetof(Program, size) = %lu\n", offsetof(struct Program, size));
         printf("DEBUG C: best_individ index = %lu\n", winner);
-        printf("DEBUG C: best_individ fitness = %f\n", pop.individual[winner].fitness);
         printf("DEBUG C: best_individ prog.size = %lu\n", pop.individual[winner].prog.size);
         printf("DEBUG C: best_individ prog.content = %p\n", (void*)pop.individual[winner].prog.content);
     #endif

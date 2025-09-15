@@ -350,8 +350,9 @@ uint64_t run_vm(struct VirtualMachine *env, const uint64_t clock_limit){
                 env->core.reg[reg1] = ((env->core.reg[reg2] >> 63) ^ (env->core.reg[reg3] >> 63) << 63) & imm;
             break;
             case I_DIV_S:  // DIV signed
-                if((int64_t)env->core.reg[reg3] != 0){
-                    imm = (env->core.reg[reg2] & 0x7FFFFFFFFFFFFFFF) / (env->core.reg[reg3] & 0x7FFFFFFFFFFFFFFF);
+                imm = env->core.reg[reg3] & 0x7FFFFFFFFFFFFFFF;
+                if(imm != 0){
+                    imm = (env->core.reg[reg2] & 0x7FFFFFFFFFFFFFFF) / imm;
                     env->core.flag.int_overflow = imm >> 63;
                     env->core.reg[reg1] = ((env->core.reg[reg2] >> 63) ^ (env->core.reg[reg3] >> 63) << 63) & imm;
                 } else {

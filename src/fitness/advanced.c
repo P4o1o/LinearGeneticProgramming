@@ -17,7 +17,8 @@ inline union FitnessStepResult vect_f64_init_acc(UNUSED_ATTRIBUTE const uint64_t
 
 // ADVANCED FINALIZE FUNCTION IMPLEMENTATIONS
 
-inline double value_at_risk_finalize(const union FitnessStepResult *const result, const struct FitnessParams *const params, const uint64_t inputnum, const uint64_t ressize, UNUSED_ATTRIBUTE const uint64_t prog_size) {
+inline double value_at_risk_finalize(const union FitnessStepResult *const result, const struct LGPInput *const in, const uint64_t ressize, UNUSED_ATTRIBUTE const uint64_t prog_size, UNUSED_ATTRIBUTE const uint64_t input_num, const struct FitnessParams *const params) {
+    uint64_t inputnum = in->input_num;
     qsort(result->vect_f64, inputnum, sizeof(double), compare_doubles);
     double error = 0.0;
     uint64_t count = (uint64_t) ceil(params->fact.alpha * inputnum);

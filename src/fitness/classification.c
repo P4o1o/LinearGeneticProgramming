@@ -59,12 +59,12 @@ inline union FitnessStepResult binary_classification_confusion(const union Membl
 
 // CLASSIFICATION COMBINE FUNCTION IMPLEMENTATIONS
 
-inline int sum_uint64(union FitnessStepResult *accumulator, const union FitnessStepResult *const step_result, UNUSED_ATTRIBUTE const struct FitnessParams *const params, UNUSED_ATTRIBUTE const uint64_t clocks){
+inline int sum_uint64(union FitnessStepResult *accumulator, const union FitnessStepResult *const step_result, UNUSED_ATTRIBUTE const uint64_t clocks, UNUSED_ATTRIBUTE const uint64_t input_num, UNUSED_ATTRIBUTE const struct FitnessParams *const params){
     accumulator->total_u64 += step_result->total_u64;
     return 1;
 }
 
-inline int sum_confusion(union FitnessStepResult *accumulator, const union FitnessStepResult *const step_result, UNUSED_ATTRIBUTE const struct FitnessParams *const params, UNUSED_ATTRIBUTE const uint64_t clocks){
+inline int sum_confusion(union FitnessStepResult *accumulator, const union FitnessStepResult *const step_result, UNUSED_ATTRIBUTE const uint64_t clocks, UNUSED_ATTRIBUTE const uint64_t input_num, UNUSED_ATTRIBUTE const struct FitnessParams *const params){
     accumulator->confusion.true_pos += step_result->confusion.true_pos;
     accumulator->confusion.false_pos += step_result->confusion.false_pos;
     accumulator->confusion.false_neg += step_result->confusion.false_neg;
@@ -72,7 +72,7 @@ inline int sum_confusion(union FitnessStepResult *accumulator, const union Fitne
     return 1;
 }
 
-inline int strict_sample_match(union FitnessStepResult *accumulator, const union FitnessStepResult *const step_result, const struct FitnessParams *const params, UNUSED_ATTRIBUTE const uint64_t clocks){
+inline int strict_sample_match(union FitnessStepResult *accumulator, const union FitnessStepResult *const step_result, UNUSED_ATTRIBUTE const uint64_t clocks, UNUSED_ATTRIBUTE const uint64_t input_num, const struct FitnessParams *const params){
     // For strict accuracy - count if ALL labels in this sample are correct
     uint64_t expected_matches = params->end - params->start;
     if(step_result->total_u64 == expected_matches)
@@ -82,21 +82,21 @@ inline int strict_sample_match(union FitnessStepResult *accumulator, const union
 
 // CLASSIFICATION FINALIZE FUNCTION IMPLEMENTATIONS
 
-inline double rate_per_input(const union FitnessStepResult *const result, UNUSED_ATTRIBUTE const struct FitnessParams *const params, const uint64_t inputnum, const uint64_t ressize, UNUSED_ATTRIBUTE const uint64_t prog_size){
-    return (double)result->total_u64 / (double)(inputnum * ressize);
+inline double rate_per_input(const union FitnessStepResult *const result, UNUSED_ATTRIBUTE const struct LGPInput *const in, const uint64_t ressize, UNUSED_ATTRIBUTE const uint64_t prog_size, UNUSED_ATTRIBUTE const uint64_t input_num, UNUSED_ATTRIBUTE const struct FitnessParams *const params){
+    return (double)result->total_u64 / (double)(in->input_num * ressize);
 }
 
-inline double rate_per_sample(const union FitnessStepResult *const result, UNUSED_ATTRIBUTE const struct FitnessParams *const params, const uint64_t inputnum, UNUSED_ATTRIBUTE const uint64_t ressize, UNUSED_ATTRIBUTE const uint64_t prog_size){
-    return (double)result->total_u64 / (double)inputnum;
+inline double rate_per_sample(const union FitnessStepResult *const result, UNUSED_ATTRIBUTE const struct LGPInput *const in, UNUSED_ATTRIBUTE const uint64_t ressize, UNUSED_ATTRIBUTE const uint64_t prog_size, UNUSED_ATTRIBUTE const uint64_t input_num, UNUSED_ATTRIBUTE const struct FitnessParams *const params){
+    return (double)result->total_u64 / (double)in->input_num;
 }
 
-inline double confusion_accuracy(const union FitnessStepResult *const result, UNUSED_ATTRIBUTE const struct FitnessParams *const params, UNUSED_ATTRIBUTE const uint64_t inputnum, UNUSED_ATTRIBUTE const uint64_t ressize, UNUSED_ATTRIBUTE const uint64_t prog_size){
+inline double confusion_accuracy(const union FitnessStepResult *const result, UNUSED_ATTRIBUTE const struct LGPInput *const in, UNUSED_ATTRIBUTE const uint64_t ressize, UNUSED_ATTRIBUTE const uint64_t prog_size, UNUSED_ATTRIBUTE const uint64_t input_num, UNUSED_ATTRIBUTE const struct FitnessParams *const params){
     uint64_t total = result->confusion.true_pos + result->confusion.false_pos + result->confusion.false_neg + result->confusion.true_neg;
     if(total == 0) return 0.0;
     return (double)(result->confusion.true_pos + result->confusion.true_neg) / (double)total;
 }
 
-inline double confusion_f1_score(const union FitnessStepResult *const result, UNUSED_ATTRIBUTE const struct FitnessParams *const params, UNUSED_ATTRIBUTE const uint64_t inputnum, UNUSED_ATTRIBUTE const uint64_t ressize, UNUSED_ATTRIBUTE const uint64_t prog_size){
+inline double confusion_f1_score(const union FitnessStepResult *const result, UNUSED_ATTRIBUTE const struct LGPInput *const in, UNUSED_ATTRIBUTE const uint64_t ressize, UNUSED_ATTRIBUTE const uint64_t prog_size, UNUSED_ATTRIBUTE const uint64_t input_num, UNUSED_ATTRIBUTE const struct FitnessParams *const params){
     uint64_t tp = result->confusion.true_pos;
     uint64_t fp = result->confusion.false_pos;
     uint64_t fn = result->confusion.false_neg;
@@ -110,7 +110,7 @@ inline double confusion_f1_score(const union FitnessStepResult *const result, UN
     return 2.0 * precision * recall / (precision + recall);
 }
 
-inline double confusion_f_beta_score(const union FitnessStepResult *const result, const struct FitnessParams *const params, UNUSED_ATTRIBUTE const uint64_t inputnum, UNUSED_ATTRIBUTE const uint64_t ressize, UNUSED_ATTRIBUTE const uint64_t prog_size){
+inline double confusion_f_beta_score(const union FitnessStepResult *const result, UNUSED_ATTRIBUTE const struct LGPInput *const in, UNUSED_ATTRIBUTE const uint64_t ressize, UNUSED_ATTRIBUTE const uint64_t prog_size, UNUSED_ATTRIBUTE const uint64_t input_num, const struct FitnessParams *const params){
     uint64_t tp = result->confusion.true_pos;
     uint64_t fp = result->confusion.false_pos;
     uint64_t fn = result->confusion.false_neg;
@@ -126,7 +126,7 @@ inline double confusion_f_beta_score(const union FitnessStepResult *const result
     return (1.0 + beta_sq) * precision * recall / (beta_sq * precision + recall);
 }
 
-inline double confusion_balanced_accuracy(const union FitnessStepResult *const result, UNUSED_ATTRIBUTE const struct FitnessParams *const params, UNUSED_ATTRIBUTE const uint64_t inputnum, UNUSED_ATTRIBUTE const uint64_t ressize, UNUSED_ATTRIBUTE const uint64_t prog_size){
+inline double confusion_balanced_accuracy(const union FitnessStepResult *const result, UNUSED_ATTRIBUTE const struct LGPInput *const in, UNUSED_ATTRIBUTE const uint64_t ressize, UNUSED_ATTRIBUTE const uint64_t prog_size, UNUSED_ATTRIBUTE const uint64_t input_num, UNUSED_ATTRIBUTE const struct FitnessParams *const params){
     uint64_t tp = result->confusion.true_pos;
     uint64_t fp = result->confusion.false_pos;
     uint64_t fn = result->confusion.false_neg;
@@ -138,7 +138,7 @@ inline double confusion_balanced_accuracy(const union FitnessStepResult *const r
     return (sensitivity + specificity) / 2.0;
 }
 
-inline double confusion_g_mean(const union FitnessStepResult *const result, UNUSED_ATTRIBUTE const struct FitnessParams *const params, UNUSED_ATTRIBUTE const uint64_t inputnum, UNUSED_ATTRIBUTE const uint64_t ressize, UNUSED_ATTRIBUTE const uint64_t prog_size){
+inline double confusion_g_mean(const union FitnessStepResult *const result, UNUSED_ATTRIBUTE const struct LGPInput *const in, UNUSED_ATTRIBUTE const uint64_t ressize, UNUSED_ATTRIBUTE const uint64_t prog_size, UNUSED_ATTRIBUTE const uint64_t input_num, UNUSED_ATTRIBUTE const struct FitnessParams *const params){
     uint64_t tp = result->confusion.true_pos;
     uint64_t fp = result->confusion.false_pos;
     uint64_t fn = result->confusion.false_neg;
@@ -150,7 +150,7 @@ inline double confusion_g_mean(const union FitnessStepResult *const result, UNUS
     return sqrt(sensitivity * specificity);
 }
 
-inline double confusion_matthews_correlation(const union FitnessStepResult *const result, UNUSED_ATTRIBUTE const struct FitnessParams *const params, UNUSED_ATTRIBUTE const uint64_t inputnum, UNUSED_ATTRIBUTE const uint64_t ressize, UNUSED_ATTRIBUTE const uint64_t prog_size){
+inline double confusion_matthews_correlation(const union FitnessStepResult *const result, UNUSED_ATTRIBUTE const struct LGPInput *const in, UNUSED_ATTRIBUTE const uint64_t ressize, UNUSED_ATTRIBUTE const uint64_t prog_size, UNUSED_ATTRIBUTE const uint64_t input_num, UNUSED_ATTRIBUTE const struct FitnessParams *const params){
     uint64_t tp = result->confusion.true_pos;
     uint64_t fp = result->confusion.false_pos;
     uint64_t fn = result->confusion.false_neg;
@@ -163,7 +163,7 @@ inline double confusion_matthews_correlation(const union FitnessStepResult *cons
     return numerator / denominator;
 }
 
-inline double confusion_cohens_kappa(const union FitnessStepResult *const result, UNUSED_ATTRIBUTE const struct FitnessParams *const params, UNUSED_ATTRIBUTE const uint64_t inputnum, UNUSED_ATTRIBUTE const uint64_t ressize, UNUSED_ATTRIBUTE const uint64_t prog_size){
+inline double confusion_cohens_kappa(const union FitnessStepResult *const result, UNUSED_ATTRIBUTE const struct LGPInput *const in, UNUSED_ATTRIBUTE const uint64_t ressize, UNUSED_ATTRIBUTE const uint64_t prog_size, UNUSED_ATTRIBUTE const uint64_t input_num, UNUSED_ATTRIBUTE const struct FitnessParams *const params){
     uint64_t tp = result->confusion.true_pos;
     uint64_t fp = result->confusion.false_pos;
     uint64_t fn = result->confusion.false_neg;

@@ -11,7 +11,7 @@ High-performance Linear Genetic Programming framework for symbolic regression, c
 - **Dual Architecture**: C core for performance + Python wrapper for ease of use
 - **Cross-Platform**: Linux, macOS, Windows, FreeBSD
 - **Optimized**: SIMD vectorization (SSE/AVX/AVX-512/NEON) and OpenMP parallelization
-- **Comprehensive**: 30+ fitness functions with vectorial output support
+- **Comprehensive**: 40+ fitness functions including regression, classification, clustering, and advanced metrics
 - **Advanced VM**: 87 specialized instructions with dual-type registers
 - **Scalable**: Thread-safe design with configurable parallelization
 
@@ -122,7 +122,7 @@ instruction_set = lgp.InstructionSet([
 lgp_input = lgp.LGPInput.from_numpy(X, y, instruction_set, ram_size=5)
 population, evaluations, generations, best_idx = lgp.evolve(
     lgp_input,
-    fitness=lgp.fitness.regression.MSE(),
+    fitness=lgp.fitness.MSE(),  # New modular fitness organization
     selection=lgp.Tournament(4),
     initialization=lgp.UniquePopulation(150, 8, 30),  # pop_size, min_len, max_len
     target=0.05,  # Terminate if MSE < 0.05
@@ -144,6 +144,7 @@ best.print_program()
 ```c
 #include "src/evolution.h"
 #include "src/psb2.h"
+#include "src/fitness/regression.h"
 
 int main() {
     random_init_all(42);
@@ -184,10 +185,61 @@ int main() {
 }
 ```
 
+## 🎯 Fitness Functions (Modular Organization)
+
+The framework provides **40+ fitness functions** organized in specialized modules:
+
+### Regression
+```python
+# Basic metrics
+lgp.fitness.MSE()           # Mean Squared Error
+lgp.fitness.RMSE()          # Root Mean Squared Error  
+lgp.fitness.MAE()           # Mean Absolute Error
+lgp.fitness.RSquared()      # Coefficient of Determination
+
+# Advanced metrics
+lgp.fitness.MAPE()          # Mean Absolute Percentage Error
+lgp.fitness.HuberLoss()     # Robust regression loss
+lgp.fitness.PinballLoss()   # Quantile regression
+```
+
+### Classification
+```python
+lgp.fitness.Accuracy()          # Classification accuracy
+lgp.fitness.F1Score()           # F1 score
+lgp.fitness.BalancedAccuracy()  # Balanced accuracy
+lgp.fitness.ThresholdAccuracy() # Accuracy with custom threshold
+```
+
+### Clustering (NEW)
+```python
+# Clustering quality metrics
+lgp.fitness.SilhouetteScore()        # Silhouette analysis
+lgp.fitness.CalinskiHarabaszIndex()  # Variance ratio criterion
+lgp.fitness.DaviesBouldinIndex()     # Cluster separation measure
+lgp.fitness.DunnIndex()              # Compactness/separation ratio
+
+# Clustering partition metrics  
+lgp.fitness.AdjustedRandIndex()      # Adjusted Rand Index
+lgp.fitness.Inertia()                # Within-cluster sum of squares
+
+# Fuzzy clustering metrics
+lgp.fitness.FuzzyPartitionCoefficient()  # Partition coefficient
+lgp.fitness.FuzzyPartitionEntropy()      # Partition entropy
+```
+
+### Advanced Metrics
+```python
+lgp.fitness.ConditionalValueAtRisk()  # Risk management
+lgp.fitness.BinaryCrossEntropy()     # Probabilistic loss
+lgp.fitness.GaussianLogLikelihood()  # Maximum likelihood
+```
+
 ## 🚀 Use Cases
 
 - **Symbolic Regression**: Discover mathematical formulas from data
-- **Classification**: Evolve decision rules and logic circuits  
+- **Classification**: Evolve decision rules and logic circuits
+- **Clustering**: Unsupervised pattern discovery and data partitioning  
 - **Time Series**: Model temporal patterns and forecasting
 - **Feature Engineering**: Automatic feature construction
 - **Control Systems**: Evolve controllers and decision logic

@@ -42,6 +42,8 @@ struct InstructionSet{
 	const struct Operation *op;
 };
 
+extern const struct InstructionSet COMPLETE_INSTRSET;
+
 struct LGPInput{
 	const uint64_t input_num;
 	const uint64_t rom_size; // size of the problem data in each input

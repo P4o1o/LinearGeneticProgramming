@@ -3,6 +3,8 @@
 
 #include "../genetics.h"
 
+typedef double *(*point_distances)(const struct LGPInput *const in);
+
 union FitnessFactor{
 	const double threshold; // used in threshold_accuracy
 	const double alpha; // used in length_penalized_mse and clock_penalized_mse and conditional_value_at_risk
@@ -12,9 +14,9 @@ union FitnessFactor{
 	const double tolerance; // used in binary_cross_entropy
 	const double sigma; // used in gaussian_log_likelyhood
 	const double *perturbation_vector; // used in adversarial_perturbation_sensivity
-	union {
+	struct {
 		const uint64_t num_clusters;    // for clustering metrics that need k
-		const double fuzziness;         // for fuzzy clustering metrics
+		double *distance_table; // distances table between input points
 	} clustering;
 };
 
@@ -79,42 +81,16 @@ union FitnessStepResult{
 		uint64_t true_neg;
 	} confusion;
 	union {
-		// For silhouette, calinski-harabasz, davies-bouldin, inertia
-		struct {
-			double *centroids;     // k * dim matrix of cluster centers  
-			double *distances;     // temporary distance storage
-			uint64_t *assignments; // cluster assignments per point
-			uint64_t k;           // number of clusters
-			uint64_t dim;         // feature dimensions
-		} general;
-		// For dunn index (min/max distance tracking)
-		struct {
-			double min_inter_cluster;
-			double max_intra_cluster;
-			uint64_t *assignments;
-			uint64_t k;
-		} dunn;
-		// For adjusted rand index
-		struct {
-			uint64_t *confusion_matrix;  // k x k confusion matrix
-			uint64_t *cluster_counts;    // size k
-			uint64_t *true_counts;       // size k  
-			uint64_t k;
-		} rand_index;
-		// For fuzzy clustering
-		struct {
-			double *memberships;  // n x k membership matrix
-			uint64_t n;          // number of points
-			uint64_t k;          // number of clusters
-		} fuzzy;
+		uint64_t *assignments;
+		uint64_t single_assignment;
 	} clustering;
 };
 
 
 typedef union FitnessStepResult (*fitness_step)(const union Memblock *const result, const union Memblock *const actual, const uint64_t len, const struct FitnessParams *const params);
 typedef union FitnessStepResult (*fitness_init_acc)(const uint64_t inputnum, const uint64_t ressize, const struct FitnessParams *const params);
-typedef int (*fitness_combine)(union FitnessStepResult *accumulator, const union FitnessStepResult *const step_result, const struct FitnessParams *const params, const uint64_t clocks);
-typedef double (*fitness_finalize)(const union FitnessStepResult * const result, const struct FitnessParams *const params, const uint64_t inputnum, const uint64_t ressize, const uint64_t prog_size);
+typedef int (*fitness_combine)(union FitnessStepResult *accumulator, const union FitnessStepResult *const step_result, const uint64_t clocks, const uint64_t input_num, const struct FitnessParams *const params);
+typedef double (*fitness_finalize)(const union FitnessStepResult * const result, const struct LGPInput *const in, const uint64_t ressize, const uint64_t prog_size, const uint64_t input_num, const struct FitnessParams *const params);
 
 
 struct Fitness{
@@ -166,12 +142,14 @@ inline double eval_fitness(
         union Memblock *result = &vm.ram[params->start];
         union Memblock *actual = &in->memory[(in->rom_size + in->res_size)* i + in->rom_size + params->start];
         union FitnessStepResult step_res = step(result, actual, result_size, params);
-        if(! combine(&accumulator, &step_res, params, clocks)){
+        if(! combine(&accumulator, &step_res, clocks, i, params)){
             break;
         }
     }
     free(vm.ram);
-    return finalize(&accumulator, params, result_size, in->input_num, prog->size);
+    return finalize(&accumulator, in, result_size, prog->size, in->input_num, params);
 }
+
+void free_distance_table(struct FitnessParams *const params);
 
 #endif

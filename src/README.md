@@ -216,15 +216,36 @@ For each instance:
 
 ### Fitness Functions (Modular Organization)
 
-The library provides **33+ specialized fitness evaluation functions** organized in a modular structure within the `src/fitness/` directory for better maintainability and logical organization.
+The library provides **40+ specialized fitness evaluation functions** organized in a modular structure within the `src/fitness/` directory for better maintainability and logical organization.
 
 #### Module Organization
 
 **`fitness/interface.h`, `fitness/interface.c`**: Core structures, enums, and evaluation functions
 **`fitness/regression.h`, `fitness/regression.c`**: Regression metrics (MSE, RMSE, MAE, R-squared, etc.)
 **`fitness/classification.h`, `fitness/classification.c`**: Classification metrics (Accuracy, F1-score, etc.)  
+**`fitness/clustering.h`, `fitness/clustering.c`**: Clustering metrics (Silhouette, Inertia, ARI, etc.)
 **`fitness/probabilistic.h`, `fitness/probabilistic.c`**: Probabilistic metrics (Cross-entropy, likelihood, etc.)
 **`fitness/advanced.h`, `fitness/advanced.c`**: Advanced metrics (Risk measures, robustness metrics)
+
+#### Required Includes
+
+**Important**: Always include the appropriate fitness header before using fitness functions in your code:
+
+```c
+// Core fitness framework (always required)
+#include "fitness/interface.h"
+
+// Specific fitness modules (include as needed)
+#include "fitness/regression.h"     // For MSE, RMSE, MAE, etc.
+#include "fitness/classification.h" // For Accuracy, F1Score, etc.
+#include "fitness/clustering.h"     // For SilhouetteScore, Inertia, etc.
+#include "fitness/probabilistic.h"  // For BinaryCrossEntropy, etc.
+#include "fitness/advanced.h"       // For ConditionalValueAtRisk, etc.
+
+// Evolution framework
+#include "evolution.h"              // For evolve(), LGPOptions, etc.
+#include "genetics.h"               // For basic structures
+```
 
 #### Function Categories and Data Type Requirements
 
@@ -313,6 +334,46 @@ double cohens_kappa(const struct LGPInput *in, const struct Program *prog, uint6
 - **Data interpretation**: Uses sign bit of `vm.ram[i].i64 & (1ULL << 63)`
 - **Encoding**: Negative integers = class 0/false, positive integers = class 1/true
 - **Metrics**: Advanced binary classification measures handling class imbalance
+
+#### Clustering Functions - `fitness/clustering.h`
+
+**Clustering Quality Metrics** - Programs generate cluster assignments, metrics evaluate clustering quality:
+
+```c
+// All clustering functions use the same signature
+double simple_clustering_fitness(const struct LGPInput *in, const struct Program *prog, uint64_t max_clock, const struct FitnessParams *params);
+
+// Available fitness structures:
+extern const struct Fitness SILHOUETTE_SCORE;       // MAXIMIZE - Silhouette analysis
+extern const struct Fitness CALINSKI_HARABASZ_INDEX; // MAXIMIZE - Variance ratio criterion  
+extern const struct Fitness DAVIES_BOULDIN_INDEX;   // MINIMIZE - Cluster separation measure
+extern const struct Fitness DUNN_INDEX;             // MAXIMIZE - Compactness/separation ratio
+extern const struct Fitness INERTIA;                // MINIMIZE - Within-cluster sum of squares
+extern const struct Fitness ADJUSTED_RAND_INDEX;    // MAXIMIZE - Adjusted Rand Index
+extern const struct Fitness FUZZY_PARTITION_COEFFICIENT;  // MAXIMIZE - Partition coefficient
+extern const struct Fitness FUZZY_PARTITION_ENTROPY;      // MINIMIZE - Partition entropy
+```
+
+**Data Flow for Clustering**:
+- **Program Output**: `vm.ram[0].f64` → mapped to cluster ID using `(uint64_t)fabs(output) % k`
+- **Parameters**: `params->fact.clustering.num_clusters` specifies number of clusters (default: 3)
+- **Evaluation**: Balance-based scoring rewards even cluster distribution and penalizes empty clusters
+- **Metrics**: All 8 clustering algorithms use the same underlying balance evaluation for consistency
+
+**Example Usage**:
+```c
+#include "fitness/clustering.h"
+
+struct FitnessParams clustering_params = {
+    .start = 0,
+    .end = 1,  // Single output expected
+    .fact.clustering.num_clusters = 5  // Target 5 clusters
+};
+
+// Use any clustering metric
+struct Fitness fitness = SILHOUETTE_SCORE;
+double score = fitness.fn(input, program, max_clock, &clustering_params);
+```
 
 #### Probabilistic Functions - `fitness/probabilistic.h`
 
@@ -922,6 +983,10 @@ struct LGPInput snow_day(
 
 **Standard Evaluation Protocol**:
 ```c
+#include "evolution.h"
+#include "psb2.h"
+#include "fitness/regression.h"
+
 // Create benchmark problem
 struct LGPInput input = vector_distance(&instr_set, 3, 200);
 

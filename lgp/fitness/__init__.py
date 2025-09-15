@@ -76,14 +76,13 @@ from .advanced import (
 
 # Clustering metrics
 from .clustering import (
-    SilhouetteScore,
-    Inertia,
-    AdjustedRandIndex,
-    CalinskiHarabaszIndex,
-    DaviesBouldinIndex,
-    DunnIndex,
-    FuzzyPartitionCoefficient,
-    FuzzyPartitionEntropy
+    SilhouetteScore
+)
+
+# Distance functions
+from .distances import (
+    DistanceFunction, EuclideanDistance, ManhattanDistance, 
+    ChebyshevDistance, CosineDistance
 )
 
 __all__ = [
@@ -107,6 +106,9 @@ __all__ = [
     'AdversarialPerturbationSensitivity', 'ConditionalValueAtRisk',
     
     # Clustering metrics
-    'SilhouetteScore', 'Inertia', 'AdjustedRandIndex', 'CalinskiHarabaszIndex',
-    'DaviesBouldinIndex', 'DunnIndex', 'FuzzyPartitionCoefficient', 'FuzzyPartitionEntropy'
+    'SilhouetteScore',
+    
+    # Distance functions
+    'DistanceFunction', 'EuclideanDistance', 'ManhattanDistance', 
+    'ChebyshevDistance', 'CosineDistance'
 ]

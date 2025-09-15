@@ -6,16 +6,18 @@ Corresponds to src/fitness/interface.h/c in the C implementation.
 """
 
 from typing import override
+
+from lgp.fitness.distances import DistanceFunction
 from ..vm import Program
 from ..base import Structure, Union, c_uint64, POINTER, c_uint, c_double, c_char_p, c_void_p, IntEnum, ctypes, liblgp
 from ..genetics import LGPInput, Individual
 
 
-class ClusteringFactor(Union):
-    """Union for clustering-specific parameters."""
+class ClusteringFactor(Structure):
+    """Structure for clustering-specific parameters."""
     _fields_ = [
         ("num_clusters", c_uint64),
-        ("fuzziness", c_double)
+        ("distance_table", POINTER(c_double))  # pointer to distance table
     ]
 
 
@@ -127,25 +129,14 @@ class FitnessParams(Structure):
         return res
     
     @staticmethod
-    def new_clustering(num_clusters: int, start: int = 0, end: int = 0) -> "FitnessParams":
+    def new_clustering(num_clusters: int, distances_fn: DistanceFunction, points: LGPInput) -> "FitnessParams":
         """Create FitnessParams for clustering functions."""
         if num_clusters < 1:
             raise ValueError("num_clusters must be positive")
-        res = FitnessParams(start, end)
+        res = FitnessParams(0, 0)
         res.fact.clustering.num_clusters = c_uint64(num_clusters)
+        res.fact.clustering.distance_table = distances_fn.c_function(ctypes.byref(points))
         return res
-    
-    @staticmethod
-    def new_fuzzy_clustering(num_clusters: int, fuzziness: float = 2.0, start: int = 0, end: int = 0) -> "FitnessParams":
-        """Create FitnessParams for fuzzy clustering functions."""
-        if num_clusters < 1:
-            raise ValueError("num_clusters must be positive")
-        if fuzziness <= 1.0:
-            raise ValueError("fuzziness must be > 1.0")
-        res = FitnessParams(start, end)
-        res.fact.clustering.fuzziness = c_double(fuzziness)
-        return res
-
 
 class FitnessType(IntEnum):
     """Enum for fitness optimization direction."""

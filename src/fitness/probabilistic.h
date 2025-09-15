@@ -19,11 +19,12 @@ union FitnessStepResult hinge_loss_step(const union Memblock *const result, cons
 union FitnessStepResult init_acc_f64(const uint64_t inputnum, const uint64_t ressize, const struct FitnessParams *const params);
 
 // PROBABILISTIC COMBINE FUNCTION PROTOTYPES (from regression)
-int sum_float(union FitnessStepResult *accumulator, const union FitnessStepResult *const step_result, const struct FitnessParams *const params, const uint64_t clocks);
+// PROBABILISTIC COMBINE FUNCTION PROTOTYPES (from regression)
+int sum_float(union FitnessStepResult *accumulator, const union FitnessStepResult *const step_result, const uint64_t clocks, const uint64_t input_num, const struct FitnessParams *const params);
 
 // PROBABILISTIC FINALIZE FUNCTION PROTOTYPES
-double negative_mean_input_and_dim(const union FitnessStepResult *const result, const struct FitnessParams *const params, const uint64_t inputnum, const uint64_t ressize, const uint64_t prog_size);
-double mean_input_and_dim(const union FitnessStepResult *const result, const struct FitnessParams *const params, const uint64_t inputnum, const uint64_t ressize, const uint64_t prog_size);
+double negative_mean_input_and_dim(const union FitnessStepResult *const result, const struct LGPInput *const in, const uint64_t ressize, const uint64_t prog_size, const uint64_t input_num, const struct FitnessParams *const params);
+double mean_input_and_dim(const union FitnessStepResult *const result, const struct LGPInput *const in, const uint64_t ressize, const uint64_t prog_size, const uint64_t input_num, const struct FitnessParams *const params);
 
 // PROBABILISTIC FITNESS STRUCT EXPORTS
 extern const struct Fitness BINARY_CROSS_ENTROPY;

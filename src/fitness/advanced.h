@@ -11,7 +11,7 @@ double conditional_value_at_risk(const struct LGPInput *const in, const struct P
 union FitnessStepResult vect_f64_init_acc(const uint64_t inputnum, const uint64_t ressize, const struct FitnessParams *const params);
 
 // ADVANCED FINALIZE FUNCTION PROTOTYPES
-double value_at_risk_finalize(const union FitnessStepResult *const result, const struct FitnessParams *const params, const uint64_t inputnum, const uint64_t ressize, const uint64_t prog_size);
+double value_at_risk_finalize(const union FitnessStepResult *const result, const struct LGPInput *const in, const uint64_t ressize, const uint64_t prog_size, const uint64_t input_num, const struct FitnessParams *const params);
 
 // ADVANCED FITNESS STRUCT EXPORTS
 extern const struct Fitness ADVERSARIAL_PERTURBATION_SENSITIVITY;

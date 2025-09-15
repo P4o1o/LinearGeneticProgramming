@@ -42,17 +42,17 @@ int main(UNUSED_ATTRIBUTE int argc, UNUSED_ATTRIBUTE char *argv[]){
 		.crossover_prob = 0.95,
 		.max_clock = 5000,
 		.max_individ_len = 50,
-		.generations = 10,
+		.generations = 100,
 		.verbose = 1
 	};
+	/*
 	struct Operation opset[18] = {
 		OP_ADD_F, OP_SUB_F, OP_MUL_F, OP_DIV_F, OP_POW, OP_LOAD_ROM_F, OP_STORE_RAM_F, OP_MOV_F,
 		OP_JMP, OP_JMP_Z, OP_JMP_NZ, OP_JMP_G, OP_JMP_L, OP_CMP, OP_TEST, OP_CLC,
 		OP_JMP_NEXIST, OP_JMP_EXIST
 	};
-	struct InstructionSet instr_set = (struct InstructionSet) {
-		.size = 18, .op = opset,
-	};
+	*/
+	struct InstructionSet instr_set = COMPLETE_INSTRSET;
 	struct LGPInput in = vector_distance(&instr_set, 2, 100);
 	double start = get_time_sec();
 	const struct LGPResult res = evolve(&in, &par);

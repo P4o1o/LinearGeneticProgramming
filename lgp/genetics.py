@@ -70,7 +70,7 @@ class InstructionSet(Structure):
     
     @staticmethod
     def complete():
-        return InstructionSet.in_dll(liblgp, "INSTRSET")
+        return InstructionSet.in_dll(liblgp, "COMPLETE_INSTRSET")
 
 
 class LGPInput(Structure):

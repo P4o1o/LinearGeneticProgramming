@@ -55,7 +55,7 @@ lgp_input = lgp.LGPInput.from_numpy(X, y, instruction_set, ram_size=5)
 # Configure and execute evolution
 population, evaluations, generations, best_idx = lgp.evolve(
     lgp_input,
-    fitness=lgp.fitness.regression.MSE(),              # Mean Squared Error
+    fitness=lgp.MSE(),                             # Simplified fitness access
     selection=lgp.Tournament(tournament_size=4),       # Tournament selection
     initialization=lgp.UniquePopulation(            # Ensure diversity
         pop_size=150, minsize=5, maxsize=25
@@ -193,41 +193,52 @@ instruction_set = lgp.InstructionSet(math_ops)
 - **Utility**: CAST (type conversion), NOP, RAND, ROUND
 
 ### Fitness Functions
-Comprehensive collection of 30+ fitness functions organized in a modular structure for regression, classification, probabilistic modeling, and advanced metrics.
+Comprehensive collection of 40+ fitness functions organized in a modular structure for regression, classification, clustering, probabilistic modeling, and advanced metrics.
 
 #### Modular Organization
 The fitness functions are organized into logical modules for better code organization and easier navigation:
 
 ```python
 # Regression metrics - continuous value prediction
-lgp.fitness.regression.MSE()           # Mean Squared Error
-lgp.fitness.regression.RMSE()          # Root Mean Squared Error  
-lgp.fitness.regression.MAE()           # Mean Absolute Error
-lgp.fitness.regression.RSquared()      # Coefficient of determination
+lgp.fitness.MSE()           # Mean Squared Error
+lgp.fitness.RMSE()          # Root Mean Squared Error  
+lgp.fitness.MAE()           # Mean Absolute Error
+lgp.fitness.RSquared()      # Coefficient of determination
 
 # Classification metrics - discrete class prediction
-lgp.fitness.classification.Accuracy()          # Classification accuracy
-lgp.fitness.classification.F1Score()           # F1-score (harmonic mean)
-lgp.fitness.classification.BalancedAccuracy()  # Balanced accuracy
+lgp.fitness.Accuracy()          # Classification accuracy
+lgp.fitness.F1Score()           # F1-score (harmonic mean)
+lgp.fitness.BalancedAccuracy()  # Balanced accuracy
+
+# Clustering metrics - unsupervised pattern discovery (NEW)
+lgp.fitness.SilhouetteScore()        # Silhouette analysis
+lgp.fitness.CalinskiHarabaszIndex()  # Variance ratio criterion
+lgp.fitness.DaviesBouldinIndex()     # Cluster separation measure
+lgp.fitness.DunnIndex()              # Compactness/separation ratio
+lgp.fitness.AdjustedRandIndex()      # Adjusted Rand Index
+lgp.fitness.Inertia()                # Within-cluster sum of squares
+lgp.fitness.FuzzyPartitionCoefficient()  # Fuzzy partition coefficient
+lgp.fitness.FuzzyPartitionEntropy()      # Fuzzy partition entropy
 
 # Probabilistic metrics - uncertainty and probability modeling
-lgp.fitness.probabilistic.BinaryCrossEntropy()     # Log-loss for binary classification
-lgp.fitness.probabilistic.GaussianLogLikelihood()  # Maximum likelihood estimation
-lgp.fitness.probabilistic.BrierScore()             # Probability calibration
+lgp.fitness.BinaryCrossEntropy()     # Log-loss for binary classification
+lgp.fitness.GaussianLogLikelihood()  # Maximum likelihood estimation
+lgp.fitness.BrierScore()             # Probability calibration
 
 # Advanced metrics - specialized applications
-lgp.fitness.advanced.ConditionalValueAtRisk()              # Risk management
-lgp.fitness.advanced.AdversarialPerturbationSensitivity()  # Robustness testing
+lgp.fitness.ConditionalValueAtRisk()              # Risk management
+lgp.fitness.AdversarialPerturbationSensitivity()  # Robustness testing
 ```
 
 #### Legacy Import Support
-For backward compatibility, all fitness functions are also available at the package level:
+All fitness functions are available at the package level with simplified organization:
 
 ```python
-# These are equivalent to the modular imports above
+# Direct access - no submodules needed
 import lgp
-mse = lgp.MSE()                    # Same as lgp.fitness.regression.MSE()
-accuracy = lgp.Accuracy()          # Same as lgp.fitness.classification.Accuracy()
+mse = lgp.MSE()                    # Mean Squared Error
+accuracy = lgp.Accuracy()          # Classification accuracy  
+silhouette = lgp.SilhouetteScore() # Clustering quality
 ```
 
 #### Data Type Classifications
@@ -251,6 +262,53 @@ Each fitness function expects specific data types and interprets program outputs
 - Program outputs must be probabilities between 0.0 and 1.0
 - Target values typically binary (0.0, 1.0) or probability distributions
 - Used for: probabilistic classification, uncertainty quantification
+
+**[CLUSTERING] Functions**: **Cluster assignment and quality evaluation**
+- Program outputs mapped to cluster IDs: `cluster_id = (uint64_t)fabs(output) % num_clusters`
+- Quality evaluated via cluster balance and distribution metrics
+- Used for: unsupervised pattern discovery, data partitioning, segmentation
+
+#### Clustering Functions (MIXED) [CLUSTERING]
+```python
+# Clustering quality metrics - programs generate cluster assignments
+# All metrics evaluate cluster balance and distribution quality
+fitness = lgp.SilhouetteScore(num_clusters=3)         # Silhouette analysis (MAXIMIZE)
+fitness = lgp.CalinskiHarabaszIndex(num_clusters=4)   # Variance ratio criterion (MAXIMIZE)  
+fitness = lgp.DaviesBouldinIndex(num_clusters=5)      # Cluster separation measure (MINIMIZE)
+fitness = lgp.DunnIndex(num_clusters=3)               # Compactness/separation ratio (MAXIMIZE)
+fitness = lgp.Inertia(num_clusters=4)                 # Within-cluster sum of squares (MINIMIZE)
+fitness = lgp.AdjustedRandIndex(num_clusters=3)       # Adjusted Rand Index (MAXIMIZE)
+
+# Fuzzy clustering metrics  
+fitness = lgp.FuzzyPartitionCoefficient(num_clusters=4)   # Partition coefficient (MAXIMIZE)
+fitness = lgp.FuzzyPartitionEntropy(num_clusters=3)       # Partition entropy (MINIMIZE)
+```
+
+**Clustering Usage Example**:
+```python
+# Evolve programs that discover clusters in data
+import lgp
+import numpy as np
+
+# Generate sample data with natural clusters
+X = np.vstack([
+    np.random.normal([2, 2], 0.5, (50, 2)),    # Cluster 1
+    np.random.normal([6, 6], 0.5, (50, 2)),    # Cluster 2  
+    np.random.normal([2, 6], 0.5, (50, 2))     # Cluster 3
+])
+
+instruction_set = lgp.InstructionSet([lgp.Operation.ADD_F, lgp.Operation.MUL_F, 
+                                     lgp.Operation.LOAD_ROM_F, lgp.Operation.STORE_RAM_F])
+lgp_input = lgp.LGPInput.from_numpy(X, np.zeros(len(X)), instruction_set, ram_size=3)
+
+# Evolve clustering programs
+population, _, _, best_idx = lgp.evolve(
+    lgp_input,
+    fitness=lgp.SilhouetteScore(num_clusters=3),  # Target 3 clusters
+    generations=50,
+    population_size=100
+)
+```
 
 #### Regression Functions (MINIMIZE) [FLOAT]
 ```python

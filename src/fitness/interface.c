@@ -34,7 +34,7 @@ double *eval_multifitness(const struct LGPInput *const in, const struct Program 
                 result_size,
                 &fitness->params[j]
             );
-            if(! fitness->functions[j].combine(&accumulator[j], &step_res, &fitness->params[j], clocks)){
+            if(! fitness->functions[j].combine(&accumulator[j], &step_res, clocks, i, &fitness->params[j])){
                 break;
             }
         }
@@ -45,8 +45,12 @@ double *eval_multifitness(const struct LGPInput *const in, const struct Program 
         MALLOC_FAIL_THREADSAFE(sizeof(double) * fitness->size);
     }
     for (uint64_t j = 0; j < fitness->size; j++) {
-        results[j] = fitness->functions[j].finalize(&accumulator[j], &fitness->params[j], result_size, in->input_num, prog->size);
+        results[j] = fitness->functions[j].finalize(&accumulator[j], in, result_size, prog->size, in->input_num, &fitness->params[j]);
     }
     free(accumulator);
     return results;
+}
+
+void free_distance_table(struct FitnessParams *const params) {
+    free(params->fact.clustering.distance_table);
 }

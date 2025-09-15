@@ -135,7 +135,7 @@ inline union FitnessStepResult pinball_error(const union Memblock *const result,
 
 // REGRESSION COMBINE FUNCTION IMPLEMENTATIONS
 
-inline int sum_float(union FitnessStepResult *accumulator, const union FitnessStepResult *const step_result, UNUSED_ATTRIBUTE const struct FitnessParams *const params, UNUSED_ATTRIBUTE const uint64_t clocks){
+inline int sum_float(union FitnessStepResult *accumulator, const union FitnessStepResult *const step_result, UNUSED_ATTRIBUTE const uint64_t clocks, UNUSED_ATTRIBUTE const uint64_t input_num, UNUSED_ATTRIBUTE const struct FitnessParams *const params){
     if(!isfinite(step_result->total_f64)) {
         accumulator->total_f64 = INFINITY;
         return 0;
@@ -144,7 +144,7 @@ inline int sum_float(union FitnessStepResult *accumulator, const union FitnessSt
     return 1;
 }
 
-inline int sum_float_clock_pen(union FitnessStepResult *accumulator, const union FitnessStepResult *const step_result, const struct FitnessParams *const params, const uint64_t clocks){
+inline int sum_float_clock_pen(union FitnessStepResult *accumulator, const union FitnessStepResult *const step_result, const uint64_t clocks, UNUSED_ATTRIBUTE const uint64_t input_num, const struct FitnessParams *const params){
     if(!isfinite(step_result->total_f64)) {
         accumulator->total_f64 = INFINITY;
         return 0;
@@ -153,7 +153,7 @@ inline int sum_float_clock_pen(union FitnessStepResult *accumulator, const union
     return 1;
 }
 
-inline int max_float(union FitnessStepResult *accumulator, const union FitnessStepResult *const step_result, UNUSED_ATTRIBUTE const struct FitnessParams *const params, UNUSED_ATTRIBUTE const uint64_t clocks){
+inline int max_float(union FitnessStepResult *accumulator, const union FitnessStepResult *const step_result, UNUSED_ATTRIBUTE const uint64_t clocks, UNUSED_ATTRIBUTE const uint64_t input_num, UNUSED_ATTRIBUTE const struct FitnessParams *const params){
     if(!isfinite(step_result->total_f64)) {
         accumulator->total_f64 = INFINITY;
         return 0;
@@ -163,7 +163,7 @@ inline int max_float(union FitnessStepResult *accumulator, const union FitnessSt
     return 1;
 }
 
-int r_squared_combine(union FitnessStepResult *accumulator, const union FitnessStepResult *const step_result, UNUSED_ATTRIBUTE const struct FitnessParams *const params, UNUSED_ATTRIBUTE const uint64_t clocks){
+int r_squared_combine(union FitnessStepResult *accumulator, const union FitnessStepResult *const step_result, UNUSED_ATTRIBUTE const uint64_t clocks, UNUSED_ATTRIBUTE const uint64_t input_num, UNUSED_ATTRIBUTE const struct FitnessParams *const params){
     for(uint64_t i = 0; i < step_result->info.len; i++){
         if(!isfinite(step_result->info.result[i].f64)) {
             free(accumulator->r_2.means);
@@ -178,7 +178,7 @@ int r_squared_combine(union FitnessStepResult *accumulator, const union FitnessS
     return 1;
 }
 
-inline int pearson_combine(union FitnessStepResult *accumulator, const union FitnessStepResult *const step_result, UNUSED_ATTRIBUTE const struct FitnessParams *const params, UNUSED_ATTRIBUTE const uint64_t clocks){
+inline int pearson_combine(union FitnessStepResult *accumulator, const union FitnessStepResult *const step_result, UNUSED_ATTRIBUTE const uint64_t clocks, UNUSED_ATTRIBUTE const uint64_t input_num, UNUSED_ATTRIBUTE const struct FitnessParams *const params){
     for(uint64_t j = 0; j < step_result->info.len; j++){
         double result = step_result->info.result[j].f64;
         if (!(isfinite(result))){
@@ -201,27 +201,32 @@ inline int pearson_combine(union FitnessStepResult *accumulator, const union Fit
 
 // REGRESSION FINALIZE FUNCTION IMPLEMENTATIONS
 
-inline double mean_input_and_dim(const union FitnessStepResult *const result, UNUSED_ATTRIBUTE const struct FitnessParams *const params, const uint64_t inputnum, const uint64_t ressize, UNUSED_ATTRIBUTE const uint64_t prog_size){
+inline double mean_input_and_dim(const union FitnessStepResult *const result, const struct LGPInput *const in, const uint64_t ressize, UNUSED_ATTRIBUTE const uint64_t prog_size, UNUSED_ATTRIBUTE const uint64_t input_num, UNUSED_ATTRIBUTE const struct FitnessParams *const params){
+    uint64_t inputnum = in->input_num;
     return isfinite(result->total_f64) ? result->total_f64 / (double)(inputnum * ressize) : DBL_MAX;
 }
 
-inline double sqrt_mean_input_and_dim(const union FitnessStepResult *const result, UNUSED_ATTRIBUTE const struct FitnessParams *const params, const uint64_t inputnum, const uint64_t ressize, UNUSED_ATTRIBUTE const uint64_t prog_size){
+inline double sqrt_mean_input_and_dim(const union FitnessStepResult *const result, const struct LGPInput *const in, const uint64_t ressize, UNUSED_ATTRIBUTE const uint64_t prog_size, UNUSED_ATTRIBUTE const uint64_t input_num, UNUSED_ATTRIBUTE const struct FitnessParams *const params){
+    uint64_t inputnum = in->input_num;
     return isfinite(result->total_f64) ? sqrt(result->total_f64 / (double)(inputnum * ressize)) : DBL_MAX;
 }
 
-inline double percent_mean_input_and_dim(const union FitnessStepResult *const result, UNUSED_ATTRIBUTE const struct FitnessParams *const params, const uint64_t inputnum, const uint64_t ressize, UNUSED_ATTRIBUTE const uint64_t prog_size){
+inline double percent_mean_input_and_dim(const union FitnessStepResult *const result, const struct LGPInput *const in, const uint64_t ressize, UNUSED_ATTRIBUTE const uint64_t prog_size, UNUSED_ATTRIBUTE const uint64_t input_num, UNUSED_ATTRIBUTE const struct FitnessParams *const params){
+    uint64_t inputnum = in->input_num;
     return isfinite(result->total_f64) ? result->total_f64 * 100.0 / (double)(inputnum * ressize) : DBL_MAX;
 }
 
-inline double mean_input_and_dim_length_pen(const union FitnessStepResult *const result, const struct FitnessParams *const params, const uint64_t inputnum, const uint64_t ressize, const uint64_t prog_size){
+inline double mean_input_and_dim_length_pen(const union FitnessStepResult *const result, const struct LGPInput *const in, const uint64_t ressize, const uint64_t prog_size, UNUSED_ATTRIBUTE const uint64_t input_num, const struct FitnessParams *const params){
+    uint64_t inputnum = in->input_num;
     return isfinite(result->total_f64) ? (result->total_f64 / (double)(inputnum * ressize)) + params->fact.alpha * (double)prog_size : DBL_MAX;
 }
 
-inline double max_over_ressize(const union FitnessStepResult *const result, UNUSED_ATTRIBUTE const struct FitnessParams *const params, UNUSED_ATTRIBUTE const uint64_t inputnum, const uint64_t ressize, UNUSED_ATTRIBUTE const uint64_t prog_size){
+inline double max_over_ressize(const union FitnessStepResult *const result, UNUSED_ATTRIBUTE const struct LGPInput *const in, const uint64_t ressize, UNUSED_ATTRIBUTE const uint64_t prog_size, UNUSED_ATTRIBUTE const uint64_t input_num, UNUSED_ATTRIBUTE const struct FitnessParams *const params){
     return isfinite(result->total_f64) ? result->total_f64 / (double)ressize : DBL_MAX;
 }
 
-double r_squared_finalize(const union FitnessStepResult *const result, UNUSED_ATTRIBUTE const struct FitnessParams *const params, const uint64_t inputnum, const uint64_t ressize, UNUSED_ATTRIBUTE const uint64_t prog_size){
+double r_squared_finalize(const union FitnessStepResult *const result, const struct LGPInput *const in, const uint64_t ressize, UNUSED_ATTRIBUTE const uint64_t prog_size, UNUSED_ATTRIBUTE const uint64_t input_num, UNUSED_ATTRIBUTE const struct FitnessParams *const params){
+    uint64_t inputnum = in->input_num;
     if(! isfinite(result->r_2.ss_res)){
         free(result->r_2.means);
         return -DBL_MAX;
@@ -241,7 +246,8 @@ double r_squared_finalize(const union FitnessStepResult *const result, UNUSED_AT
         return 1.0 - (result->r_2.ss_res / ss_tot);
 }
 
-inline double pearson_finalize(const union FitnessStepResult * const result, UNUSED_ATTRIBUTE const struct FitnessParams *const params, const uint64_t inputnum, const uint64_t ressize, UNUSED_ATTRIBUTE const uint64_t prog_size){
+inline double pearson_finalize(const union FitnessStepResult * const result, const struct LGPInput *const in, const uint64_t ressize, UNUSED_ATTRIBUTE const uint64_t prog_size, UNUSED_ATTRIBUTE const uint64_t input_num, UNUSED_ATTRIBUTE const struct FitnessParams *const params){
+    uint64_t inputnum = in->input_num;
     uint64_t valid = 0;
     double total = 0.0;
     for(uint64_t j = 0; j < ressize; j++){
