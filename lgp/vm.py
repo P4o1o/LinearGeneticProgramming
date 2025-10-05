@@ -19,11 +19,21 @@ class FlagReg(Structure):
         ("odd", c_uint8, 1),
         ("negative", c_uint8, 1),
         ("zero", c_uint8, 1),
-        ("exist", c_uint8, 1)
+        ("exist", c_uint8, 1),
+        ("int_overflow", c_uint8, 1),
+        ("zero_div", c_uint8, 1)
+    ]
+
+class Vector(Structure):
+    _fields_ = [
+        ("content", POINTER(Memblock)),
+        ("next", c_uint64),
+        ("capacity", c_uint64)
     ]
 
 class Core(Structure):
     _fields_ = [
+        ("vreg", Vector * 8),
         ("reg", c_uint64 * 4),
         ("freg", c_double * 4),
         ("flag", FlagReg),
@@ -153,6 +163,10 @@ class Operation(Enum):
     DIV_S = OperationStruct.in_dll(liblgp, "OP_DIV_S")
     ABS = OperationStruct.in_dll(liblgp, "OP_ABS")
     ABS_F = OperationStruct.in_dll(liblgp, "OP_ABS_F")
+    NEWVEC_I = OperationStruct.in_dll(liblgp, "OP_NEWVEC_I")
+    LOAD_VEC_RAM = OperationStruct.in_dll(liblgp, "OP_LOAD_VEC_RAM")
+    LOAD_VEC_ROM = OperationStruct.in_dll(liblgp, "OP_LOAD_VEC_ROM")
+    STORE_VEC_RAM = OperationStruct.in_dll(liblgp, "OP_STORE_VEC_RAM")
     
     @property
     def name(self) -> str:
@@ -166,5 +180,5 @@ class Operation(Enum):
     def c_wrapper(self) -> OperationStruct:
         return self.value
 
-__all__ = ['Memblock', 'Instruction', 'FlagReg', 'Core', 
+__all__ = ['Memblock', 'Instruction', 'FlagReg', 'Vector', 'Core', 
            'VirtualMachine', 'Program', 'OperationStruct', 'Operation']

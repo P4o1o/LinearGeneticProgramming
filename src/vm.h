@@ -5,10 +5,11 @@
 #include <string.h>
 #include <math.h>
 #include <stddef.h>
+#include "logger.h"
 #include "macros.h"
 #include "prob.h"
 
-#define INSTR_NUM 97
+#define INSTR_NUM 101
 
 extern const uint64_t INSTR_NUM_WRAPPER;
 
@@ -109,7 +110,11 @@ extern const uint64_t INSTR_NUM_WRAPPER;
 	INSTRUCTION(MUL_S,   		93,		3,	0,	0) \
 	INSTRUCTION(DIV_S,   		94,		3,	0,	0) \
 	INSTRUCTION(ABS,   			95,		2,	0,	0) \
-	INSTRUCTION(ABS_F,   		96,		2,	0,	0) 
+	INSTRUCTION(ABS_F,   		96,		2,	0,	0) \
+	INSTRUCTION(NEWVEC_I,  		97,		1,	1,	0) /* TODO */ \
+	INSTRUCTION(LOAD_VEC_RAM,	98,		1,	2,	0) \
+	INSTRUCTION(LOAD_VEC_ROM,	99,		1,	4,	0) \
+	INSTRUCTION(STORE_VEC_RAM,	100,	1,	2,	2) 
 
 
 #define INSTRUCTION(name, code, regs, addr, change) I_##name = code,
@@ -138,8 +143,7 @@ INSTR_MACRO
 
 #define REG_NUM 4
 #define FREG_NUM 4
-#define VIREG_NUM 8
-#define VFREG_NUM 8
+#define VREG_NUM 8
 
 struct Instruction{
     uint8_t op;
@@ -161,7 +165,14 @@ struct FlagReg{
 	unsigned zero_div : 1;
 };
 
+struct Vector{
+	union Memblock *content;
+	uint64_t next;
+	uint64_t capacity;
+};
+
 struct Core {
+	struct Vector vreg[VREG_NUM];
     uint64_t reg[REG_NUM];
     double freg[FREG_NUM];
     struct FlagReg flag;

@@ -12,7 +12,7 @@ High-performance Linear Genetic Programming framework for symbolic regression, c
 - **Cross-Platform**: Linux, macOS, Windows, FreeBSD
 - **Optimized**: SIMD vectorization (SSE/AVX/AVX-512/NEON) and OpenMP parallelization
 - **Comprehensive**: 40+ fitness functions including regression, classification, clustering, and advanced metrics
-- **Advanced VM**: 87 specialized instructions with dual-type registers
+- **Advanced VM**: 101 specialized instructions with dual-type registers and vector operations
 - **Scalable**: Thread-safe design with configurable parallelization
 
 ## Installation
@@ -76,11 +76,13 @@ docker-compose --profile test up lgp-test
 
 **Python Interface (`lgp/`)**: High-level wrapper with NumPy integration, input validation, and automatic memory management.
 
-**Virtual Machine**: 87 specialized instructions, dual-type registers (4 int + 4 float), flexible memory model (ROM/RAM).
+**Virtual Machine**: 101 specialized instructions, dual-type registers (4 int + 4 float + 8 vector), flexible memory model (ROM/RAM).
 
 ## 🎯 Key Features
 
 - **Multiple Selection Methods**: Tournament, elitism, roulette wheel, fitness sharing
+- **Vector Operations**: Native support for dynamic vector allocation and manipulation
+- **Advanced VM Instructions**: 101 instructions including vector ops (NEWVEC_I, LOAD_VEC_RAM, LOAD_VEC_ROM, STORE_VEC_RAM)
 - **Benchmark Problems (PSB2)**: Vector distance, bouncing balls, dice game, shopping list, snow day
 - **SIMD Vectorization**: Automatic detection of SSE, AVX, AVX-512, ARM NEON
 - **Memory Optimization**: SIMD-aligned allocation, efficient hash tables, branch prediction
@@ -112,10 +114,15 @@ import numpy as np
 X = np.random.uniform(-2, 2, (100, 1))
 y = X[:, 0]**2 + 3*X[:, 0] + 1  # Target: x² + 3x + 1
 
-# Create instruction set
+# Create instruction set with vector operations
 instruction_set = lgp.InstructionSet([
     lgp.Operation.ADD_F, lgp.Operation.MUL_F, lgp.Operation.POW,
-    lgp.Operation.LOAD_ROM_F, lgp.Operation.STORE_RAM_F
+    lgp.Operation.LOAD_ROM_F, lgp.Operation.STORE_RAM_F,
+    # New vector operations
+    lgp.Operation.NEWVEC_I,      # Create new vector
+    lgp.Operation.LOAD_VEC_RAM,  # Load vector from RAM
+    lgp.Operation.LOAD_VEC_ROM,  # Load vector from ROM
+    lgp.Operation.STORE_VEC_RAM  # Store vector to RAM
 ])
 
 # Create LGP input and run evolution
@@ -138,6 +145,23 @@ population, evaluations, generations, best_idx = lgp.evolve(
 best = population.get(best_idx)
 print(f"Best fitness: {best.fitness:.6e}")
 best.print_program()
+```
+
+### Vector Operations Example
+```python
+# Example using vector operations for batch processing
+instruction_set = lgp.InstructionSet([
+    lgp.Operation.NEWVEC_I,      # Create vectors with specified capacity
+    lgp.Operation.LOAD_VEC_ROM,  # Load data vectors from ROM  
+    lgp.Operation.ADD_F,         # Element-wise operations
+    lgp.Operation.STORE_VEC_RAM  # Store results
+])
+
+# The VM now supports:
+# - 8 vector registers (vreg[0] to vreg[7])
+# - Dynamic vector allocation with SIMD-aligned memory
+# - Efficient bulk data operations
+# - Automatic memory management
 ```
 
 ### C Interface (Maximum Performance)
@@ -240,13 +264,46 @@ lgp.fitness.GaussianLogLikelihood()  # Maximum likelihood
 - **Symbolic Regression**: Discover mathematical formulas from data
 - **Classification**: Evolve decision rules and logic circuits
 - **Clustering**: Unsupervised pattern discovery and data partitioning  
+- **Vector Processing**: Batch operations on time series and feature vectors
 - **Time Series**: Model temporal patterns and forecasting
 - **Feature Engineering**: Automatic feature construction
 - **Control Systems**: Evolve controllers and decision logic
 
+## 🆕 New Vector Operations
+
+The latest version introduces powerful vector operations for enhanced data processing:
+
+### Vector Instructions
+- **NEWVEC_I**: Dynamically allocate vectors with SIMD-aligned memory
+- **LOAD_VEC_RAM**: Efficiently load vector data from RAM
+- **LOAD_VEC_ROM**: Load vector data from ROM for batch processing
+- **STORE_VEC_RAM**: Store computed vectors back to memory
+
+### Vector Registers
+- **8 Vector Registers** (`vreg[0]` to `vreg[7]`) for complex operations
+- **Dynamic Capacity**: Each vector can grow as needed
+- **Memory Efficient**: SIMD-aligned allocation for performance
+
+### Applications
+```python
+# Example: Time series processing
+instruction_set = lgp.InstructionSet([
+    lgp.Operation.NEWVEC_I,      # Create result vector
+    lgp.Operation.LOAD_VEC_ROM,  # Load time series data
+    lgp.Operation.ADD_F,         # Element-wise operations
+    lgp.Operation.STORE_VEC_RAM  # Store processed results
+])
+```
+
+Run the vector operations example:
+```bash
+python3 vector_operations_example.py
+```
+
 ## ⚡ Performance
 
-- **30k+ evaluations/sec** on modern hardware
+- **30k+ evaluations/sec** on modern hardware  
+- **Enhanced vector processing** with SIMD-aligned memory operations
 - **Linear scaling** across CPU cores with OpenMP
 - **SIMD acceleration** with automatic instruction detection
 - **Memory efficient** with SIMD-aligned allocation

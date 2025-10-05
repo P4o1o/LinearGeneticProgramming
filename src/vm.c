@@ -365,6 +365,32 @@ uint64_t run_vm(struct VirtualMachine *env, const uint64_t clock_limit){
             case I_ABS_F:  // ABS float
                 env->core.freg[reg1] = fabs(env->core.freg[reg2]);
             break;
+            case I_NEWVEC_I:  // NEWVEC_I
+                #if VECT_ALIGNMENT != 0
+                    uint64_t align = VECT_ALIGNMENT / sizeof(union Memblock);
+                    imm = (addr + align - 1) & ~(align - 1);
+                    ASSERT(imm % align == 0);
+                #else
+                    imm = addr;
+                #endif
+                ASSERT(imm > 0);
+                env->core.vreg[reg1].content = aligned_alloc(VECT_ALIGNMENT, sizeof(union Memblock) * imm);
+                if(env->core.vreg[reg1].content == NULL){
+                    MALLOC_FAIL_THREADSAFE(sizeof(union Memblock) * imm);
+                }
+                memset(env->core.vreg[reg1].content, 0, sizeof(union Memblock) * imm);
+                env->core.vreg[reg1].capacity = imm;
+                env->core.vreg[reg1].next = 0;
+            break;
+            case I_LOAD_VEC_RAM:  // LOAD_VEC_RAM
+                memmove(&env->core.vreg[reg1].content[0], &env->ram[addr], sizeof(union Memblock) * (env->core.vreg[reg1].capacity));
+            break;
+            case I_LOAD_VEC_ROM:  // LOAD_VEC_ROM
+                memmove(&env->core.vreg[reg1].content[0], &env->rom[addr], sizeof(union Memblock) * (env->core.vreg[reg1].capacity));
+            break;
+            case I_STORE_VEC_RAM:  // STORE_VEC_RAM
+                memmove(&env->ram[addr], &env->core.vreg[reg1].content[0], sizeof(union Memblock) * (env->core.vreg[reg1].capacity));
+            break;
             default:
                 ASSERT(0);
             break;
